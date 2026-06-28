@@ -1,0 +1,36 @@
+{
+	"schemaVersion": 1,
+	"id": "mythstack",
+	"version": "${version}",
+	"name": "Family Stacking",
+	"description": "Cosmetic variant families (wood types, etc.) auto-combine into a single carrier item so they stop bloating inventories.",
+	"authors": [
+		"mrknorman"
+	],
+	"contact": {
+		"sources": "https://github.com/mrknorman/mythmine"
+	},
+	"license": "MIT",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.mythstack.MythStack"
+		],
+		"client": [
+			"com.mythstack.client.MythStackClient"
+		]
+	},
+	"mixins": [
+		"mythstack.mixins.json",
+		{
+			"config": "mythstack.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.19.3",
+		"minecraft": "~26.2",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}
