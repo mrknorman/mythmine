@@ -2,7 +2,7 @@
 
 *Working draft v0.5 — a quality-of-life + content mod for Minecraft Java Edition*
 
-> **MVP scope:** wood family only. Stone and all content-addition work are deferred
+> **MVP scope:** wood variant group only. Stone and all content-addition work are deferred
 > (§12). UI is bundle-like with no expanded extraction screen (§10). Combining,
 > manual drag-merge, and single-variant collapse are unified under canonical
 > packing (§6). Double-click is an expand/contract toggle (§10). The deeper
@@ -13,13 +13,13 @@
 > Java 26.2**, mod id **`mythstack`**. The carrier is implemented "hosted-on-canonical"
 > (a mixed pile is a real vanilla stack of the canonical member + an overlay component),
 > crafting always collapses to canonical (no mixed item can be crafted — "only stacks
-> can be mixed"), there is one family **per wood form**, and nether wood + bamboo are
+> can be mixed"), there is one variant group **per wood form**, and nether wood + bamboo are
 > deferred. See [`IMPLEMENTATION_PLAN.md`](./IMPLEMENTATION_PLAN.md) for how these
 > decisions refine the sections below.
 
 ## 1. Goal
 
-Cosmetic variant families (wood types, stone types, etc.) auto-combine into a
+Cosmetic variant groups (wood types, stone types, etc.) auto-combine into a
 single **carrier** item so they stop bloating inventories and storage. The carrier
 behaves like one stack for transport, comparators, and automation, but can be
 opened bundle-style to pull out a specific variant. Crafting and smelting on a
@@ -27,26 +27,26 @@ mixed pile "just work" by resolving to deterministic results.
 
 ## 2. Core principle (the invariant)
 
-> A family is a set of variants that **behave identically** under every bulk
+> A variant group is a set of variants that **behave identically** under every bulk
 > operation. Whenever a bulk operation could expose a difference, an **equivalent
 > product must exist** for every member.
 
-Closure policy: **closed by adding content.** Where a family is not naturally
-closed (e.g. stone), we add the missing products rather than trimming the family.
-This is a global policy, not a per-family choice.
+Closure policy: **closed by adding content.** Where a variant group is not naturally
+closed (e.g. stone), we add the missing products rather than trimming the variant group.
+This is a global policy, not a per-variant group choice.
 
 Consequence: variant-specific properties only need to resolve at the moment a
-**single item leaves** the pile (placement, use). Family-wide equivalence is only
+**single item leaves** the pile (placement, use). VariantGroup-wide equivalence is only
 required for operations applied to the carrier *as a whole* — smelting the stack,
 consuming it in a recipe. That keeps the equivalence surface small.
 
 ## 3. The carrier item (data model)
 
-A single item type per family, whose contents live in a data component:
+A single item type per variant group, whose contents live in a data component:
 
 ```
-FamilyPile {
-  family:   ResourceLocation   // e.g. mythstack:wood, mythstack:stone
+VariantPile {
+  group:    ResourceLocation   // e.g. mythstack:wood, mythstack:stone
   contents: Map<VariantId, int> // multiset: variant -> count
 }
 ```
@@ -61,27 +61,27 @@ FamilyPile {
   packing (§6), not a separate mechanism.
 - **Empty collapse:** a carrier reduced to zero is destroyed.
 
-## 4. Families & tags (single source of truth)
+## 4. Variant groups & tags (single source of truth)
 
-Everything keys off tags. One tag per family defines membership; the same tag
+Everything keys off tags. One tag per variant group defines membership; the same tag
 drives grouping-on-pickup *and* recipe acceptance, so they can never disagree.
 
 - Do **not** hardcode variant lists anywhere.
-- Modded variants that tag into a family are picked up for free.
-- Canonical member per family is declared once (e.g. `oak` for wood,
+- Modded variants that tag into a variant group are picked up for free.
+- Canonical member per variant group is declared once (e.g. `oak` for wood,
   `cobblestone` for stone) and used as the crafting default (§7).
 
 ```
-#mythstack:families/wood   -> oak, birch, spruce, ... (+ modded)
+#mythstack:wood   -> oak, birch, spruce, ... (+ modded)
 canonical: { wood: oak }
 ```
 
-*Deferred:* the stone family (`#mythstack:families/stone`, canonical `cobblestone`)
+*Deferred:* the stone variant group (`#mythstack:stone`, canonical `cobblestone`)
 is designed for but not built in the MVP — see §12.
 
 ## 5. Auto-grouping on pickup
 
-On item pickup, if the picked-up item belongs to a known family, redirect it into
+On item pickup, if the picked-up item belongs to a known variant group, redirect it into
 an existing matching carrier in the inventory (or create one) rather than taking a
 fresh slot — subject to the 64 cap. Overflow spills to a second carrier or a normal
 slot as usual.
@@ -91,9 +91,9 @@ lookup, no per-tick scanning).
 
 ## 6. Stacking rules & canonical packing
 
-All combining is modeled as one operation. Think **family pool**, not individual
+All combining is modeled as one operation. Think **variant group pool**, not individual
 stacks: any combine dumps everything into a pool of `{variant → count}` for that
-family, then **normalizes** (canonical packing).
+variant group, then **normalizes** (canonical packing).
 
 **Normalize rule:**
 1. For each variant, peel off every full **64** as a plain pure stack
@@ -124,25 +124,25 @@ already initiated and expects to be disruptive:
 - on an optional **sort/tidy keybind**;
 - double-click dissolve (§10) is the maximal case.
 
-**Manual drag-merge.** Holding a family member on the cursor and clicking a slot
-holding a *different member of the same family* combines them into a carrier (feeds
+**Manual drag-merge.** Holding a variant group member on the cursor and clicking a slot
+holding a *different member of the same variant group* combines them into a carrier (feeds
 the pool, then normalizes) instead of the vanilla swap. Respects the 64 cap;
 overflow stays on the cursor.
 - **Interaction subtlety / the one place we bend muscle memory:** this overrides
   vanilla's cursor↔slot swap. Rule that keeps it safe: only intercept when *both*
-  sides are members of the *same family*. Different families, or a non-family item,
+  sides are members of the *same variant group*. Different variant groups, or a non-variant group item,
   swap exactly like vanilla. Flagged for playtest veto.
 
 **Invariants:**
-- Carriers of the same family merge up to the 64 cap.
-- A plain vanilla stack of a family member merges into a carrier on pickup/move.
-- Carriers never merge across families.
+- Carriers of the same variant group merge up to the 64 cap.
+- A plain vanilla stack of a variant group member merges into a carrier on pickup/move.
+- Carriers never merge across variant groups.
 
 ## 7. Crafting with a mixed pile
 
-When a recipe consumes a family member and the supplied stack is a mixed carrier:
+When a recipe consumes a variant group member and the supplied stack is a mixed carrier:
 
-- Output is the **canonical** variant for that family (deterministic — never
+- Output is the **canonical** variant for that variant group (deterministic — never
   depends on insertion order). E.g. mixed wood → oak planks/stairs/etc.
 - Accepted as a small, deliberate convenience tradeoff: crafting a birch-heavy
   pile into oak stairs is a free cosmetic conversion. Players who care separate
@@ -151,7 +151,7 @@ When a recipe consumes a family member and the supplied stack is a mixed carrier
   canonical output reads as intentionally generic rather than "oak by surprise."
   Deferred; start with a real canonical variant.
 
-Recipe parity work (the data half): every family member needs the full parallel
+Recipe parity work (the data half): every variant group member needs the full parallel
 recipe set so any member *could* be the one consumed. Mostly recipe JSON /
 data generation. Tedious but architecturally uncontroversial.
 
@@ -165,7 +165,7 @@ data generation. Tedious but architecturally uncontroversial.
 - **MVP (wood):** smelting is trivially closed — logs/planks already smelt to
   charcoal, so a mixed wood carrier collapses to a homogeneous charcoal output for
   free. No content additions needed.
-- **Mixed-smeltability** is the real edge case *for other families* (deferred).
+- **Mixed-smeltability** is the real edge case *for other variant groups* (deferred).
   Under the closure policy we would *homogenise smelting* so every member has a
   smelt result — the main content-addition obligation (e.g. smelted stone forms).
   Not relevant to the wood MVP. See §12.
@@ -207,10 +207,10 @@ extraction.
 bundle behavior):**
 
 Double-click is a symmetric toggle between the spread-out and unified forms of a
-family. Both directions are just canonical packing (§6) with a different trigger.
+variant group. Both directions are just canonical packing (§6) with a different trigger.
 
-- **Contract** — double-click a *pure* (non-mixed) family member: sweep every
-  member of that family in the inventory into a pool, run normalize (§6), and place
+- **Contract** — double-click a *pure* (non-mixed) variant group member: sweep every
+  member of that variant group in the inventory into a pool, run normalize (§6), and place
   the resulting carrier on the **clicked slot**. Full 64s settle as pure stacks
   (the peel rule); the partial remainder forms the carrier.
 - **Expand** — double-click a *carrier*: dissolve the whole pile into its own
@@ -218,7 +218,7 @@ family. Both directions are just canonical packing (§6) with a different trigge
   items if inventory is full. (The maximal case of canonical packing.)
 
 Behavior at the boundaries:
-- **Perfect round-trip only when family total ≤ 64.** Below the cap, contract → one
+- **Perfect round-trip only when variant group total ≤ 64.** Below the cap, contract → one
   carrier, expand → the same pure stacks back. Above 64, contract yields the
   *minimal* set instead: full pure stacks + one remainder carrier (can't fit one
   slot).
@@ -226,7 +226,7 @@ Behavior at the boundaries:
   partials). In that case it falls back to vanilla double-click-gather for that
   item, so the gesture still feels responsive.
 - **Overrides vanilla double-click-to-collect**, same as drag-merge (§6): intercept
-  only for family members, leave everything else vanilla. Note the result lands in
+  only for variant group members, leave everything else vanilla. Note the result lands in
   the clicked *slot*, not on the cursor — a deliberate deviation from vanilla.
 
 No multi-variant scroll-list screen and no shift-pull-stack in the MVP — both were
@@ -246,27 +246,27 @@ design tractable.
 
 ## 12. Content the closure policy obliges us to add
 
-"Closed by adding content" has concrete consequences *for families that aren't
+"Closed by adding content" has concrete consequences *for variant groups that aren't
 naturally closed*. **The wood MVP needs almost none of this** — wood is naturally
 near-closed (full recipe sets exist or are easy to generate; smelting collapses to
-charcoal). This section is the forward-looking obligation for later families:
+charcoal). This section is the forward-looking obligation for later variant groups:
 
 - **Recipe parity:** every member has the full parallel recipe set (§7). For wood,
   mostly already true; fill any small gaps via data generation.
 - **Smelt parity:** every member has a smelt result (§8). Trivial for wood.
 - **Stone (deferred):** this is where the policy bites — inventing smelted forms
   vanilla lacks (*what is smelted granite?*), turning stone into a content target.
-  Recommended when tackled: split "stone" into genuinely-closed **subfamilies**
+  Recommended when tackled: split "stone" into genuinely-closed **subgroups**
   (the cobble/stone building line vs. ingredient stones) and only force closure
-  with new content where a subfamily is worth completing.
+  with new content where a subgroup is worth completing.
 
 > **Closure caveat that bites in wood too (see plan D4):** crimson/warped are not
-> flammable, not fuel, and don't smelt to charcoal, so they cannot share a family
-> with overworld wood for any fuel-able form. They become their own families.
+> flammable, not fuel, and don't smelt to charcoal, so they cannot share a variant group
+> with overworld wood for any fuel-able form. They become their own variant groups.
 > Bamboo has forms with no analog (`mosaic`) and irregular naming (`raft`, `block`).
 > Both are **deferred** out of the MVP, which runs on the 9 regular overworld woods.
 
-## 13. Typed item families (the deeper motivation)
+## 13. Typed item variant groups (the deeper motivation)
 
 The carrier is what makes it safe to **re-type items vanilla deliberately
 flattened.** Vanilla keeps sticks, ladders, and similar items generic to avoid
@@ -287,7 +287,7 @@ candidate.
 of recipes, and most must NOT become typed (an "oak pickaxe" or "birch torch" is
 nonsense — there the stick is an invisible handle/shaft). So each stick-consuming
 recipe needs a policy:
-- **Propagate type** → output is a typed family member: fences, fence gates,
+- **Propagate type** → output is a typed variant group member: fences, fence gates,
   ladders, signs (already typed), boats (already typed). Placed/aesthetic wood where
   the grain is the point.
 - **Discard type** → output is generic: tools, torches, arrows, rails, item frames,
@@ -301,7 +301,7 @@ list in playtest.
 This rides on the canonical-default rule (§7): a mixed/typed stick carrier into a
 *discard* recipe yields the generic item; into a *propagate* recipe it yields the
 canonical type (separate first for a specific type). Mechanically, typed sticks are
-just another family with their own carrier (§3–§6), derived from the wood family.
+just another variant group with their own carrier (§3–§6), derived from the wood variant group.
 
 *Sequencing note:* this is the first **post-core** phase — built after the wood
 carrier MVP works, since it depends on all of §3–§10 being in place. See §15.
@@ -315,7 +315,7 @@ carrier MVP works, since it depends on all of §3–§10 being in place. See §1
 - Interaction with shulker boxes / storage mods (likely fine — carrier is just an
   item — but verify).
 - *Post-MVP:* the per-item propagate-vs-discard list for typed sticks (§13).
-- *Post-MVP:* stone subfamily boundaries and which gaps justify new content (§12).
+- *Post-MVP:* stone subgroup boundaries and which gaps justify new content (§12).
 
 ## 15. Suggested build sequencing
 
@@ -325,7 +325,7 @@ Ordered by "prove the pipeline, then add ambition." Each step ships before the n
 
 1. **Scaffold:** dev environment, one custom item into the creative menu, fast
    build/run loop. (Loader + MC version locked.)
-2. **Tags & families:** declare the wood family tag + canonical `oak`; no behavior yet.
+2. **Tags & variant groups:** declare the wood variant group tag + canonical `oak`; no behavior yet.
 3. **Recipe parity (wood):** generate any missing parallel recipes; verify any wood
    member crafts the full product line. Pure data — good early win.
 4. **Carrier item + canonical packing:** data model (§3), display, 64 cap, the
@@ -339,11 +339,11 @@ Ordered by "prove the pipeline, then add ambition." Each step ships before the n
 9. **Automation pass (§9):** verify hopper/comparator/crafter behavior.
 
 *Post-MVP, phase order:*
-- **Typed sticks (§13):** new stick family + carrier; propagate-vs-discard policy;
+- **Typed sticks (§13):** new stick variant group + carrier; propagate-vs-discard policy;
   revert fence & fence-gate recipes to stick-only. The motivating payoff.
 - **Typed ladders & other reverts (§13):** extend propagation to remaining
   visible-grain items.
-- **Stone as a content family (§12):** subfamily split + fill gaps.
+- **Stone as a content variant group (§12):** subgroup split + fill gaps.
 
 The flagship feature (mixed carrier) lands around steps 4–8 — intentionally *after*
 the boring scaffolding and the easy recipe-parity win, never as the first thing.

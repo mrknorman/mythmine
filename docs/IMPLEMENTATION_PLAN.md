@@ -19,12 +19,12 @@ then skim the spec.
 5. [Getting started (day one)](#5-getting-started-day-one)
 6. [Architecture](#6-architecture)
    - 6.1 [The "ghost" model: a pile is a real stack + an overlay](#61-the-ghost-model)
-   - 6.2 [Data model: the `FamilyPile` component](#62-data-model-the-familypile-component)
+   - 6.2 [Data model: the `VariantPile` component](#62-data-model-the-variantpile-component)
    - 6.3 [Canonical packing (the core algorithm)](#63-canonical-packing-the-core-algorithm)
    - 6.4 [Boundary operations & the sum==count invariant](#64-boundary-operations)
    - 6.5 [Interaction hooks: what's free, what needs a mixin](#65-interaction-hooks)
    - 6.6 [Package & class layout](#66-package--class-layout)
-7. [The wood families (MVP data)](#7-the-wood-families-mvp-data)
+7. [The wood variant groups (MVP data)](#7-the-wood-variant-groups-mvp-data)
 8. [Build phases](#8-build-phases)
 9. [Testing strategy](#9-testing-strategy)
 10. [Risk register](#10-risk-register)
@@ -36,13 +36,13 @@ then skim the spec.
 
 ## 1. What we're building (one screen)
 
-Cosmetic variant families (the wood types) auto-combine into a single **pile** so they
+Cosmetic variant groups (the wood types) auto-combine into a single **pile** so they
 stop eating inventory slots. A pile of mixed wood behaves *exactly* like an ordinary
 stack for transport, comparators, crafting, and smelting — but you can open it
 bundle-style (hover → scroll → right-click) to pull a specific variant back out.
 
 The trick that makes this cheap: **a mixed pile is literally a vanilla stack of the
-family's canonical item (e.g. `oak_log ×56`) wearing an invisible component that
+variant group's canonical item (e.g. `oak_log ×56`) wearing an invisible component that
 records the true composition** (`{oak:6, birch:50}`). To the game it *is* 56 oak logs,
 so comparators, hoppers, furnaces, and crafting tables all "just work" with zero special
 code. Our mod only intervenes at the **boundaries** — when a pile is split, combined,
@@ -61,15 +61,15 @@ are post-MVP.
 | Loader | Mod loader | **Fabric** | QoL ecosystem; mixins cover our hot-path hooks |
 | MC | Minecraft version | **Java 26.2** ("Chaos Cubed", 2026-06-16) | Latest stable; calendar versioning replaced `1.x` |
 | ID | Mod id / namespace | **`mythstack`** | Per spec (repo is `mythmine`; mod id may differ — that's fine) |
-| D1 | Carrier representation | **Hosted-on-canonical** — a pile is a real stack of the canonical member + a `FamilyPile` overlay component. No new item types. | "Behaves identically to a stack except at the boundary." Vanilla does comparator/craft/smelt/transport for free. |
-| D2 | Family granularity | **One family per wood *form*** (logs, planks, stairs, slabs, fences, …), each keyed by wood type, canonical = the `oak` member. | Matches the natural product line; the engine is written once and forms are declared as data. |
+| D1 | Carrier representation | **Hosted-on-canonical** — a pile is a real stack of the canonical member + a `VariantPile` overlay component. No new item types. | "Behaves identically to a stack except at the boundary." Vanilla does comparator/craft/smelt/transport for free. |
+| D2 | VariantGroup granularity | **One variant group per wood *form*** (logs, planks, stairs, slabs, fences, …), each keyed by wood type, canonical = the `oak` member. | Matches the natural product line; the engine is written once and forms are declared as data. |
 | D3 | Crafting a mix | **Always collapse to canonical.** No way to craft a "mixed item." | See §3 — keeps the whole thing tractable; free under D1. |
 | D4 | Nether & bamboo | **Deferred.** MVP = the 9 regular overworld woods only. | They break closure (nether isn't fuel/doesn't smelt; bamboo has no-analog forms). |
 
 **Rejected alternative (don't do this, but know why):** a *distinct* carrier item
 (`mythstack:wood_pile`). It avoids mixing into vanilla `Item`, but then you must
 re-implement comparator output, hopper transport, crafting acceptance, and smelting by
-hand. Net more code. Only revisit if the `FamilyPile`-on-vanilla-item approach proves too
+hand. Net more code. Only revisit if the `VariantPile`-on-vanilla-item approach proves too
 leaky in practice (see §10).
 
 ---
@@ -97,18 +97,16 @@ Everything else follows from this:
 
 ## 4. Target & toolchain
 
-> ⚠️ **Version-sensitive.** 26.2 shipped 2026-06-16. Confirm every number below against
-> the live [Fabric 26.2 page](https://fabricmc.net/2026/06/15/262.html) before locking
-> `gradle.properties`; the ecosystem is fresh and may have point-bumped.
+> ✅ **Verified** against Fabric's `26.2` example-mod branch and a green build (phases 1–2).
 
 | Tool | Version |
 |------|---------|
 | Minecraft | `26.2` |
-| Fabric Loom | `1.17` |
+| Fabric Loom | `1.17-SNAPSHOT` |
 | Gradle | `9.5.1` |
 | Fabric Loader | `0.19.3` |
-| Fabric API | `0.152.0` |
-| JDK | **21+** (verify — 26.2 may require newer; the official template pins it) |
+| Fabric API | `0.153.0+26.2` |
+| JDK | **25** (26.2 requires Java 25 — `release = 25`, `depends.java >=25`) |
 
 **Important context — 26.2 is unobfuscated.** Since 26.1, Minecraft ships with official
 (non-obfuscated) names, so there is **no Yarn/Mojmap remapping** — you compile against the
@@ -125,7 +123,7 @@ older APIs. When in doubt, read the actual decompiled/official 26.2 source.
 
 ## 5. Getting started (day one)
 
-1. Install the JDK the 26.2 template requires (21+). Verify `java -version`.
+1. Install **JDK 25** (26.2 requires it). On macOS with Homebrew: `brew install openjdk@25` (keg-only, so prefix gradle with `JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home`). Verify `java -version`.
 2. Generate a Fabric mod skeleton — either the official
    [example-mod template](https://github.com/FabricMC/fabric-example-mod) on the 26.2
    branch, or the [template generator](https://fabricmc.net/develop/template/). Set:
@@ -146,9 +144,9 @@ working tree is empty today — there is no existing code to integrate with.
 ### 6.1 The "ghost" model
 
 A mixed pile is a normal `ItemStack` whose:
-- **item** = the family's declared **canonical** member (e.g. `oak_log`),
+- **item** = the variant group's declared **canonical** member (e.g. `oak_log`),
 - **count** = the total number of items in the pile (1–64),
-- and which carries a single extra **data component**, `mythstack:family_pile`, recording
+- and which carries a single extra **data component**, `mythstack:variant_pile`, recording
   the true composition.
 
 Because the stack *is* a real stack of `oak_log ×N`, all of vanilla's stack behavior is
@@ -160,18 +158,18 @@ collapsing to a single variant kills it (the stack becomes a plain vanilla stack
 §3 single-variant collapse). Very ghost-like.
 
 **Host-vs-contents rule (important, subtle):**
-- While mixed, the **host item is *always* the family's declared canonical** (`oak_log`),
+- While mixed, the **host item is *always* the variant group's declared canonical** (`oak_log`),
   even if the contents contain no oak. This is what guarantees deterministic canonical
   output (§7 of spec): a `{birch:30, spruce:30}` pile still crafts to *oak* planks.
 - On **single-variant collapse**, the host item changes to the surviving variant
   (`oak_log` pile drained to only birch → becomes real `birch_log`).
 
-### 6.2 Data model: the `FamilyPile` component
+### 6.2 Data model: the `VariantPile` component
 
-One component type, reused by every family. Register it once (`ModComponents`).
+One component type, reused by every variant group. Register it once (`ModComponents`).
 
 ```
-FamilyPile {
+VariantPile {
   contents:  List<Entry>   // ordered canonical-first; Entry = { item: Holder<Item>, count: int }
   selected:  int           // index into contents for the scroll-select UI; -1 = none
 }
@@ -179,16 +177,16 @@ FamilyPile {
 
 Notes:
 - Store `contents` as an **ordered list** (not a map) so peel order is deterministic and
-  serialization is stable. Canonical order = the family's declared variant order (§7).
-- The **family is derivable** from the host item (which family-tag it belongs to), so it
-  need not be stored — but you may cache a `family` ResourceLocation for clarity/cheap
-  lookup. Each item belongs to exactly one form-family, so this is unambiguous.
+  serialization is stable. Canonical order = the variant group's declared variant order (§7).
+- The **variant group is derivable** from the host item (which variant group-tag it belongs to), so it
+  need not be stored — but you may cache a `variant group` ResourceLocation for clarity/cheap
+  lookup. Each item belongs to exactly one form-variant group, so this is unambiguous.
 - Provide both a persistent **`Codec`** (NBT/JSON) and a **`StreamCodec`** (network sync —
   the component must sync to the client for tooltips/rendering).
 - **Invariants** (assert in dev builds):
   - `sum(contents[*].count) == stack.getCount()`
   - `contents.size() >= 2` (a single-variant pile must have collapsed — never persists)
-  - host item == family canonical (while the component is present)
+  - host item == variant group canonical (while the component is present)
 
 ### 6.3 Canonical packing (the core algorithm)
 
@@ -197,22 +195,22 @@ This is the algorithmic heart and the **most testable** code in the mod. It's pu
 Minecraft runtime.
 
 ```
-normalize(pool, family) -> List<ItemStack>:
+normalize(pool, variant group) -> List<ItemStack>:
     out = []
     # Step A: peel full 64s as PURE stacks, per variant, in canonical order
-    for v in family.canonicalOrder(pool.keys):
+    for v in variant group.canonicalOrder(pool.keys):
         while pool[v] >= 64:
             out.add(pureStack(v, 64))
             pool[v] -= 64
     # Step B: pack the remainder (each pool[v] now in 0..63) into carriers of <=64,
     #         filling canonical-first
-    remaining = [(v, pool[v]) for v in family.canonicalOrder if pool[v] > 0]
+    remaining = [(v, pool[v]) for v in variant group.canonicalOrder if pool[v] > 0]
     while totalCount(remaining) > 0:
         group = take up to 64 items from `remaining`, canonical-first   # an ordered {v->n}
         if group has exactly 1 variant:
             out.add(pureStack(theVariant, group.total))                 # single-variant collapse (§3)
         else:
-            out.add(carrierStack(host = family.canonical, contents = group))
+            out.add(carrierStack(host = variant group.canonical, contents = group))
         remove `group` from `remaining`
     return out
 ```
@@ -259,8 +257,8 @@ shrink, `sum(contents) > count`. **Reconcile lazily at every read** through a si
 choke-point accessor:
 
 ```
-FamilyPiles.read(stack):
-    pile = stack.get(FAMILY_PILE)
+VariantPiles.read(stack):
+    pile = stack.get(VARIANT_PILE)
     if pile == null: return null
     if sum(pile.contents) > stack.count:           # vanilla consumed some
         peel (sum - count) canonical-first, discard # deterministic given (contents, count)
@@ -273,7 +271,7 @@ FamilyPiles.read(stack):
 
 Because the reconcile function is **deterministic given `(contents, count)`**, value-copies
 and network-synced copies all reconcile identically — no desync. **All mod code reads
-composition exclusively via `FamilyPiles.read()`**; never touch the raw component.
+composition exclusively via `VariantPiles.read()`**; never touch the raw component.
 
 > **Spike this first in phase 4.** The `split` mixin + lazy reconcile is the #1 technical
 > risk. Prototype it and write the unit/gametests before building UI on top. If lazy
@@ -283,7 +281,7 @@ composition exclusively via `FamilyPiles.read()`**; never touch the raw componen
 ### 6.5 Interaction hooks
 
 Keep the mixin surface small and **tag-gated**: every mixin's first line must early-out
-for non-family stacks (a component-presence or tag check) so vanilla items hit the vanilla
+for non-variant group stacks (a component-presence or tag check) so vanilla items hit the vanilla
 path untouched. This is what preserves muscle memory (§6/§10 of spec).
 
 | Behavior | Spec | Mechanism | Mixin? |
@@ -293,11 +291,11 @@ path untouched. This is what preserves muscle memory (§6/§10 of spec).
 | Smelting → charcoal | §8 | Free — vanilla smelts the host oak log | — |
 | Tooltip breakdown (text) | §10 | Fabric `ItemTooltipCallback` | — |
 | Scroll-select highlight | §10 | Fabric `ScreenMouseEvents` (client) + C2S "select" packet | — |
-| Drag-merge (cursor member → same-family slot) | §6 | Mixin `Item#overrideStackedOnOther` / `overrideOtherStackedOnMe`, gated to same family | **M1** |
+| Drag-merge (cursor member → same-variant group slot) | §6 | Mixin `Item#overrideStackedOnOther` / `overrideOtherStackedOnMe`, gated to same variant group | **M1** |
 | Right-click extract selected variant | §10 | same `Item` override hooks (right-click branch) | **M1** |
 | Split / peel (the boundary) | §3/§6 | Mixin `ItemStack#split(int)` — partition contents | **M2** |
-| Double-click expand / contract | §10 | Mixin `AbstractContainerMenu#doClick` (double-click branch), gated to family | **M3** |
-| Auto-group on pickup | §5 | Mixin `Inventory#add` — route family members into a pile | **M4** |
+| Double-click expand / contract | §10 | Mixin `AbstractContainerMenu#doClick` (double-click branch), gated to variant group | **M3** |
+| Auto-group on pickup | §5 | Mixin `Inventory#add` — route variant group members into a pile | **M4** |
 | Consume/shrink reconcile | §6.4 | Lazy reconcile at read (no mixin) | — |
 
 **Four mixin classes total.** Because we host on vanilla items, the drag-merge/extract
@@ -313,14 +311,14 @@ that's the one extra cost of the hosted model, and it's cheap and contained.
 
 ```
 com.mythstack
-├── MythStack.java                  // ModInitializer: register component, tags, families, server packet handler
+├── MythStack.java                  // ModInitializer: register component, tags, variant groups, server packet handler
 ├── client/
 │   └── MythStackClient.java        // ClientModInitializer: tooltip callback, scroll handler, keybind, client packet
-├── family/
-│   ├── Family.java                 // record: id, formTag (TagKey<Item>), canonical (Item), canonical variant order
-│   ├── FamilyRegistry.java         // item -> Family (tag lookup, cached); canonical lookup; declares all wood forms
-│   ├── FamilyPile.java             // the data component: record + Codec + StreamCodec
-│   ├── FamilyPiles.java            // read()/reconcile() choke-point + helpers (the ONLY way to read composition)
+├── variant/
+│   ├── VariantGroup.java                 // record: id, formTag (TagKey<Item>), canonical (Item), canonical variant order
+│   ├── VariantGroups.java         // item -> VariantGroup (tag lookup, cached); canonical lookup; declares all wood forms
+│   ├── VariantPile.java             // the data component: record + Codec + StreamCodec
+│   ├── VariantPiles.java            // read()/reconcile() choke-point + helpers (the ONLY way to read composition)
 │   └── CanonicalPacking.java       // pure normalize() + pool/peel helpers  <-- unit-tested
 ├── interaction/
 │   ├── CombineLogic.java           // pool + normalize + place (drag-merge, contract, pickup share this)
@@ -334,29 +332,29 @@ com.mythstack
     ├── AbstractContainerMenuMixin.java // M3: doClick double-click branch
     └── InventoryAddMixin.java      // M4: add()
 
-src/test/java/com/mythstack/family/CanonicalPackingTest.java   // pure JUnit
+src/test/java/com/mythstack/variant/CanonicalPackingTest.java   // pure JUnit
 src/main/resources/
 ├── fabric.mod.json                 // entrypoints (main + client), mixin config refs
 ├── mythstack.mixins.json
-└── data/mythstack/tags/item/families/wood/<form>.json         // one tag per form (NOTE: "tags/item/" singular)
+└── data/mythstack/tags/item/wood/<form>.json         // one tag per form (NOTE: "tags/item/" singular)
 ```
 
 ---
 
-## 7. The wood families (MVP data)
+## 7. The wood variant groups (MVP data)
 
 **Woods (9, regular overworld only — D4):**
 `oak, spruce, birch, jungle, acacia, dark_oak, mangrove, cherry, pale_oak`. **Canonical =
 `oak`.** Variant order for deterministic peel = that list (oak first).
 
-**Forms (each is a family).** Build the engine and *prove* it on **two forms first**:
+**Forms (each is a variant group).** Build the engine and *prove* it on **two forms first**:
 `logs` (smeltable + fuel) and `planks` (neither) — this exercises both the "free smelting"
 and "no smelting" paths. Then fan out to the rest as pure data.
 
-| Form | Family tag | Canonical | Notes |
+| Form | VariantGroup tag | Canonical | Notes |
 |------|-----------|-----------|-------|
-| logs | `#mythstack:families/wood/logs` | `oak_log` | smelts → charcoal; fuel |
-| planks | `#mythstack:families/wood/planks` | `oak_planks` | — |
+| logs | `#mythstack:wood/logs` | `oak_log` | smelts → charcoal; fuel |
+| planks | `#mythstack:wood/planks` | `oak_planks` | — |
 | stripped_logs | `…/stripped_logs` | `stripped_oak_log` | |
 | wood | `…/wood` | `oak_wood` | 6-face log block |
 | stripped_wood | `…/stripped_wood` | `stripped_oak_wood` | |
@@ -373,7 +371,7 @@ and "no smelting" paths. Then fan out to the rest as pure data.
 | boats | `…/boats` | `oak_boat` | bamboo uses "raft" → deferred |
 | chest_boats | `…/chest_boats` | `oak_chest_boat` | |
 
-A **tag file** lists the members, e.g. `data/mythstack/tags/item/families/wood/logs.json`:
+A **tag file** lists the members, e.g. `data/mythstack/tags/item/wood/logs.json`:
 
 ```json
 { "values": ["minecraft:oak_log","minecraft:spruce_log","minecraft:birch_log",
@@ -383,7 +381,7 @@ A **tag file** lists the members, e.g. `data/mythstack/tags/item/families/wood/l
 
 Tags are the **single source of truth** (§4). Modded woods that tag in are picked up for
 free. The canonical map (`form → canonical item`) and variant order live in
-`FamilyRegistry` (code) or a small data file — declare each form **once**.
+`VariantGroups` (code) or a small data file — declare each form **once**.
 
 > **Recipe parity (§3/§7) is mostly already done.** Vanilla ships every form for all nine
 > woods, so step 3 is largely a *verification* pass, not a generation pass. Fill any gap
@@ -403,10 +401,10 @@ Each phase ships before the next. "DoD" = definition of done / acceptance test.
 - **DoD:** `./gradlew runClient` launches; the debug item appears in the creative menu;
   `./gradlew build` produces a jar.
 
-### Phase 2 — Tags & families (no behavior)
-- **Goal:** the family model exists and resolves.
-- **Do:** `Family`, `FamilyRegistry`, the `logs` and `planks` tag files, canonical map,
-  variant order. `FamilyRegistry.familyOf(item)` returns the right family via tag lookup.
+### Phase 2 — Tags & variant groups (no behavior)
+- **Goal:** the variant group model exists and resolves.
+- **Do:** `VariantGroup`, `VariantGroups`, the `logs` and `planks` tag files, canonical map,
+  variant order. `VariantGroups.of(item)` returns the right variant group via tag lookup.
 - **DoD:** a unit/dev test maps `birch_log → wood/logs` (canonical `oak_log`) and
   `oak_planks → wood/planks`; unknown items return none.
 
@@ -418,13 +416,13 @@ Each phase ships before the next. "DoD" = definition of done / acceptance test.
 - **DoD:** a checklist (or datagen diff) confirms parity across the nine woods for the
   forms in §7.
 
-### Phase 4 — `FamilyPile` component + canonical packing ⭐ (the core)
+### Phase 4 — `VariantPile` component + canonical packing ⭐ (the core)
 - **Goal:** piles exist, pack correctly, and survive the split/consume boundaries.
 - **Do:**
-  - Register the `mythstack:family_pile` component (Codec + StreamCodec) — §6.2.
+  - Register the `mythstack:variant_pile` component (Codec + StreamCodec) — §6.2.
   - Implement `CanonicalPacking.normalize()` — §6.3 — **pure, fully unit-tested** against
     the worked-example table.
-  - Implement `FamilyPiles.read()` lazy reconcile — §6.4.
+  - Implement `VariantPiles.read()` lazy reconcile — §6.4.
   - **Mixin M2** (`ItemStack#split`) — peel/partition. **Spike this before anything else.**
   - **Mixin M1** (`Item#overrideStackedOnOther/overrideOtherStackedOnMe`) for **drag-merge**
     only (so you can build piles manually — no auto-pickup yet).
@@ -443,20 +441,20 @@ Each phase ships before the next. "DoD" = definition of done / acceptance test.
   - Right-click extract (M1 right-click branch): one unit of the selected variant to the
     cursor as a **plain vanilla stack**; pile reconciles/collapses.
   - **Mixin M3** (`AbstractContainerMenu#doClick`, double-click branch): expand (pile →
-    plain stacks into inventory, overflow drops) / contract (sweep family members in the
+    plain stacks into inventory, overflow drops) / contract (sweep variant group members in the
     inventory → normalize → result lands on the **clicked slot**). No-op contract falls back
     to vanilla double-click-gather (§10).
 - **DoD:** hover shows the breakdown; scroll moves the highlight; right-click pulls the
   selected variant; double-click a pure stack contracts, double-click a pile expands;
-  round-trip is exact when family total ≤ 64 and the *minimal* set when > 64 (§10).
+  round-trip is exact when variant group total ≤ 64 and the *minimal* set when > 64 (§10).
 
 ### Phase 6 — Auto-group on pickup
-- **Goal:** picking up a family member merges into an existing/new pile.
-- **Do:** **Mixin M4** (`Inventory#add`): if the picked-up item is a family member, route it
+- **Goal:** picking up a variant group member merges into an existing/new pile.
+- **Do:** **Mixin M4** (`Inventory#add`): if the picked-up item is a variant group member, route it
   into a matching pile (or create one), respecting the 64 cap; overflow spills to a second
   pile or a normal slot. Tag lookup only — keep it off the per-tick path.
 - **DoD:** walking over mixed logs builds a single pile; a full pile (64) overflows to a
-  second; non-family items are unaffected.
+  second; non-variant group items are unaffected.
 
 ### Phase 7 — Crafting default (verify)
 - **Goal:** confirm a mixed pile crafts to canonical.
@@ -482,11 +480,11 @@ Each phase ships before the next. "DoD" = definition of done / acceptance test.
 
 ### Post-MVP (outline only)
 - **Fan-out:** declare the remaining forms from §7 as data; smoke-test each.
-- **Typed sticks (§13):** new stick family derived from wood; per-recipe propagate-vs-discard
+- **Typed sticks (§13):** new stick variant group derived from wood; per-recipe propagate-vs-discard
   policy; revert fence & fence-gate recipes to stick-only.
-- **Nether & bamboo (D4):** crimson/warped as their own (non-smelting) families; bamboo with
+- **Nether & bamboo (D4):** crimson/warped as their own (non-smelting) variant groups; bamboo with
   a name-map for its irregular forms.
-- **Stone (§12):** subfamily split + content to close smelting gaps.
+- **Stone (§12):** subgroup split + content to close smelting gaps.
 
 ---
 
@@ -499,7 +497,7 @@ Each phase ships before the next. "DoD" = definition of done / acceptance test.
   extract, double-click round-trip (≤64 exact, >64 minimal), pickup grouping, smelt drain,
   comparator/hopper. Each gametest is a small structure + scripted assertions.
 - **The reconcile invariant** (`sum(contents)==count`) should be asserted in dev builds at
-  the `FamilyPiles.read()` choke-point so violations surface immediately.
+  the `VariantPiles.read()` choke-point so violations surface immediately.
 
 ---
 
@@ -507,21 +505,21 @@ Each phase ships before the next. "DoD" = definition of done / acceptance test.
 
 | Risk | Severity | Mitigation |
 |------|----------|------------|
-| Lazy reconcile leaks (some code reads the raw component, or a path mutates count without us noticing) | **High** | Single `FamilyPiles.read()` choke-point; dev-build assertions; spike in phase 4 before building up. Fallback: eager `setCount`/`shrink` mixin. |
+| Lazy reconcile leaks (some code reads the raw component, or a path mutates count without us noticing) | **High** | Single `VariantPiles.read()` choke-point; dev-build assertions; spike in phase 4 before building up. Fallback: eager `setCount`/`shrink` mixin. |
 | `split` partition mixin gets the canonical-first peel wrong (de-mix corrupts counts) | High | Unit + gametest the split path explicitly; assert `sum==count` after every split. |
 | 26.2 API names moved (GUI/registration refactors, §4) | Medium | Verify each targeted class/method against 26.2 source before writing the mixin; the named targets are 1.21.x-stable but unconfirmed for 26.2. |
 | 26.2 is brand-new; Fabric API 0.152.0 churns | Medium | Pin versions; re-verify §4 against the live Fabric page; isolate version-sensitive code. |
-| Vanilla click overrides (drag-merge, double-click) fight muscle memory | Medium | Gate strictly to *same-family* interactions; everything else stays vanilla. Playtest; fallback is a modifier key (§14 of spec). |
+| Vanilla click overrides (drag-merge, double-click) fight muscle memory | Medium | Gate strictly to *same-variant group* interactions; everything else stays vanilla. Playtest; fallback is a modifier key (§14 of spec). |
 | Hosted-on-canonical silently reverts a mix to oak if a foreign mod strips the component | Low | Degrades safely (no crash, just loses the mix). Document; if it bites, revisit the distinct-item alternative (§2). |
 
 ---
 
 ## 11. Out of scope / deferred
 
-- **Nether wood** (crimson/warped) — separate, non-smelting families. Deferred (D4).
+- **Nether wood** (crimson/warped) — separate, non-smelting variant groups. Deferred (D4).
 - **Bamboo** — irregular forms (`mosaic`, `raft`, `block`); needs a name-map. Deferred (D4).
 - **Typed sticks & recipe reverts** (§13 of spec) — first post-MVP phase.
-- **Stone family** (§12) — content-addition work; post-MVP.
+- **Stone variant group** (§12) — content-addition work; post-MVP.
 - **Icon-grid (bundle-style) tooltip rendering** — MVP uses text lines via
   `ItemTooltipCallback`; the fancy `getTooltipImage` grid is a later polish item.
 - **Neutral "default wood" output texture** (§7 future option) — start with real oak.
@@ -542,16 +540,16 @@ Each phase ships before the next. "DoD" = definition of done / acceptance test.
 
 ## 13. Glossary
 
-- **Family** — a set of variants that behave identically under bulk operations; here, one
-  wood *form* across the nine wood types (e.g. the `logs` family).
-- **Form** — a kind of wood product (logs, planks, stairs, …). One family per form.
-- **Variant / member** — a specific item in a family (e.g. `birch_log`).
-- **Canonical** — the family's default member (`oak_*`); the host item of any mixed pile
+- **VariantGroup** — a set of variants that behave identically under bulk operations; here, one
+  wood *form* across the nine wood types (e.g. the `logs` variant group).
+- **Form** — a kind of wood product (logs, planks, stairs, …). One variant group per form.
+- **Variant / member** — a specific item in a variant group (e.g. `birch_log`).
+- **Canonical** — the variant group's default member (`oak_*`); the host item of any mixed pile
   and the deterministic crafting output.
 - **Pile / carrier** — a mixed stack: a real vanilla stack of the canonical item carrying a
-  `FamilyPile` component. ("Carrier" in the spec; "pile" here — same thing.)
+  `VariantPile` component. ("Carrier" in the spec; "pile" here — same thing.)
 - **Host** — the actual `Item` a pile's `ItemStack` is (always canonical while mixed).
-- **Contents** — the `FamilyPile` component's true composition (`{variant → count}`).
+- **Contents** — the `VariantPile` component's true composition (`{variant → count}`).
 - **Normalize / canonical packing** — the §6.3 algorithm: pool → minimal set of pure stacks
   + carriers.
 - **Collapse** — a pile reduced to one variant becomes a plain vanilla stack (single-variant
