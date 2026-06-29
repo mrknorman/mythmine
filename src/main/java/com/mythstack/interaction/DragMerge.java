@@ -5,6 +5,7 @@ import com.mythstack.variant.VariantGroups;
 import com.mythstack.variant.VariantPiles;
 import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
@@ -52,15 +53,31 @@ public final class DragMerge {
 		// Left-click deposits everything that fits; right-click drips in a single log.
 		int wanted = action == ClickAction.SECONDARY ? 1 : carried.getCount();
 		int take = Math.min(space, wanted);
-		// Preview the merged result (canonical-first) without mutating, so we can bail on a bad slot.
-		ItemStack peeled = carried.copy().split(take);
+		if (take <= 0) {
+			return false;
+		}
+		// Depositing onto a PURE stack spends the carried pile's matching wood first, so the target
+		// stays a plain stack until that wood is exhausted (QOL — don't pollute a deliberate stack).
+		boolean topUpPure = !VariantPiles.isPile(slotStack);
+		Item preferred = slotStack.getItem();
+
+		// Preview the merged result without mutating, so we can bail on a bad slot.
+		ItemStack preview = carried.copy();
+		ItemStack peeled = topUpPure
+				? VariantPiles.splitPilePreferring(preview, take, preferred)
+				: preview.split(take);
 		List<ItemStack> result = VariantPiles.makeStacks(group, VariantPiles.pool(group, List.of(slotStack, peeled)));
 		ItemStack merged = result.isEmpty() ? ItemStack.EMPTY : result.get(0);
 		if (merged.isEmpty() || !slot.mayPlace(merged)) {
 			return false;
 		}
 
-		carried.split(take); // remainder stays on the cursor
+		// Commit the same peel on the real cursor stack; the remainder stays on the cursor.
+		if (topUpPure) {
+			VariantPiles.splitPilePreferring(carried, take, preferred);
+		} else {
+			carried.split(take);
+		}
 		slot.set(merged);
 		return true;
 	}

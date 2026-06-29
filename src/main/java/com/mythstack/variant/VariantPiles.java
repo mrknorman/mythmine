@@ -126,6 +126,50 @@ public final class VariantPiles {
 	}
 
 	/**
+	 * Like {@link #splitPile} but peels {@code preferred} variants off the front first (then
+	 * canonical order). Used when depositing onto a <em>pure</em> stack of {@code preferred}: spending
+	 * the pile's matching wood first lets the target stay a plain stack until that wood is exhausted,
+	 * instead of polluting it into a pile. The remainder kept on {@code stack} is re-canonicalised so
+	 * the {@code sum==count} / canonical-order invariant holds.
+	 */
+	public static ItemStack splitPilePreferring(ItemStack stack, int amount, Item preferred) {
+		VariantPile pile = reconcile(stack);
+		if (pile == null) {
+			return stack.split(amount); // plain stack — nothing to prioritise
+		}
+		int count = stack.getCount();
+		int n = Math.min(Math.max(amount, 0), count);
+		if (n <= 0) {
+			return ItemStack.EMPTY;
+		}
+		List<Entry> ordered = new ArrayList<>();
+		for (Entry entry : pile.contents()) {
+			if (entry.item() == preferred) {
+				ordered.add(entry);
+			}
+		}
+		for (Entry entry : pile.contents()) {
+			if (entry.item() != preferred) {
+				ordered.add(entry);
+			}
+		}
+		Peel split = peel(ordered, n);
+		stack.setCount(count - n);
+		VariantGroup group = VariantGroups.of(stack.getItem());
+		applyContents(stack, canonicalOrder(split.remainder(), group));
+		return stackOf(group, canonicalOrder(split.peeled(), group));
+	}
+
+	/** Sort entries into canonical order (group canonical first, then by item id). */
+	private static List<Entry> canonicalOrder(List<Entry> entries, VariantGroup group) {
+		List<Entry> sorted = new ArrayList<>(entries);
+		sorted.sort(Comparator
+				.comparingInt((Entry e) -> group != null && e.item() == group.canonical() ? 0 : 1)
+				.thenComparing(e -> BuiltInRegistries.ITEM.getKey(e.item()).toString()));
+		return sorted;
+	}
+
+	/**
 	 * Build a single stack from ordered {@code entries}: a plain vanilla stack if one variant, else a
 	 * canonical-hosted pile. {@code group} supplies the canonical host (falls back to the first entry).
 	 */
@@ -216,21 +260,19 @@ public final class VariantPiles {
 		return out;
 	}
 
-	/** Display name for a pile: the singular form word + " Pile", e.g. "Log Pile" or "Plank Pile". */
+	/** Display name for a pile: the plural form word, e.g. "Logs" or "Planks". The plural is what makes
+	 * it read as a mixed carrier and keeps it distinct from a single "Spruce Log". */
 	public static Component displayName(ItemStack stack) {
 		VariantGroup group = VariantGroups.of(stack.getItem());
 		String form = "Wood";
 		if (group != null) {
 			String last = group.id().getPath();
-			last = last.substring(last.lastIndexOf('/') + 1);
-			if (last.endsWith("s")) {
-				last = last.substring(0, last.length() - 1); // logs -> log (naive singularize; fine for MVP forms)
-			}
+			last = last.substring(last.lastIndexOf('/') + 1); // "logs", "planks" — keep the plural
 			if (!last.isEmpty()) {
 				form = Character.toUpperCase(last.charAt(0)) + last.substring(1);
 			}
 		}
-		return Component.literal(form + " Pile");
+		return Component.literal(form);
 	}
 
 	/**

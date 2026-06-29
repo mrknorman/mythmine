@@ -76,8 +76,8 @@ public final class SelfTest {
 		check("collapseToReal -> real birch x50",
 				collapsed.getItem() == Items.BIRCH_LOG && collapsed.getCount() == 50 && !VariantPiles.isPile(collapsed), failures);
 
-		// 7. Pile name via the getHoverName mixin is the form word.
-		check("pile name -> 'Log Pile'", "Log Pile".equals(pile.getHoverName().getString()), failures);
+		// 7. Pile name via the getHoverName mixin is the plural form word.
+		check("pile name -> 'Logs'", "Logs".equals(pile.getHoverName().getString()), failures);
 
 		// 8. Auto-grouping on pickup (spec §5).
 		List<ItemStack> inv1 = new ArrayList<>(List.of(new ItemStack(Items.OAK_LOG, 30)));
@@ -100,6 +100,24 @@ public final class SelfTest {
 		check("pickup oak: tops up pure oak, not the pile",
 				in3.isEmpty() && inv3.get(0).getCount() == 35 && !VariantPiles.isPile(inv3.get(0))
 						&& inv3.get(1).getCount() == 60 && VariantPiles.isPile(inv3.get(1)), failures);
+
+		// 9. splitPilePreferring peels the preferred wood first — the deposit top-up that keeps a pure
+		//    stack pure. 10 birch from {oak30,birch30} -> plain birch x10 + remainder {oak30,birch20}.
+		ItemStack pref = pile.copy();
+		ItemStack pulled = VariantPiles.splitPilePreferring(pref, 10, Items.BIRCH_LOG);
+		check("preferring-peel 10 birch -> plain birch x10",
+				pulled.getItem() == Items.BIRCH_LOG && pulled.getCount() == 10 && !VariantPiles.isPile(pulled), failures);
+		check("preferring-peel remainder {oak30,birch20} (sum==count)",
+				pref.getCount() == 50 && contentsEqual(pref, Items.OAK_LOG, 30, Items.BIRCH_LOG, 20), failures);
+
+		// 10. Past the preferred amount the rest peels canonical-first: 40 birch-first -> {oak10,birch30}.
+		ItemStack pref2 = pile.copy();
+		ItemStack pulled2 = VariantPiles.splitPilePreferring(pref2, 40, Items.BIRCH_LOG);
+		check("preferring-peel 40 -> pile {oak10,birch30}",
+				VariantPiles.isPile(pulled2) && pulled2.getCount() == 40
+						&& contentsEqual(pulled2, Items.OAK_LOG, 10, Items.BIRCH_LOG, 30), failures);
+		check("preferring-peel 40 remainder plain oak x20",
+				pref2.getItem() == Items.OAK_LOG && pref2.getCount() == 20 && !VariantPiles.isPile(pref2), failures);
 
 		if (failures[0] == 0) {
 			MythStack.LOGGER.info("[selftest] ALL CHECKS PASSED");
