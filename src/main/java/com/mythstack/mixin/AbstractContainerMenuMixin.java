@@ -52,28 +52,40 @@ public abstract class AbstractContainerMenuMixin {
 		AbstractContainerMenu self = (AbstractContainerMenu) (Object) this;
 		ItemStack carried = self.getCarried();
 		boolean server = player instanceof ServerPlayer;
+		// Survival is server-authoritative (the client predicts via vanilla, so we act only on the server).
+		// Creative has no server-side container-click path for the inventory — the screen runs the click on
+		// the client and syncs via creative slot packets — so there we run the op client-side and
+		// CreativeModeInventoryScreenMixin pushes the changed slots to the server.
+		boolean creativeClient = !server && player.hasInfiniteMaterials();
+		boolean run = server || creativeClient;
 		if (VariantPiles.isPile(carried)) {
 			if (input == ContainerInput.QUICK_CRAFT) {
 				if (AbstractContainerMenu.getQuickcraftHeader(button) == 2) { // the drag's execute phase
-					if (server) {
+					if (run) {
 						PileSeparation.dragDistribute(self, this.quickcraftSlots);
-						self.broadcastChanges();
+						if (server) {
+							self.broadcastChanges();
+						}
 					}
 					this.resetQuickCraft();
 					ci.cancel();
 				}
 			} else if (input == ContainerInput.PICKUP_ALL) {
-				if (server) {
+				if (run) {
 					self.setCarried(PileSeparation.expand(self, slotId));
-					self.broadcastChanges();
+					if (server) {
+						self.broadcastChanges();
+					}
 				}
 				ci.cancel();
 			}
 		} else if (input == ContainerInput.PICKUP_ALL && !carried.isEmpty()
 				&& VariantGroups.of(carried.getItem()) != null) {
-			if (server) {
+			if (run) {
 				self.setCarried(PileSeparation.contract(self, player));
-				self.broadcastChanges();
+				if (server) {
+					self.broadcastChanges();
+				}
 			}
 			ci.cancel();
 		}

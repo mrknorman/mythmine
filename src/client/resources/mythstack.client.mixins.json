@@ -3,7 +3,8 @@
 	"package": "com.mythstack.client.mixin",
 	"compatibilityLevel": "JAVA_25",
 	"client": [
-		"AbstractContainerScreenMixin"
+		"AbstractContainerScreenMixin",
+		"CreativeModeInventoryScreenMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
