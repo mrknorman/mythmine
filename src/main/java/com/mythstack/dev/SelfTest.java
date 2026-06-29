@@ -63,6 +63,20 @@ public final class SelfTest {
 		check("second plain birch x36",
 				over.size() == 2 && over.get(1).getItem() == Items.BIRCH_LOG && over.get(1).getCount() == 36 && !VariantPiles.isPile(over.get(1)), failures);
 
+		// 6. A non-host single-variant remainder collapses to the real vanilla item (point 1).
+		ItemStack edge = VariantPiles.makeStacks(logs, VariantPiles.pool(logs,
+				List.of(new ItemStack(Items.OAK_LOG, 6), new ItemStack(Items.BIRCH_LOG, 50)))).get(0);
+		edge.split(6); // peel the 6 oak -> remainder {birch:50}, still hosted on oak
+		check("non-host remainder is a single-variant oak-hosted pile",
+				edge.getItem() == Items.OAK_LOG && VariantPiles.isPile(edge)
+						&& edge.get(ModComponents.VARIANT_PILE).contents().size() == 1, failures);
+		ItemStack collapsed = VariantPiles.collapseToReal(edge);
+		check("collapseToReal -> real birch x50",
+				collapsed.getItem() == Items.BIRCH_LOG && collapsed.getCount() == 50 && !VariantPiles.isPile(collapsed), failures);
+
+		// 7. Pile name via the getHoverName mixin is the form word.
+		check("pile name -> 'Logs'", "Logs".equals(pile.getHoverName().getString()), failures);
+
 		if (failures[0] == 0) {
 			MythStack.LOGGER.info("[selftest] ALL CHECKS PASSED");
 		} else {

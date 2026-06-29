@@ -2,6 +2,7 @@ package com.mythstack.mixin;
 
 import com.mythstack.registry.ModComponents;
 import com.mythstack.variant.VariantPiles;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -21,6 +22,14 @@ public class ItemStackSplitMixin {
 		ItemStack self = (ItemStack) (Object) this;
 		if (self.has(ModComponents.VARIANT_PILE)) {
 			cir.setReturnValue(VariantPiles.splitPile(self, amount));
+		}
+	}
+
+	@Inject(method = "getHoverName", at = @At("HEAD"), cancellable = true)
+	private void mythstack$pileName(CallbackInfoReturnable<Component> cir) {
+		ItemStack self = (ItemStack) (Object) this;
+		if (self.has(ModComponents.VARIANT_PILE)) {
+			cir.setReturnValue(VariantPiles.displayName(self));
 		}
 	}
 }

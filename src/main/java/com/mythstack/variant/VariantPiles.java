@@ -3,6 +3,7 @@ package com.mythstack.variant;
 import com.mythstack.registry.ModComponents;
 import com.mythstack.variant.VariantPile.Entry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
@@ -186,5 +187,36 @@ public final class VariantPiles {
 			out.add(stackOf(group, entries));
 		}
 		return out;
+	}
+
+	/** Display name for a pile: the form word, e.g. "Logs" or "Planks". */
+	public static Component displayName(ItemStack stack) {
+		VariantGroup group = VariantGroups.of(stack.getItem());
+		String form = "Wood";
+		if (group != null) {
+			String path = group.id().getPath();
+			String last = path.substring(path.lastIndexOf('/') + 1);
+			if (!last.isEmpty()) {
+				form = Character.toUpperCase(last.charAt(0)) + last.substring(1);
+			}
+		}
+		return Component.literal(form);
+	}
+
+	/**
+	 * If {@code stack} is a single-variant pile (only reachable as a non-host remainder), rebuild it as
+	 * the plain vanilla stack of that variant; otherwise return it unchanged (after reconciling). Called
+	 * at the click boundary so the icon/identity collapses the moment the last other-variant leaves,
+	 * rather than lingering as a canonical-hosted disguise (point 1).
+	 */
+	public static ItemStack collapseToReal(ItemStack stack) {
+		if (!isPile(stack)) {
+			return stack;
+		}
+		VariantPile pile = reconcile(stack);
+		if (pile != null && pile.contents().size() == 1) {
+			return new ItemStack(pile.contents().get(0).item(), stack.getCount());
+		}
+		return stack;
 	}
 }
