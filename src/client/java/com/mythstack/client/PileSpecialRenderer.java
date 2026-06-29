@@ -19,52 +19,61 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * Draws a pile icon as up to 3 of the contained woods, fanned. We render the variants ourselves each
- * frame (reading the live {@link VariantPile} component) instead of via the declarative model system,
- * which couldn't reliably do the composite. Reusable for every future pile form.
+ * Draws a pile icon as up to 3 of the contained woods, fanned (first wood on top). Each wood is drawn
+ * via its own <em>fresh, single-layer</em> {@link ItemStackRenderState}, submitted at a per-slot pose
+ * offset — so it never feeds the shared, variable-length layer pool of the carrier's render state.
  *
- * <p>Pattern copied from vanilla block-entity item rendering (CampfireRenderer): build an
- * {@link ItemStackRenderState} per variant with {@code FIXED} display context, then submit each at an
- * offset. Plain variant stacks have no pile component, so they render as normal logs (no recursion).
+ * <p>Deliberately a {@code SpecialModelRenderer} rather than a declarative {@code composite}/{@code
+ * select} model: the latter tripped a vanilla {@code ItemStackRenderState.clear()} stale-layer bug.
+ * Drawing imperatively here avoids that entire class of bug and gives exact transform control.
+ * Reusable for every future pile form.
  */
-public class PileSpecialRenderer implements SpecialModelRenderer<List<ItemStackRenderState>> {
+public class PileSpecialRenderer implements SpecialModelRenderer<List<ItemStack>> {
 
-	/** Per-layer {translateX, translateY, translateZ, scale}. Drawn back-to-front. First-pass; tunable. */
+	private static final int MAX_LAYERS = 3;
+
+	/**
+	 * Per-layer fan: {translateX, translateY, translateZ, scale}, drawn back-to-front so slot 0 (the
+	 * first wood) lands on top. Offsets are in the special-layer pose space (small — large values throw
+	 * the logs off-slot); tunable.
+	 */
 	private static final float[][] SLOTS = {
-			{ 0.18f, 0.18f, 0.02f, 0.5f },   // slot 0: first wood -> front / top
-			{ -0.18f, 0.0f, 0.0f, 0.5f },    // slot 1: mid-left
-			{ 0.18f, -0.18f, -0.02f, 0.5f }, // slot 2: back / bottom
+			{ 0.022f, 0.028f, 0.02f, 0.58f },    // slot 0: upper-right, front / top
+			{ -0.022f, 0.0f, 0.0f, 0.58f },      // slot 1: left, middle
+			{ 0.022f, -0.028f, -0.02f, 0.58f },  // slot 2: lower-right, back / bottom
 	};
 
 	@Override
-	public List<ItemStackRenderState> extractArgument(ItemStack stack) {
-		List<ItemStackRenderState> layers = new ArrayList<>();
+	public List<ItemStack> extractArgument(ItemStack stack) {
 		VariantPile pile = stack.get(ModComponents.VARIANT_PILE);
 		if (pile == null) {
-			return layers;
+			return null;
 		}
-		Minecraft minecraft = Minecraft.getInstance();
-		ItemModelResolver resolver = minecraft.getItemModelResolver();
-		int count = Math.min(SLOTS.length, pile.contents().size());
+		int count = Math.min(MAX_LAYERS, pile.contents().size());
+		List<ItemStack> stacks = new ArrayList<>(count);
 		for (int i = 0; i < count; i++) {
-			ItemStackRenderState layer = new ItemStackRenderState();
-			resolver.updateForTopItem(layer, new ItemStack(pile.contents().get(i).item()),
-					ItemDisplayContext.FIXED, minecraft.level, null, 0);
-			layers.add(layer);
+			stacks.add(new ItemStack(pile.contents().get(i).item()));
 		}
-		return layers;
+		return stacks;
 	}
 
 	@Override
-	public void submit(List<ItemStackRenderState> layers, PoseStack pose, SubmitNodeCollector collector,
+	public void submit(List<ItemStack> stacks, PoseStack pose, SubmitNodeCollector collector,
 			int light, int overlay, boolean hasFoil, int outlineColor) {
-		// Back-to-front so slot 0 (the first wood) ends up drawn last / on top.
-		for (int i = layers.size() - 1; i >= 0; i--) {
+		if (stacks == null || stacks.isEmpty()) {
+			return;
+		}
+		Minecraft minecraft = Minecraft.getInstance();
+		ItemModelResolver resolver = minecraft.getItemModelResolver();
+		// Back-to-front so slot 0 (the first wood) draws last / on top.
+		for (int i = stacks.size() - 1; i >= 0; i--) {
 			float[] slot = SLOTS[i];
+			ItemStackRenderState layer = new ItemStackRenderState();
+			resolver.updateForTopItem(layer, stacks.get(i), ItemDisplayContext.GUI, minecraft.level, null, 0);
 			pose.pushPose();
 			pose.translate(slot[0], slot[1], slot[2]);
 			pose.scale(slot[3], slot[3], slot[3]);
-			layers.get(i).submit(pose, collector, light, overlay, outlineColor);
+			layer.submit(pose, collector, light, overlay, outlineColor);
 			pose.popPose();
 		}
 	}
@@ -75,11 +84,11 @@ public class PileSpecialRenderer implements SpecialModelRenderer<List<ItemStackR
 		output.accept(new Vector3f(0.5f, 0.5f, 0.5f));
 	}
 
-	public record Unbaked() implements SpecialModelRenderer.Unbaked<List<ItemStackRenderState>> {
+	public record Unbaked() implements SpecialModelRenderer.Unbaked<List<ItemStack>> {
 		public static final MapCodec<Unbaked> MAP_CODEC = MapCodec.unit(new Unbaked());
 
 		@Override
-		public SpecialModelRenderer<List<ItemStackRenderState>> bake(SpecialModelRenderer.BakingContext context) {
+		public SpecialModelRenderer<List<ItemStack>> bake(SpecialModelRenderer.BakingContext context) {
 			return new PileSpecialRenderer();
 		}
 

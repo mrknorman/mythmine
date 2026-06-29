@@ -1,5 +1,6 @@
 package com.mythstack.variant;
 
+import com.mythstack.MythStack;
 import com.mythstack.registry.ModComponents;
 import com.mythstack.variant.VariantPile.Entry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -139,10 +140,36 @@ public final class VariantPiles {
 		if (entries.size() == 1) {
 			return new ItemStack(entries.get(0).item(), total);
 		}
-		Item host = group != null ? group.canonical() : entries.get(0).item();
+		Item host = canonicalHostFor(group, entries);
 		ItemStack stack = new ItemStack(host, total);
 		stack.set(ModComponents.VARIANT_PILE, new VariantPile(List.copyOf(entries), -1));
 		return stack;
+	}
+
+	/**
+	 * The canonical host item for a multi-variant pile. Uses the supplied {@code group}, or resolves the
+	 * group from the entries themselves if none was given, so a pile is <em>always</em> hosted on its
+	 * group's canonical (e.g. {@code oak_log}) — never on whatever wood happens to be first. The bare
+	 * top-wood fallback only remains as a logged last resort and should be unreachable now that group
+	 * membership is snapshotted at tag-load (see {@link VariantGroups#rebuildMembership}).
+	 */
+	private static Item canonicalHostFor(VariantGroup group, List<Entry> entries) {
+		VariantGroup resolved = group;
+		if (resolved == null) {
+			for (Entry entry : entries) {
+				resolved = VariantGroups.of(entry.item());
+				if (resolved != null) {
+					break;
+				}
+			}
+		}
+		if (resolved != null) {
+			return resolved.canonical();
+		}
+		MythStack.LOGGER.warn("[pile-host] no variant group resolved for a {}-entry pile; hosting on {} as a "
+				+ "last resort (group snapshot may not be loaded yet)",
+				entries.size(), BuiltInRegistries.ITEM.getKey(entries.get(0).item()));
+		return entries.get(0).item();
 	}
 
 	/**

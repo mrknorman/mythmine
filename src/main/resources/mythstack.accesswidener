@@ -1,4 +1,4 @@
 accessWidener v2 official
 
-# Allow registering a custom item-model select property (the pile icon).
-accessible field net/minecraft/client/renderer/item/properties/select/SelectItemModelProperties ID_MAPPER Lnet/minecraft/util/ExtraCodecs$LateBoundIdMapper;
+# (No widenings currently needed: the pile icon's SpecialModelRenderers.ID_MAPPER is
+#  already access-widened transitively by Fabric.)

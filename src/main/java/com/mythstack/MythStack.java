@@ -6,6 +6,7 @@ import com.mythstack.registry.ModComponents;
 import com.mythstack.variant.VariantGroups;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.CommonLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resources.Identifier;
@@ -21,6 +22,11 @@ public class MythStack implements ModInitializer {
 	public void onInitialize() {
 		ModComponents.initialize();
 		ModBlocks.initialize();
+
+		// Snapshot variant-group membership whenever tags load/sync (client + server), so resolving an
+		// item to its group never depends on a flaky per-call tag binding during container prediction.
+		CommonLifecycleEvents.TAGS_LOADED.register((registries, client) ->
+				VariantGroups.rebuildMembership(registries));
 
 		// Drop the test block into the vanilla Building Blocks creative tab.
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.BUILDING_BLOCKS)

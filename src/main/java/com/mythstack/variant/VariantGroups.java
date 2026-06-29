@@ -1,6 +1,9 @@
 package com.mythstack.variant;
 
 import com.mythstack.MythStack;
+import net.minecraft.core.Holder;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -8,7 +11,11 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Declares the wood {@link VariantGroup}s and resolves an item to its group.
@@ -18,6 +25,11 @@ import java.util.List;
  * log / wood / stripped under {@code #*_logs}. Deferred materials (nether + bamboo, decision
  * D4) are filtered out at lookup, reusing vanilla's {@code #non_flammable_wood} for the
  * nether half so we don't hand-list it.
+ *
+ * <p>Resolution goes through a {@link #membership} snapshot rebuilt whenever tags load/sync
+ * ({@code CommonLifecycleEvents.TAGS_LOADED}). A per-call {@code holder.is(tag)} check is unreliable
+ * during client-side container prediction (the tag bindings aren't always present on the client),
+ * which previously made {@link #of} return null and pile hosts collapse onto the top wood.
  */
 public final class VariantGroups {
 	private VariantGroups() {
@@ -36,8 +48,17 @@ public final class VariantGroups {
 
 	private static final List<VariantGroup> ALL = List.of(LOGS, PLANKS);
 
+	/** item -> group, snapshotted from the tags when they are loaded/synced (bindings reliable on both sides). */
+	private static volatile Map<Item, VariantGroup> membership = Map.of();
+
 	/** The group {@code item} belongs to, or {@code null} if none (or a deferred material). */
 	public static VariantGroup of(Item item) {
+		VariantGroup cached = membership.get(item);
+		if (cached != null) {
+			return cached;
+		}
+		// Pre-snapshot safety net only (e.g. before the first TAGS_LOADED): a live tag check, which may be
+		// unreliable client-side — the snapshot above is the authoritative path once tags have loaded.
 		for (VariantGroup group : ALL) {
 			if (group.contains(item)) {
 				return group;
@@ -46,11 +67,40 @@ public final class VariantGroups {
 		return null;
 	}
 
+	/**
+	 * Rebuild the {@link #membership} snapshot from {@code registries}, whose tags are freshly loaded/synced
+	 * (so reliably bound). Everything is resolved from {@code registries} or from registry keys (both stable)
+	 * — never from a per-item {@code holder.is(tag)} call. Wired to {@code CommonLifecycleEvents.TAGS_LOADED}.
+	 */
+	public static void rebuildMembership(RegistryAccess registries) {
+		Registry<Item> items = registries.lookup(Registries.ITEM).orElseThrow();
+		Set<Item> nonFlammable = new HashSet<>();
+		for (Holder<Item> holder : items.getTagOrEmpty(NON_FLAMMABLE_WOOD)) {
+			nonFlammable.add(holder.value());
+		}
+		Map<Item, VariantGroup> map = new HashMap<>();
+		for (VariantGroup group : ALL) {
+			for (Holder<Item> holder : items.getTagOrEmpty(group.members())) {
+				Item item = holder.value();
+				if (!nonFlammable.contains(item) && !isBamboo(item)) {
+					map.putIfAbsent(item, group);
+				}
+			}
+		}
+		membership = Map.copyOf(map);
+		MythStack.LOGGER.info("[variant-group] membership snapshot rebuilt: {} items across {} groups",
+				map.size(), ALL.size());
+	}
+
 	/** Materials deferred out of the MVP (D4): nether wood (crimson/warped) and bamboo. */
 	public static boolean isDeferredMaterial(Item item) {
 		if (BuiltInRegistries.ITEM.wrapAsHolder(item).is(NON_FLAMMABLE_WOOD)) {
 			return true; // crimson / warped
 		}
+		return isBamboo(item);
+	}
+
+	private static boolean isBamboo(Item item) {
 		Identifier id = BuiltInRegistries.ITEM.getKey(item);
 		return "minecraft".equals(id.getNamespace()) && id.getPath().startsWith("bamboo_");
 	}

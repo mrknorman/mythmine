@@ -6,15 +6,17 @@ import com.mythstack.variant.VariantPile;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.renderer.item.properties.select.SelectItemModelProperties;
+import net.minecraft.client.renderer.special.SpecialModelRenderers;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
 public class MythStackClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
-		// Register the custom pile-icon select property (mythstack:content_variant).
-		SelectItemModelProperties.ID_MAPPER.put(MythStack.id("content_variant"), ContentVariantProperty.TYPE);
+		// Register the dynamic pile-icon renderer (mythstack:pile) — a SpecialModelRenderer that draws up
+		// to 3 contained woods, fanned. We use a special renderer (not a declarative composite/select)
+		// because the latter trips a vanilla render-state layer-pool bug; see PileSpecialRenderer.
+		SpecialModelRenderers.ID_MAPPER.put(MythStack.id("pile"), PileSpecialRenderer.Unbaked.MAP_CODEC);
 
 		// Minimal pile tooltip (phase 5 start): show the true composition under the (canonical) item name.
 		// Text-only, no assets — the bundle-style icon grid is a later upgrade.
