@@ -129,10 +129,14 @@ public final class PileSeparation {
 				continue;
 			}
 			if (VariantPiles.isPile(s)) {
-				// A pile (its seed was already drained in step 1); pool() dissolves it into its woods.
-				gathered.add(s.copy());
-				total += s.getCount();
-				slot.set(ItemStack.EMPTY);
+				// Same-group piles only — a different-group pile (e.g. a logs pile while contracting
+				// planks) must be left alone. Its seed was already drained in step 1; pool() then
+				// dissolves the absorbed pile into its woods.
+				if (VariantGroups.of(s.getItem()) == group) {
+					gathered.add(s.copy());
+					total += s.getCount();
+					slot.set(ItemStack.EMPTY);
+				}
 			} else if (s.getItem() != seed && group.contains(s.getItem())) {
 				gathered.add(s.copy());
 				total += s.getCount();

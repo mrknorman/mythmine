@@ -6,7 +6,8 @@
 		"AbstractContainerMenuMixin",
 		"InventoryAddMixin",
 		"ItemMixin",
-		"ItemStackSplitMixin"
+		"ItemStackSplitMixin",
+		"ItemTooltipImageMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
