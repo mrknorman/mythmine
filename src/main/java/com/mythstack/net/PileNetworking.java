@@ -1,12 +1,8 @@
 package com.mythstack.net;
 
-import com.mythstack.MythStack;
-import com.mythstack.registry.ModComponents;
 import com.mythstack.variant.VariantPiles;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
@@ -41,10 +37,5 @@ public final class PileNetworking {
 		}
 		ItemStack stack = menu.slots.get(index).getItem();
 		VariantPiles.seed(stack, payload.wood()); // mutate in place; no-op if the wood isn't in this pile
-		if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
-			MythStack.LOGGER.info("[pile-select] slot={} wood={} isPile={} applied(selected)={}", index,
-					BuiltInRegistries.ITEM.getKey(payload.wood()), VariantPiles.isPile(stack),
-					VariantPiles.isPile(stack) ? VariantPiles.activeWood(stack) : null);
-		}
 	}
 }

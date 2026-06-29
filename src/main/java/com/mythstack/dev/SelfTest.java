@@ -119,11 +119,34 @@ public final class SelfTest {
 		check("preferring-peel 40 remainder plain oak x20",
 				pref2.getItem() == Items.OAK_LOG && pref2.getCount() == 20 && !VariantPiles.isPile(pref2), failures);
 
+		// 11. The active wood survives a split — the pickup / move path. A full split (== picking the whole
+		//     pile up onto the cursor) must keep the selection on the peeled stack, not reset it.
+		ItemStack sel = pile.copy(); // {oak30, birch30}
+		VariantPiles.seed(sel, Items.BIRCH_LOG);
+		check("seed sets active birch", selectedIs(sel, Items.BIRCH_LOG), failures);
+		ItemStack pickedUp = VariantPiles.splitPile(sel, sel.getCount());
+		check("full split (pickup) keeps active birch on the picked-up pile",
+				selectedIs(pickedUp, Items.BIRCH_LOG), failures);
+
+		// 12. A partial split keeps the active wood on whichever side still holds it: peel 10 canonical-first
+		//     (oak) and birch stays selected on the remainder, with no stale selection on the peeled oak.
+		ItemStack sel2 = pile.copy();
+		VariantPiles.seed(sel2, Items.BIRCH_LOG);
+		ItemStack peeledOak = VariantPiles.splitPile(sel2, 10);
+		check("partial split: active birch stays on the remainder", selectedIs(sel2, Items.BIRCH_LOG), failures);
+		check("partial split: peeled oak-only portion carries no stale selection",
+				!selectedIs(peeledOak, Items.BIRCH_LOG), failures);
+
 		if (failures[0] == 0) {
 			MythStack.LOGGER.info("[selftest] ALL CHECKS PASSED");
 		} else {
 			MythStack.LOGGER.error("[selftest] {} CHECK(S) FAILED", failures[0]);
 		}
+	}
+
+	private static boolean selectedIs(ItemStack stack, net.minecraft.world.item.Item wood) {
+		VariantPile pile = stack.get(ModComponents.VARIANT_PILE);
+		return pile != null && pile.selected().isPresent() && pile.selected().get() == wood;
 	}
 
 	private static boolean contentsEqual(ItemStack stack, Object... itemThenCount) {

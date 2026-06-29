@@ -138,7 +138,11 @@ public final class VariantPiles {
 		applyContents(stack, split.remainder());
 
 		VariantGroup group = VariantGroups.of(stack.getItem());
-		return stackOf(group, split.peeled());
+		ItemStack peeled = stackOf(group, split.peeled());
+		// The peeled portion (e.g. the whole pile on a full pickup) inherits the active wood if it's still
+		// in there — otherwise picking a pile up or moving it would silently reset the selection.
+		pile.selected().ifPresent(active -> seed(peeled, active));
+		return peeled;
 	}
 
 	/**
@@ -173,7 +177,9 @@ public final class VariantPiles {
 		stack.setCount(count - n);
 		VariantGroup group = VariantGroups.of(stack.getItem());
 		applyContents(stack, canonicalOrder(split.remainder(), group));
-		return stackOf(group, canonicalOrder(split.peeled(), group));
+		ItemStack peeled = stackOf(group, canonicalOrder(split.peeled(), group));
+		pile.selected().ifPresent(active -> seed(peeled, active)); // peeled keeps the active wood if present
+		return peeled;
 	}
 
 	/** Sort entries into canonical order (group canonical first, then by item id). */
