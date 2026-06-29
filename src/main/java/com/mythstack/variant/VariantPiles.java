@@ -201,6 +201,88 @@ public final class VariantPiles {
 	}
 
 	/**
+	 * The pile's <em>active wood</em> — its {@link VariantPile#selected} if that wood is still present,
+	 * else the first (canonical) wood. Mirrors vanilla {@code BundleContents.Mutable.removeOne}'s
+	 * "selected, or index 0" rule. Returns {@code null} on a plain stack / empty pile.
+	 */
+	public static Item activeWood(ItemStack stack) {
+		VariantPile pile = stack.get(ModComponents.VARIANT_PILE);
+		if (pile == null || pile.contents().isEmpty()) {
+			return null;
+		}
+		if (pile.selected().isPresent()) {
+			Item sel = pile.selected().get();
+			for (Entry entry : pile.contents()) {
+				if (entry.item() == sel) {
+					return sel;
+				}
+			}
+		}
+		return pile.contents().get(0).item();
+	}
+
+	/**
+	 * Peel up to {@code amount} of a single {@code wood} out of {@code stack}'s pile, mutating the pile
+	 * in place (contents minus the removed amount, count adjusted; the canonical host is unchanged — a
+	 * single-variant remainder is collapsed later by {@link #collapseToReal}). The selection is kept if
+	 * any of {@code wood} remains, else cleared. Returns the removed stack ({@code wood} × taken), or
+	 * {@link ItemStack#EMPTY}. Unlike {@link #splitPilePreferring} this never touches other woods.
+	 */
+	public static ItemStack removeWood(ItemStack stack, Item wood, int amount) {
+		VariantPile pile = stack.get(ModComponents.VARIANT_PILE);
+		if (pile == null || amount <= 0) {
+			return ItemStack.EMPTY;
+		}
+		List<Entry> remaining = new ArrayList<>(pile.contents().size());
+		int taken = 0;
+		boolean keptWood = false;
+		for (Entry entry : pile.contents()) {
+			if (entry.item() == wood) {
+				taken = Math.min(amount, entry.count());
+				int keep = entry.count() - taken;
+				if (keep > 0) {
+					remaining.add(new Entry(wood, keep)); // preserve position (canonical order)
+					keptWood = true;
+				}
+			} else {
+				remaining.add(entry);
+			}
+		}
+		if (taken <= 0) {
+			return ItemStack.EMPTY;
+		}
+		setContents(stack, remaining, keptWood ? Optional.of(wood) : Optional.empty());
+		return new ItemStack(wood, taken);
+	}
+
+	/**
+	 * Remove the whole of the pile's {@link #activeWood} onto a new stack, mutating the pile in place —
+	 * the direct analogue of vanilla {@code BundleContents.Mutable.removeOne()} (which removes the entire
+	 * selected stack and clears the selection). Returns the removed wood stack, or {@link ItemStack#EMPTY}.
+	 */
+	public static ItemStack removeSelectedStack(ItemStack stack) {
+		Item active = activeWood(stack);
+		if (active == null) {
+			return ItemStack.EMPTY;
+		}
+		return removeWood(stack, active, countOf(stack, active));
+	}
+
+	/** Write {@code entries} (+ {@code selected}) onto {@code stack} in place — host unchanged; empties if none. */
+	private static void setContents(ItemStack stack, List<Entry> entries, Optional<Item> selected) {
+		int total = 0;
+		for (Entry entry : entries) {
+			total += entry.count();
+		}
+		if (total <= 0) {
+			stack.setCount(0); // becomes empty — never reached for a valid (>=2 wood) pile losing one wood
+			return;
+		}
+		stack.set(ModComponents.VARIANT_PILE, new VariantPile(List.copyOf(entries), selected));
+		stack.setCount(total);
+	}
+
+	/**
 	 * Record {@code seed} as the pile's active/selected variant ({@link VariantPile#selected}, the index
 	 * of that wood in the contents). No-op on a plain stack or if {@code seed} isn't present. Display /
 	 * placement effects of the selection are a later step; this just stores the intent.

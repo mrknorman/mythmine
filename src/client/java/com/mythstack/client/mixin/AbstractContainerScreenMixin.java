@@ -80,8 +80,11 @@ public abstract class AbstractContainerScreenMixin {
 		}
 		int dir = scrollY > 0 ? 1 : -1; // wheel up advances to the next wood
 		int next = current < 0 ? (dir > 0 ? 0 : size - 1) : Math.floorMod(current + dir, size);
-		ClientPlayNetworking.send(
-				new SelectVariantPayload(this.menu.containerId, this.hoveredSlot.index, contents.get(next).item()));
+		Item wood = contents.get(next).item();
+		// Update the client's stack immediately so the icon/highlight track the wheel with no round-trip,
+		// then tell the server (which re-broadcasts the same selection). Mirrors BundleMouseActions.
+		VariantPiles.seed(this.hoveredSlot.getItem(), wood);
+		ClientPlayNetworking.send(new SelectVariantPayload(this.menu.containerId, this.hoveredSlot.index, wood));
 		cir.setReturnValue(true); // consume the scroll so it doesn't fall through to vanilla
 	}
 }

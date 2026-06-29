@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
@@ -65,10 +66,27 @@ public class PileSpecialRenderer implements SpecialModelRenderer<List<ItemStack>
 		if (pile == null) {
 			return null;
 		}
-		int count = Math.min(MAX_LAYERS, pile.contents().size());
-		List<ItemStack> stacks = new ArrayList<>(count);
-		for (int i = 0; i < count; i++) {
-			stacks.add(new ItemStack(pile.contents().get(i).item()));
+		// The active wood is drawn first → on top of the fan (slot 0 submits last). Mirrors vanilla's
+		// BundleSelectedItemSpecialRenderer drawing the selected item on top. Rest follow in canonical
+		// order. So scrolling the selection visibly brings that wood to the front of the icon.
+		List<VariantPile.Entry> contents = pile.contents();
+		Item active = pile.selected().orElse(null);
+		List<ItemStack> stacks = new ArrayList<>(Math.min(MAX_LAYERS, contents.size()));
+		if (active != null) {
+			for (VariantPile.Entry entry : contents) {
+				if (entry.item() == active) {
+					stacks.add(new ItemStack(active));
+					break;
+				}
+			}
+		}
+		for (VariantPile.Entry entry : contents) {
+			if (stacks.size() >= MAX_LAYERS) {
+				break;
+			}
+			if (entry.item() != active) {
+				stacks.add(new ItemStack(entry.item()));
+			}
 		}
 		return stacks;
 	}
