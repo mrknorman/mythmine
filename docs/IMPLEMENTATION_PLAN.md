@@ -478,6 +478,25 @@ Each phase ships before the next. "DoD" = definition of done / acceptance test.
 - **DoD:** existing-style item sorters route piles as piles; comparators read N/64; hopper
   drain de-mixes deterministically without corruption. **← MVP complete.**
 
+### Build-time backlog (QOL & edge cases — fold into the phases above)
+
+Raised during implementation; captured here so they aren't lost.
+
+- **Deposit top-up keeps pure stacks pure** *(deposit logic, near Phase 5/6).* When depositing a
+  pile onto a **pure** stack of wood T (not itself a pile), exhaust the pile's T into that stack
+  first — keeping it a plain T stack — before converting it into a mixed pile. Avoids polluting a
+  deliberate pure stack.
+- **`manual` flag on `VariantPile`** *(data model; prerequisite for the next item).* Mark piles the
+  player built deliberately vs. ones auto-formed on pickup. Auto-consolidation must never disturb a
+  `manual` pile.
+- **Auto-expand overflow to pure stacks** *(Phase 6).* On pickup / auto-group, if the total of a
+  single wood across **auto** piles exceeds 64, expand it into pure 64-stacks instead of hoarding it
+  in a pile — but never touch `manual` piles.
+- **Selective extraction for crafting & recipe book** *(Phase 7).* Pulling components out of a pile
+  for the crafting grid and recipe-book auto-fill should take the **intended** variant, not blindly
+  canonical-first. Enumerate + test the edge cases: shift-click into grid, recipe-book fill, the
+  crafter block, quick-move, and JEI/REI-style click-fill.
+
 ### Post-MVP (outline only)
 - **Fan-out:** declare the remaining forms from §7 as data; smoke-test each.
 - **Typed sticks (§13):** new stick variant group derived from wood; per-recipe propagate-vs-discard
