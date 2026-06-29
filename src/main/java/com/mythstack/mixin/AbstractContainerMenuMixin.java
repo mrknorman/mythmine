@@ -53,10 +53,11 @@ public abstract class AbstractContainerMenuMixin {
 		ItemStack carried = self.getCarried();
 		boolean server = player instanceof ServerPlayer;
 		// Survival is server-authoritative (the client predicts via vanilla, so we act only on the server).
-		// Creative has no server-side container-click path for the inventory — the screen runs the click on
-		// the client and syncs via creative slot packets — so there we run the op client-side and
-		// CreativeModeInventoryScreenMixin pushes the changed slots to the server.
-		boolean creativeClient = !server && player.hasInfiniteMaterials();
+		// Only the creative *inventory* screen is client-authoritative — it runs the click on the client's
+		// own inventoryMenu and syncs via creative slot packets, with no server round-trip — so there we run
+		// the op client-side and CreativeModeInventoryScreenMixin pushes the changed slots up. Anything else
+		// in creative (a chest, etc.) goes through the normal both-sides path, so we leave it server-only.
+		boolean creativeClient = !server && player.hasInfiniteMaterials() && self == player.inventoryMenu;
 		boolean run = server || creativeClient;
 		if (VariantPiles.isPile(carried)) {
 			if (input == ContainerInput.QUICK_CRAFT) {
