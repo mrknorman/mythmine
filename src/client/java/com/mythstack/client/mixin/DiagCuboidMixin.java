@@ -1,8 +1,8 @@
 package com.mythstack.client.mixin;
 
 import com.mythstack.MythStack;
+import com.mythstack.client.ContentVariantProperty;
 import com.mythstack.registry.ModComponents;
-import com.mythstack.variant.VariantPile;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.item.CuboidItemModelWrapper;
 import net.minecraft.client.renderer.item.ItemModelResolver;
@@ -12,7 +12,6 @@ import net.minecraft.client.resources.model.cuboid.ItemTransform;
 import net.minecraft.world.entity.ItemOwner;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -43,16 +42,15 @@ public class DiagCuboidMixin {
 		if (displayContext != ItemDisplayContext.GUI) {
 			return;
 		}
-		VariantPile pile = item.get(ModComponents.VARIANT_PILE);
-		if (pile == null) {
+		if (!item.has(ModComponents.VARIANT_PILE)) {
 			return;
 		}
-		boolean hasOak = pile.contents().stream().anyMatch(entry -> entry.item() == Items.OAK_LOG);
+		String sel = ContentVariantProperty.LAST_SELECTED.get();
 		ItemTransform transform = this.properties.transforms().getTransform(ItemDisplayContext.GUI);
-		String key = hasOak + "|" + transform.scale() + "|" + transform.translation();
+		String key = sel + "|" + transform.scale() + "|" + transform.translation();
 		if (SEEN.add(key)) {
-			MythStack.LOGGER.info("[diag] hasOak={} guiScale={} guiTranslation={}",
-					hasOak, transform.scale(), transform.translation());
+			MythStack.LOGGER.info("[diag] layer={} guiScale={} guiTranslation={}",
+					sel, transform.scale(), transform.translation());
 		}
 	}
 }
