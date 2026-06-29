@@ -2,7 +2,9 @@
 	"required": true,
 	"package": "com.mythstack.client.mixin",
 	"compatibilityLevel": "JAVA_25",
-	"client": [],
+	"client": [
+		"DiagCuboidMixin"
+	],
 	"injectors": {
 		"defaultRequire": 1
 	}
