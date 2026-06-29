@@ -8,7 +8,8 @@
 		"InventoryAddMixin",
 		"ItemMixin",
 		"ItemStackSplitMixin",
-		"ItemTooltipImageMixin"
+		"ItemTooltipImageMixin",
+		"PickItemFromBlockMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
