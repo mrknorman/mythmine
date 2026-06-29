@@ -6,19 +6,14 @@ import com.mythstack.registry.ModComponents;
 import com.mythstack.variant.VariantPile;
 import com.mythstack.variant.VariantPiles;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -84,37 +79,7 @@ public abstract class AbstractContainerScreenMixin {
 		// Update the client's stack immediately so the icon/highlight track the wheel with no round-trip,
 		// then tell the server to apply the same selection to its copy. Mirrors BundleMouseActions.
 		VariantPiles.seed(this.hoveredSlot.getItem(), wood);
-		int index = mythstack$selectionSlotIndex();
-		if (index >= 0) {
-			ClientPlayNetworking.send(new SelectVariantPayload(index, wood));
-		}
+		ClientPlayNetworking.send(new SelectVariantPayload(this.hoveredSlot.index, wood));
 		cir.setReturnValue(true); // consume the scroll so it doesn't fall through to vanilla
-	}
-
-	/**
-	 * The menu-slot index the server should seed. Normally the hovered slot's own index — the screen's menu
-	 * is the server's {@code containerMenu}, so they agree. The creative inventory screen is the exception:
-	 * it wraps the real inventory slots in its own menu, while the server still sees the plain
-	 * {@code inventoryMenu}, so we resolve the matching {@code inventoryMenu} index by stack identity (the
-	 * wrapper shares the underlying ItemStack). Returns {@code -1} if it can't be resolved — better to skip
-	 * than seed the wrong slot.
-	 */
-	@Unique
-	private int mythstack$selectionSlotIndex() {
-		if (!(((Object) this) instanceof CreativeModeInventoryScreen)) {
-			return this.hoveredSlot.index;
-		}
-		LocalPlayer player = Minecraft.getInstance().player;
-		if (player == null) {
-			return -1;
-		}
-		ItemStack target = this.hoveredSlot.getItem();
-		AbstractContainerMenu inventoryMenu = player.inventoryMenu;
-		for (int i = 0; i < inventoryMenu.slots.size(); i++) {
-			if (inventoryMenu.slots.get(i).getItem() == target) {
-				return i;
-			}
-		}
-		return -1;
 	}
 }
