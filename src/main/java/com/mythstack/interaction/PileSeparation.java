@@ -240,10 +240,11 @@ public final class PileSeparation {
 
 	/**
 	 * Drag-distribute the pile on {@code menu}'s cursor as evenly as possible across the empty
-	 * {@code draggedSlots} — one pile/stack per slot. Items are dealt round-robin in canonical order, so
-	 * counts differ by at most one and every slot gets a representative mix. Slots are ordered by
-	 * position so the client and server agree on which slot gets which share. The whole pile is spread
-	 * (the cursor ends empty); if no empty slot was dragged over, nothing happens.
+	 * {@code draggedSlots} — one pile/stack per slot. Slot totals differ by at most one (equality is the
+	 * primary goal); as a tie-break the active wood is packed into the earliest slots first, so it lands
+	 * earlier rather than being spread thin. Slots are ordered by position so the client and server agree
+	 * on which slot gets which share. The whole pile is spread (the cursor ends empty); if no empty slot
+	 * was dragged over, nothing happens.
 	 */
 	public static void dragDistribute(AbstractContainerMenu menu, Set<Slot> draggedSlots) {
 		ItemStack pile = menu.getCarried();
@@ -263,17 +264,7 @@ public final class PileSeparation {
 		targets.sort(Comparator.comparingInt((Slot s) -> s.y).thenComparingInt(s -> s.x));
 
 		int n = targets.size();
-		List<Map<Item, Integer>> pools = new ArrayList<>(n);
-		for (int i = 0; i < n; i++) {
-			pools.add(new HashMap<>());
-		}
-		int next = 0;
-		for (Entry entry : data.contents()) {
-			for (int k = 0; k < entry.count(); k++) {
-				pools.get(next).merge(entry.item(), 1, Integer::sum);
-				next = (next + 1) % n;
-			}
-		}
+		List<Map<Item, Integer>> pools = distributePools(data, n);
 		VariantGroup group = VariantGroups.of(pile.getItem());
 		for (int i = 0; i < n; i++) {
 			List<ItemStack> parts = new ArrayList<>();
@@ -309,17 +300,7 @@ public final class PileSeparation {
 		if (index < 0) {
 			return target.getItem(); // this slot won't receive anything — show it unchanged
 		}
-		int n = targets.size();
-		Map<Item, Integer> pool = new HashMap<>();
-		int next = 0;
-		for (Entry entry : data.contents()) {
-			for (int k = 0; k < entry.count(); k++) {
-				if (next == index) {
-					pool.merge(entry.item(), 1, Integer::sum);
-				}
-				next = (next + 1) % n;
-			}
-		}
+		Map<Item, Integer> pool = distributePools(data, targets.size()).get(index);
 		if (pool.isEmpty()) {
 			return ItemStack.EMPTY;
 		}
@@ -330,5 +311,64 @@ public final class PileSeparation {
 		VariantGroup group = VariantGroups.of(pile.getItem());
 		List<ItemStack> made = VariantPiles.makeStacks(group, VariantPiles.pool(group, parts));
 		return made.isEmpty() ? ItemStack.EMPTY : made.get(0);
+	}
+
+	/**
+	 * Split {@code data}'s woods across {@code n} position-ordered slots: each slot's total differs by at
+	 * most one (the remainder lands in the earliest slots), and within that the active wood is packed into
+	 * the earliest slots first — equality is the primary goal, active-earlier is only the tie-break. Used
+	 * by both {@link #dragDistribute} and {@link #dragPreviewShare} so the preview matches the result.
+	 */
+	private static List<Map<Item, Integer>> distributePools(VariantPile data, int n) {
+		int total = 0;
+		for (Entry entry : data.contents()) {
+			total += entry.count();
+		}
+		int base = total / n;
+		int rem = total % n;
+		List<Map<Item, Integer>> pools = new ArrayList<>(n);
+		for (int i = 0; i < n; i++) {
+			pools.add(new HashMap<>());
+		}
+		// Fill the earliest slots up to their quota, drawing the active wood before the rest, so the active
+		// wood concentrates early while every slot still ends up with base (or base+1, for the first `rem`).
+		int slot = 0;
+		int placed = 0;
+		for (Entry entry : orderedEntries(data)) {
+			for (int k = 0; k < entry.count(); k++) {
+				int quota = base + (slot < rem ? 1 : 0);
+				while (slot < n && placed >= quota) {
+					slot++;
+					placed = 0;
+					quota = base + (slot < rem ? 1 : 0);
+				}
+				if (slot >= n) {
+					return pools; // defensive — sum of quotas equals total, so this shouldn't be reached
+				}
+				pools.get(slot).merge(entry.item(), 1, Integer::sum);
+				placed++;
+			}
+		}
+		return pools;
+	}
+
+	/** The pile's woods with the active one moved to the front (else contents order unchanged). */
+	private static List<Entry> orderedEntries(VariantPile data) {
+		if (data.selected().isEmpty()) {
+			return data.contents();
+		}
+		Item active = data.selected().get();
+		List<Entry> ordered = new ArrayList<>(data.contents().size());
+		for (Entry entry : data.contents()) {
+			if (entry.item() == active) {
+				ordered.add(entry);
+			}
+		}
+		for (Entry entry : data.contents()) {
+			if (entry.item() != active) {
+				ordered.add(entry);
+			}
+		}
+		return ordered;
 	}
 }

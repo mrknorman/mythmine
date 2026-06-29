@@ -40,6 +40,10 @@ public final class DragMerge {
 		if (group == null || VariantGroups.of(carried.getItem()) != group) {
 			return false; // not both members of the same group
 		}
+		// A wood deposited into a pile becomes that pile's active variant (only meaningful for a plain
+		// carried stack — depositing a whole pile leaves the existing selection alone).
+		boolean pureDeposit = !VariantPiles.isPile(carried);
+		Item depositedWood = carried.getItem();
 		// Leave plain same-variant stacking to vanilla; only intervene when a mix would form.
 		boolean anyPile = VariantPiles.isPile(slotStack) || VariantPiles.isPile(carried);
 		if (slotStack.getItem() == carried.getItem() && !anyPile) {
@@ -77,6 +81,9 @@ public final class DragMerge {
 			VariantPiles.splitPilePreferring(carried, take, preferred);
 		} else {
 			carried.split(take);
+		}
+		if (pureDeposit) {
+			VariantPiles.seed(merged, depositedWood); // the wood you just deposited becomes the active one
 		}
 		slot.set(merged);
 		return true;
