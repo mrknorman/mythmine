@@ -170,8 +170,9 @@ One component type, reused by every variant group. Register it once (`ModCompone
 
 ```
 VariantPile {
-  contents:  List<Entry>   // ordered canonical-first; Entry = { item: Holder<Item>, count: int }
-  selected:  int           // index into contents for the scroll-select UI; -1 = none
+  contents:  List<Entry>      // ordered canonical-first; Entry = { item: Item, count: int }
+  selected:  Optional<Item>   // the active wood (scroll-select / deposit) — stored as the wood, not an
+                              // index, so it survives reorder/peel; empty = none. Preserved across reconcile.
 }
 ```
 
@@ -503,10 +504,12 @@ Raised during implementation; captured here so they aren't lost.
 - **Contract piles are space-saving, not "keep" piles** *(for the auto-sort + `manual` flag).* Piles built
   by double-click contract exist to free slots, so they must NOT get the manual/protected flag — auto-sort
   is free to break them back up.
-- **Active wood (`VariantPile.selected`) drives placement + icon — later.** Contract seeds `selected` with
-  the double-clicked wood now; the deferred "active wood" feature reads it to change what the pile
-  *places* (place the active wood, not canonical oak) and the *icon* (active wood drawn on top), and must
-  keep `selected` valid across reconcile / peel.
+- **Active wood (`VariantPile.selected`) — DONE except placement + icon.** `selected` is now the active
+  **wood** (`Optional<Item>`), preserved across reconcile. Set by: contract (seeds the double-clicked wood),
+  depositing a plain wood into a pile (that wood becomes active), and **scrolling** over a pile slot
+  (`SelectVariantPayload`, server-authoritative). Shown by the grid tooltip highlight. Drag-distribute uses
+  it as a tie-break (active wood packed into the earliest slots, totals still equal). **Still deferred:** the
+  pile *places* the active wood (not canonical oak), and the *icon* draws the active wood on top.
 
 ### Post-MVP (outline only)
 - **Fan-out:** declare the remaining forms from §7 as data; smoke-test each.
