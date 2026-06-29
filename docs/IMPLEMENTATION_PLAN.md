@@ -504,12 +504,17 @@ Raised during implementation; captured here so they aren't lost.
 - **Contract piles are space-saving, not "keep" piles** *(for the auto-sort + `manual` flag).* Piles built
   by double-click contract exist to free slots, so they must NOT get the manual/protected flag — auto-sort
   is free to break them back up.
-- **Active wood (`VariantPile.selected`) — DONE except placement + icon.** `selected` is now the active
+- **Active wood (`VariantPile.selected`) — DONE except block placement.** `selected` is the active
   **wood** (`Optional<Item>`), preserved across reconcile. Set by: contract (seeds the double-clicked wood),
   depositing a plain wood into a pile (that wood becomes active), and **scrolling** over a pile slot
-  (`SelectVariantPayload`, server-authoritative). Shown by the grid tooltip highlight. Drag-distribute uses
-  it as a tie-break (active wood packed into the earliest slots, totals still equal). **Still deferred:** the
-  pile *places* the active wood (not canonical oak), and the *icon* draws the active wood on top.
+  (`SelectVariantPayload` to the server, plus an immediate client-side update for a live icon — mirrors
+  `BundleMouseActions`). Shown by the grid-tooltip highlight **and the icon** (active wood drawn on top,
+  mirroring `BundleSelectedItemSpecialRenderer`). Drag-distribute uses it as a tie-break (active wood packed
+  into the earliest slots, totals still equal). **Bundle-parity inventory gestures (done):** right-click a
+  pile in a slot with an empty cursor → extract the active wood's stack to the cursor; right-click a carried
+  pile onto an empty slot → drip the active wood out. Both mirror `BundleItem.overrideOther/StackedOn*` and
+  run in `doClick` on both sides (no packet). **Still deferred:** placing a block from a pile uses the active
+  wood (not canonical oak) — the world-placement path, not an inventory gesture.
 
 ### Post-MVP (outline only)
 - **Fan-out:** declare the remaining forms from §7 as data; smoke-test each.
