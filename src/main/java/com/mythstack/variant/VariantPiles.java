@@ -169,6 +169,40 @@ public final class VariantPiles {
 		return sorted;
 	}
 
+	/** How much of {@code wood} is held in {@code stack}'s pile contents (0 if not a pile / none present). */
+	public static int countOf(ItemStack stack, Item wood) {
+		VariantPile pile = stack.get(ModComponents.VARIANT_PILE);
+		if (pile == null) {
+			return 0;
+		}
+		int count = 0;
+		for (Entry entry : pile.contents()) {
+			if (entry.item() == wood) {
+				count += entry.count();
+			}
+		}
+		return count;
+	}
+
+	/**
+	 * Record {@code seed} as the pile's active/selected variant ({@link VariantPile#selected}, the index
+	 * of that wood in the contents). No-op on a plain stack or if {@code seed} isn't present. Display /
+	 * placement effects of the selection are a later step; this just stores the intent.
+	 */
+	public static void seed(ItemStack stack, Item seed) {
+		VariantPile pile = stack.get(ModComponents.VARIANT_PILE);
+		if (pile == null) {
+			return;
+		}
+		List<Entry> contents = pile.contents();
+		for (int i = 0; i < contents.size(); i++) {
+			if (contents.get(i).item() == seed) {
+				stack.set(ModComponents.VARIANT_PILE, new VariantPile(contents, i));
+				return;
+			}
+		}
+	}
+
 	/**
 	 * Build a single stack from ordered {@code entries}: a plain vanilla stack if one variant, else a
 	 * canonical-hosted pile. {@code group} supplies the canonical host (falls back to the first entry).

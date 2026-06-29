@@ -7,6 +7,7 @@ import com.mythstack.variant.VariantPile;
 import com.mythstack.variant.VariantPile.Entry;
 import com.mythstack.variant.VariantPiles;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
@@ -71,6 +72,78 @@ public final class PileSeparation {
 		VariantGroup group = VariantGroups.of(pile.getItem());
 		List<ItemStack> packed = VariantPiles.makeStacks(group, VariantPiles.pool(group, leftovers));
 		return packed.isEmpty() ? ItemStack.EMPTY : packed.get(0);
+	}
+
+	/**
+	 * Double-click a plain wood stack to contract: first gather every bit of <em>that</em> wood — pure
+	 * stacks and the wood locked inside other piles — into the cursor, up to a full 64; then, if there's
+	 * still room, pull in whole pure stacks of <em>other</em> woods that fit the gap, forming a pile,
+	 * until full or none fit. The double-clicked wood is recorded as the pile's seed/active variant.
+	 * Returns the resulting cursor stack.
+	 */
+	public static ItemStack contract(AbstractContainerMenu menu, Player player) {
+		ItemStack carried = menu.getCarried();
+		Item seed = carried.getItem();
+		VariantGroup group = VariantGroups.of(seed);
+		if (group == null) {
+			return carried;
+		}
+		int cap = VariantPiles.CAP;
+		List<ItemStack> gathered = new ArrayList<>();
+		gathered.add(carried.copy());
+		int total = carried.getCount();
+
+		// Step 1: gather all of `seed` — pure seed stacks and seed locked inside other piles.
+		for (Slot slot : menu.slots) {
+			if (total >= cap) {
+				break;
+			}
+			ItemStack s = slot.getItem();
+			if (s.isEmpty() || !slot.mayPickup(player)) {
+				continue;
+			}
+			if (VariantPiles.isPile(s)) {
+				int take = Math.min(VariantPiles.countOf(s, seed), cap - total);
+				if (take > 0) {
+					gathered.add(VariantPiles.splitPilePreferring(s, take, seed));
+					slot.set(s);
+					total += take;
+				}
+			} else if (s.getItem() == seed) {
+				int take = Math.min(s.getCount(), cap - total);
+				gathered.add(new ItemStack(seed, take));
+				s.shrink(take);
+				slot.set(s);
+				total += take;
+			}
+		}
+
+		// Step 2: fill the remaining gap with whole stacks/piles of other group woods that fit. Pulling
+		// whole piles too consolidates the many small piles dragging leaves behind into this one.
+		for (Slot slot : menu.slots) {
+			if (total >= cap) {
+				break;
+			}
+			ItemStack s = slot.getItem();
+			if (s.isEmpty() || !slot.mayPickup(player) || s.getCount() > cap - total) {
+				continue;
+			}
+			if (VariantPiles.isPile(s)) {
+				// A pile (its seed was already drained in step 1); pool() dissolves it into its woods.
+				gathered.add(s.copy());
+				total += s.getCount();
+				slot.set(ItemStack.EMPTY);
+			} else if (s.getItem() != seed && group.contains(s.getItem())) {
+				gathered.add(s.copy());
+				total += s.getCount();
+				slot.set(ItemStack.EMPTY);
+			}
+		}
+
+		List<ItemStack> made = VariantPiles.makeStacks(group, VariantPiles.pool(group, gathered));
+		ItemStack result = made.isEmpty() ? ItemStack.EMPTY : made.get(0);
+		VariantPiles.seed(result, seed); // record the active/seed wood (display/placement effects later)
+		return result;
 	}
 
 	/**
@@ -209,5 +282,49 @@ public final class PileSeparation {
 			}
 		}
 		menu.setCarried(ItemStack.EMPTY);
+	}
+
+	/**
+	 * The share a single dragged {@code target} slot would receive from {@link #dragDistribute} — used to
+	 * draw the in-drag preview so it matches the eventual even split (the same position-sort + round-robin
+	 * as the real distribution). Returns the slot's existing item for slots that won't receive anything.
+	 */
+	public static ItemStack dragPreviewShare(ItemStack pile, Set<Slot> draggedSlots, Slot target) {
+		VariantPile data = pile.get(ModComponents.VARIANT_PILE);
+		if (data == null) {
+			return target.getItem();
+		}
+		List<Slot> targets = new ArrayList<>();
+		for (Slot slot : draggedSlots) {
+			if (slot.getItem().isEmpty() && slot.mayPlace(pile)) {
+				targets.add(slot);
+			}
+		}
+		targets.sort(Comparator.comparingInt((Slot s) -> s.y).thenComparingInt(s -> s.x));
+		int index = targets.indexOf(target);
+		if (index < 0) {
+			return target.getItem(); // this slot won't receive anything — show it unchanged
+		}
+		int n = targets.size();
+		Map<Item, Integer> pool = new HashMap<>();
+		int next = 0;
+		for (Entry entry : data.contents()) {
+			for (int k = 0; k < entry.count(); k++) {
+				if (next == index) {
+					pool.merge(entry.item(), 1, Integer::sum);
+				}
+				next = (next + 1) % n;
+			}
+		}
+		if (pool.isEmpty()) {
+			return ItemStack.EMPTY;
+		}
+		List<ItemStack> parts = new ArrayList<>();
+		for (Map.Entry<Item, Integer> e : pool.entrySet()) {
+			parts.add(new ItemStack(e.getKey(), e.getValue()));
+		}
+		VariantGroup group = VariantGroups.of(pile.getItem());
+		List<ItemStack> made = VariantPiles.makeStacks(group, VariantPiles.pool(group, parts));
+		return made.isEmpty() ? ItemStack.EMPTY : made.get(0);
 	}
 }

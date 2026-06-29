@@ -1,7 +1,9 @@
 package com.mythstack.mixin;
 
 import com.mythstack.interaction.PileSeparation;
+import com.mythstack.variant.VariantGroups;
 import com.mythstack.variant.VariantPiles;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerInput;
@@ -33,36 +35,46 @@ public abstract class AbstractContainerMenuMixin {
 	protected abstract void resetQuickCraft();
 
 	/**
-	 * Pile-specific click handling, only when a pile is on the cursor:
+	 * Pile / wood double-click and drag handling:
 	 * <ul>
-	 *   <li>{@code QUICK_CRAFT} (drag) splits the pile as evenly as possible into a pile/stack per
-	 *       dragged slot — vanilla would copy the component into each with a fractional count, producing
-	 *       inconsistent piles. We act only on the execute phase; start/add accumulate the slots.</li>
-	 *   <li>{@code PICKUP_ALL} (double-click) expands the pile into the surrounding storage instead of
-	 *       vanilla "gather all".</li>
+	 *   <li>pile + {@code QUICK_CRAFT} (drag) → split the pile evenly into a pile/stack per dragged slot
+	 *       (vanilla copies the component fractionally → corrupt piles); only the execute phase acts.</li>
+	 *   <li>pile + {@code PICKUP_ALL} (double-click) → expand into the surrounding storage.</li>
+	 *   <li>plain wood stack + {@code PICKUP_ALL} (double-click) → contract: gather that wood (incl. from
+	 *       other piles), then fill the gap with whole other-wood stacks, into a seeded pile.</li>
 	 * </ul>
-	 * Both run on the server (authoritative) and the client (prediction / the creative-inventory path);
-	 * the operations are deterministic, so the sides converge.
+	 * All are server-authoritative: the client cancels vanilla and waits for the synced result. Running
+	 * these as client predictions desynced under rapid actions (stray stacks). The creative inventory
+	 * (client-authoritative clicks) is therefore not covered here — that needs a dedicated client path.
 	 */
 	@Inject(method = "clicked", at = @At("HEAD"), cancellable = true)
 	private void mythstack$pileClick(int slotId, int button, ContainerInput input, Player player, CallbackInfo ci) {
 		AbstractContainerMenu self = (AbstractContainerMenu) (Object) this;
-		if (!VariantPiles.isPile(self.getCarried())) {
-			return;
-		}
-		if (input == ContainerInput.QUICK_CRAFT) {
-			if (AbstractContainerMenu.getQuickcraftHeader(button) == 2) { // the drag's execute phase
-				PileSeparation.dragDistribute(self, this.quickcraftSlots);
-				this.resetQuickCraft();
-				self.broadcastChanges();
+		ItemStack carried = self.getCarried();
+		boolean server = player instanceof ServerPlayer;
+		if (VariantPiles.isPile(carried)) {
+			if (input == ContainerInput.QUICK_CRAFT) {
+				if (AbstractContainerMenu.getQuickcraftHeader(button) == 2) { // the drag's execute phase
+					if (server) {
+						PileSeparation.dragDistribute(self, this.quickcraftSlots);
+						self.broadcastChanges();
+					}
+					this.resetQuickCraft();
+					ci.cancel();
+				}
+			} else if (input == ContainerInput.PICKUP_ALL) {
+				if (server) {
+					self.setCarried(PileSeparation.expand(self, slotId));
+					self.broadcastChanges();
+				}
 				ci.cancel();
 			}
-		} else if (input == ContainerInput.PICKUP_ALL) {
-			// Runs on both sides: the server authoritatively, the client as instant prediction (and as the
-			// authoritative path for the creative inventory, which routes its clicks here client-side).
-			// expand() is drop-free and deterministic, so both sides converge.
-			self.setCarried(PileSeparation.expand(self, slotId));
-			self.broadcastChanges();
+		} else if (input == ContainerInput.PICKUP_ALL && !carried.isEmpty()
+				&& VariantGroups.of(carried.getItem()) != null) {
+			if (server) {
+				self.setCarried(PileSeparation.contract(self, player));
+				self.broadcastChanges();
+			}
 			ci.cancel();
 		}
 	}

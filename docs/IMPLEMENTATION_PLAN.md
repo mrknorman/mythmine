@@ -500,6 +500,13 @@ Raised during implementation; captured here so they aren't lost.
   Phase 5).* Middle-clicking a placed wood block should — if a pile containing that wood is in the
   inventory — bring that pile to hand and set its active/selected variant to the clicked wood (so
   pick-block on jungle hands you the pile already set to place jungle).
+- **Contract piles are space-saving, not "keep" piles** *(for the auto-sort + `manual` flag).* Piles built
+  by double-click contract exist to free slots, so they must NOT get the manual/protected flag — auto-sort
+  is free to break them back up.
+- **Active wood (`VariantPile.selected`) drives placement + icon — later.** Contract seeds `selected` with
+  the double-clicked wood now; the deferred "active wood" feature reads it to change what the pile
+  *places* (place the active wood, not canonical oak) and the *icon* (active wood drawn on top), and must
+  keep `selected` valid across reconcile / peel.
 
 ### Post-MVP (outline only)
 - **Fan-out:** declare the remaining forms from §7 as data; smoke-test each.
