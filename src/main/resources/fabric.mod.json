@@ -27,6 +27,7 @@
 			"environment": "client"
 		}
 	],
+	"accessWidener": "mythstack.accesswidener",
 	"depends": {
 		"fabricloader": ">=0.19.3",
 		"minecraft": "~26.2",
