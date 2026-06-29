@@ -10,9 +10,10 @@ import net.minecraft.world.item.ItemStack;
 import java.util.List;
 
 /**
- * Manual drag-merge (spec §6): left-clicking a slot while holding a <em>different</em> member of the
- * same variant group combines them into a pile instead of the vanilla swap. Fills the target up to
- * the 64 cap; overflow stays on the cursor. Only ever intercepts same-group interactions — different
+ * Manual drag-merge (spec §6): clicking a slot while holding a <em>different</em> member of the same
+ * variant group combines them into a pile instead of the vanilla swap. Left-click deposits everything
+ * that fits (up to the 64 cap); right-click deposits a single log at a time (top up / build a pile
+ * gradually). Overflow stays on the cursor. Only ever intercepts same-group interactions — different
  * groups, non-members, or plain same-variant stacking fall through to vanilla.
  */
 public final class DragMerge {
@@ -22,11 +23,12 @@ public final class DragMerge {
 	/**
 	 * @param slot    the clicked slot (target)
 	 * @param carried the cursor stack
-	 * @param action  the click action (only {@link ClickAction#PRIMARY} merges)
+	 * @param action  the click action — {@link ClickAction#PRIMARY} deposits all that fits,
+	 *                {@link ClickAction#SECONDARY} deposits a single log
 	 * @return true if the merge was handled (the caller should stop vanilla handling)
 	 */
 	public static boolean tryMerge(Slot slot, ItemStack carried, ClickAction action) {
-		if (action != ClickAction.PRIMARY || carried.isEmpty()) {
+		if (carried.isEmpty()) {
 			return false;
 		}
 		ItemStack slotStack = slot.getItem();
@@ -47,7 +49,9 @@ public final class DragMerge {
 			return false; // target already full — let vanilla swap
 		}
 
-		int take = Math.min(space, carried.getCount());
+		// Left-click deposits everything that fits; right-click drips in a single log.
+		int wanted = action == ClickAction.SECONDARY ? 1 : carried.getCount();
+		int take = Math.min(space, wanted);
 		// Preview the merged result (canonical-first) without mutating, so we can bail on a bad slot.
 		ItemStack peeled = carried.copy().split(take);
 		List<ItemStack> result = VariantPiles.makeStacks(group, VariantPiles.pool(group, List.of(slotStack, peeled)));
