@@ -9,19 +9,18 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.item.Item;
 
 /**
- * C2S: the player scrolled over the pile in slot {@code slotIndex} of the menu with id
- * {@code containerId} to make {@code wood} its active variant. The server validates that the slot
- * still holds a pile containing {@code wood} and updates it — the client doesn't predict, it waits for
- * the synced slot (server-authoritative, matching the rest of the pile interactions).
+ * C2S: the player scrolled over the pile in slot {@code slotIndex} of their open menu to make
+ * {@code wood} its active variant. Mirrors vanilla's {@code ServerboundSelectBundleItemPacket} (slot +
+ * selection, no container id): the server applies it to {@code player.containerMenu} and the client has
+ * already updated its own copy, so no re-broadcast is needed (see {@link PileNetworking}).
  */
-public record SelectVariantPayload(int containerId, int slotIndex, Item wood) implements CustomPacketPayload {
+public record SelectVariantPayload(int slotIndex, Item wood) implements CustomPacketPayload {
 
 	public static final CustomPacketPayload.Type<SelectVariantPayload> TYPE =
 			new CustomPacketPayload.Type<>(MythStack.id("select_variant"));
 
 	public static final StreamCodec<RegistryFriendlyByteBuf, SelectVariantPayload> STREAM_CODEC =
 			StreamCodec.composite(
-					ByteBufCodecs.VAR_INT, SelectVariantPayload::containerId,
 					ByteBufCodecs.VAR_INT, SelectVariantPayload::slotIndex,
 					ByteBufCodecs.registry(Registries.ITEM), SelectVariantPayload::wood,
 					SelectVariantPayload::new);

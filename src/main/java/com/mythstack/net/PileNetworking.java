@@ -1,17 +1,22 @@
 package com.mythstack.net;
 
+import com.mythstack.MythStack;
 import com.mythstack.registry.ModComponents;
 import com.mythstack.variant.VariantPiles;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 /**
  * Common-side networking for pile interactions. Registers the C2S {@link SelectVariantPayload} codec and
- * its server receiver, which applies the scrolled-to active variant authoritatively and re-syncs the slot.
+ * its server receiver, which applies the scrolled-to active variant to the player's open menu — the
+ * direct analogue of vanilla {@code AbstractContainerMenu.setSelectedBundleItemIndex}: mutate the slot
+ * stack's component in place, no slot re-set and no broadcast (the client already updated its own copy,
+ * and the selection rides with the stack from then on).
  */
 public final class PileNetworking {
 	private PileNetworking() {
@@ -27,20 +32,19 @@ public final class PileNetworking {
 
 	private static void apply(ServerPlayer player, SelectVariantPayload payload) {
 		AbstractContainerMenu menu = player.containerMenu;
-		if (menu == null || menu.containerId != payload.containerId()) {
-			return; // the open menu changed since the scroll — ignore the stale request
+		if (menu == null) {
+			return;
 		}
 		int index = payload.slotIndex();
 		if (index < 0 || index >= menu.slots.size()) {
 			return;
 		}
-		Slot slot = menu.slots.get(index);
-		ItemStack stack = slot.getItem();
-		if (stack.get(ModComponents.VARIANT_PILE) == null) {
-			return; // not (or no longer) a pile
+		ItemStack stack = menu.slots.get(index).getItem();
+		VariantPiles.seed(stack, payload.wood()); // mutate in place; no-op if the wood isn't in this pile
+		if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
+			MythStack.LOGGER.info("[pile-select] slot={} wood={} isPile={} applied(selected)={}", index,
+					BuiltInRegistries.ITEM.getKey(payload.wood()), VariantPiles.isPile(stack),
+					VariantPiles.isPile(stack) ? VariantPiles.activeWood(stack) : null);
 		}
-		VariantPiles.seed(stack, payload.wood()); // no-op if the wood isn't in this pile — validates for us
-		slot.set(stack);
-		menu.broadcastChanges();
 	}
 }

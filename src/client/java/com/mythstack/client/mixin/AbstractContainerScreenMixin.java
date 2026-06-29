@@ -8,7 +8,6 @@ import com.mythstack.variant.VariantPiles;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -38,10 +37,6 @@ public abstract class AbstractContainerScreenMixin {
 	@Shadow
 	@Final
 	protected Set<Slot> quickCraftSlots;
-
-	@Shadow
-	@Final
-	protected AbstractContainerMenu menu;
 
 	@Shadow
 	protected Slot hoveredSlot;
@@ -82,9 +77,9 @@ public abstract class AbstractContainerScreenMixin {
 		int next = current < 0 ? (dir > 0 ? 0 : size - 1) : Math.floorMod(current + dir, size);
 		Item wood = contents.get(next).item();
 		// Update the client's stack immediately so the icon/highlight track the wheel with no round-trip,
-		// then tell the server (which re-broadcasts the same selection). Mirrors BundleMouseActions.
+		// then tell the server to apply the same selection to its copy. Mirrors BundleMouseActions.
 		VariantPiles.seed(this.hoveredSlot.getItem(), wood);
-		ClientPlayNetworking.send(new SelectVariantPayload(this.menu.containerId, this.hoveredSlot.index, wood));
+		ClientPlayNetworking.send(new SelectVariantPayload(this.hoveredSlot.index, wood));
 		cir.setReturnValue(true); // consume the scroll so it doesn't fall through to vanilla
 	}
 }
