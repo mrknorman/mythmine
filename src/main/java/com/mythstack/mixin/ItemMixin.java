@@ -38,10 +38,12 @@ public class ItemMixin {
 			Item active = VariantPiles.activeWood(carried);
 			ItemStack probe = active == null ? ItemStack.EMPTY : new ItemStack(active);
 			if (active != null && slot.mayPlace(probe)) {
-				int take = Math.min(slot.getMaxStackSize(probe), VariantPiles.countOf(carried, active));
-				ItemStack removed = VariantPiles.removeWood(carried, active, take);
+				// Drip one at a time. Dropping the whole active-wood stack would exhaust that wood from the
+				// cursor pile, clearing the selection and snapping the icon back to canonical; peeling a
+				// single unit keeps the active wood (and selection) on the cursor as you keep dripping.
+				ItemStack removed = VariantPiles.removeWood(carried, active, 1);
 				if (!removed.isEmpty()) {
-					slot.safeInsert(removed); // take <= slot capacity, into an empty slot → fully placed
+					slot.safeInsert(removed); // one unit into an empty slot → fully placed
 					cir.setReturnValue(true);
 					return;
 				}
