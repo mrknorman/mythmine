@@ -37,8 +37,7 @@ public record ContentVariantProperty(int index) implements SelectItemModelProper
 					).apply(instance, ContentVariantProperty::new)),
 					Codec.STRING);
 
-	/** Diagnostic: the (index=id) selected on the most recent call, read by the render diagnostic. */
-	public static final ThreadLocal<String> LAST_SELECTED = new ThreadLocal<>();
+	/** Diagnostic: each distinct (index, size, result) is logged once. */
 	private static final Set<String> DEBUG_SEEN = ConcurrentHashMap.newKeySet();
 
 	@Override
@@ -48,7 +47,10 @@ public record ContentVariantProperty(int index) implements SelectItemModelProper
 				? Items.AIR
 				: pile.contents().get(index).item();
 		String id = BuiltInRegistries.ITEM.getKey(item).toString();
-		LAST_SELECTED.set(index + "=" + id);
+		if (DEBUG_SEEN.add(index + "/" + (pile == null ? -1 : pile.contents().size()) + "/" + id)) {
+			MythStack.LOGGER.info("[content_variant] index={} size={} ctx={} -> {}",
+					index, pile == null ? -1 : pile.contents().size(), context, id);
+		}
 		return id;
 	}
 
