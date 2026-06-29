@@ -496,6 +496,10 @@ Raised during implementation; captured here so they aren't lost.
   for the crafting grid and recipe-book auto-fill should take the **intended** variant, not blindly
   canonical-first. Enumerate + test the edge cases: shift-click into grid, recipe-book fill, the
   crafter block, quick-move, and JEI/REI-style click-fill.
+- **Middle-click (pick-block) snaps to a matching pile** *(depends on the selected-variant mechanism,
+  Phase 5).* Middle-clicking a placed wood block should — if a pile containing that wood is in the
+  inventory — bring that pile to hand and set its active/selected variant to the clicked wood (so
+  pick-block on jungle hands you the pile already set to place jungle).
 
 ### Post-MVP (outline only)
 - **Fan-out:** declare the remaining forms from §7 as data; smoke-test each.
