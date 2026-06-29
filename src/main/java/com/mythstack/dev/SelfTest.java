@@ -77,7 +77,7 @@ public final class SelfTest {
 				collapsed.getItem() == Items.BIRCH_LOG && collapsed.getCount() == 50 && !VariantPiles.isPile(collapsed), failures);
 
 		// 7. Pile name via the getHoverName mixin is the form word.
-		check("pile name -> 'Logs'", "Logs".equals(pile.getHoverName().getString()), failures);
+		check("pile name -> 'Log Pile'", "Log Pile".equals(pile.getHoverName().getString()), failures);
 
 		// 8. Auto-grouping on pickup (spec §5).
 		List<ItemStack> inv1 = new ArrayList<>(List.of(new ItemStack(Items.OAK_LOG, 30)));

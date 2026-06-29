@@ -189,18 +189,21 @@ public final class VariantPiles {
 		return out;
 	}
 
-	/** Display name for a pile: the form word, e.g. "Logs" or "Planks". */
+	/** Display name for a pile: the singular form word + " Pile", e.g. "Log Pile" or "Plank Pile". */
 	public static Component displayName(ItemStack stack) {
 		VariantGroup group = VariantGroups.of(stack.getItem());
 		String form = "Wood";
 		if (group != null) {
-			String path = group.id().getPath();
-			String last = path.substring(path.lastIndexOf('/') + 1);
+			String last = group.id().getPath();
+			last = last.substring(last.lastIndexOf('/') + 1);
+			if (last.endsWith("s")) {
+				last = last.substring(0, last.length() - 1); // logs -> log (naive singularize; fine for MVP forms)
+			}
 			if (!last.isEmpty()) {
 				form = Character.toUpperCase(last.charAt(0)) + last.substring(1);
 			}
 		}
-		return Component.literal(form);
+		return Component.literal(form + " Pile");
 	}
 
 	/**
