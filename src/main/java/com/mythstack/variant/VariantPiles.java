@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * The Minecraft adapter around {@link CanonicalPacking} — the only place that reads/writes the
@@ -69,9 +70,24 @@ public final class VariantPiles {
 			stack.remove(ModComponents.VARIANT_PILE);
 			return null;
 		}
-		VariantPile pile = new VariantPile(List.copyOf(contents), -1);
+		VariantPile pile = new VariantPile(List.copyOf(contents), preserveSelected(stack, contents));
 		stack.set(ModComponents.VARIANT_PILE, pile);
 		return pile;
+	}
+
+	/** Keep the old pile's active wood if it survives into {@code contents}, otherwise none. */
+	private static Optional<Item> preserveSelected(ItemStack stack, List<Entry> contents) {
+		VariantPile old = stack.get(ModComponents.VARIANT_PILE);
+		if (old == null || old.selected().isEmpty()) {
+			return Optional.empty();
+		}
+		Item active = old.selected().get();
+		for (Entry entry : contents) {
+			if (entry.item() == active) {
+				return old.selected();
+			}
+		}
+		return Optional.empty();
 	}
 
 	/** Result of splitting an ordered content list: the peeled-off front and the leftover remainder. */
@@ -194,10 +210,9 @@ public final class VariantPiles {
 		if (pile == null) {
 			return;
 		}
-		List<Entry> contents = pile.contents();
-		for (int i = 0; i < contents.size(); i++) {
-			if (contents.get(i).item() == seed) {
-				stack.set(ModComponents.VARIANT_PILE, new VariantPile(contents, i));
+		for (Entry entry : pile.contents()) {
+			if (entry.item() == seed) {
+				stack.set(ModComponents.VARIANT_PILE, new VariantPile(pile.contents(), Optional.of(seed)));
 				return;
 			}
 		}
@@ -220,7 +235,7 @@ public final class VariantPiles {
 		}
 		Item host = canonicalHostFor(group, entries);
 		ItemStack stack = new ItemStack(host, total);
-		stack.set(ModComponents.VARIANT_PILE, new VariantPile(List.copyOf(entries), -1));
+		stack.set(ModComponents.VARIANT_PILE, new VariantPile(List.copyOf(entries), Optional.empty()));
 		return stack;
 	}
 

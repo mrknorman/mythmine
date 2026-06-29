@@ -30,9 +30,14 @@ public class ItemTooltipImageMixin {
 			return;
 		}
 		List<ItemStack> items = new ArrayList<>(pile.contents().size());
-		for (VariantPile.Entry entry : pile.contents()) {
+		int selectedIndex = -1;
+		for (int i = 0; i < pile.contents().size(); i++) {
+			VariantPile.Entry entry = pile.contents().get(i);
 			items.add(new ItemStack(entry.item(), entry.count()));
+			if (pile.selected().isPresent() && pile.selected().get() == entry.item()) {
+				selectedIndex = i;
+			}
 		}
-		cir.setReturnValue(Optional.of(new PileTooltip(items)));
+		cir.setReturnValue(Optional.of(new PileTooltip(items, selectedIndex)));
 	}
 }

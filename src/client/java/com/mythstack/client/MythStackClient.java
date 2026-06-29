@@ -14,6 +14,6 @@ public class MythStackClient implements ClientModInitializer {
 
 		// Bundle-style grid tooltip for piles: map our PileTooltip data to the client grid renderer.
 		ClientTooltipComponentCallback.EVENT.register(data ->
-				data instanceof PileTooltip pile ? new ClientPileTooltip(pile.items()) : null);
+				data instanceof PileTooltip pile ? new ClientPileTooltip(pile.items(), pile.selectedIndex()) : null);
 	}
 }

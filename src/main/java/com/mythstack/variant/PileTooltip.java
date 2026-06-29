@@ -6,9 +6,9 @@ import net.minecraft.world.item.ItemStack;
 import java.util.List;
 
 /**
- * Tooltip data for a pile: its contained woods as plain stacks, rendered as a bundle-style grid by the
- * client {@code ClientPileTooltip}. Transient (built in {@code Item#getTooltipImage} when the tooltip is
- * drawn) — never serialized.
+ * Tooltip data for a pile: its contained woods as plain stacks (in contents order) plus the index of the
+ * active/selected wood ({@code -1} = none), rendered as a bundle-style grid by {@code ClientPileTooltip}
+ * with the active slot highlighted. Transient (built in {@code Item#getTooltipImage}) — never serialized.
  */
-public record PileTooltip(List<ItemStack> items) implements TooltipComponent {
+public record PileTooltip(List<ItemStack> items, int selectedIndex) implements TooltipComponent {
 }
