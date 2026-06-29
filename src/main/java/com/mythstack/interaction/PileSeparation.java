@@ -273,7 +273,11 @@ public final class PileSeparation {
 			}
 			List<ItemStack> made = VariantPiles.makeStacks(group, VariantPiles.pool(group, parts));
 			if (!made.isEmpty()) {
-				targets.get(i).set(made.get(0));
+				ItemStack share = made.get(0);
+				// makeStacks builds fresh piles with no selection; carry the active wood onto each share so
+				// dragging a pile apart doesn't reset its active variant (same fix as the split path).
+				data.selected().ifPresent(active -> VariantPiles.seed(share, active));
+				targets.get(i).set(share);
 			}
 		}
 		menu.setCarried(ItemStack.EMPTY);
@@ -310,7 +314,12 @@ public final class PileSeparation {
 		}
 		VariantGroup group = VariantGroups.of(pile.getItem());
 		List<ItemStack> made = VariantPiles.makeStacks(group, VariantPiles.pool(group, parts));
-		return made.isEmpty() ? ItemStack.EMPTY : made.get(0);
+		if (made.isEmpty()) {
+			return ItemStack.EMPTY;
+		}
+		ItemStack share = made.get(0);
+		data.selected().ifPresent(active -> VariantPiles.seed(share, active)); // preview keeps the active wood too
+		return share;
 	}
 
 	/**

@@ -1,13 +1,11 @@
 package com.mythstack.client.mixin;
 
-import com.mythstack.MythStack;
 import com.mythstack.interaction.PileSeparation;
 import com.mythstack.net.SelectVariantPayload;
 import com.mythstack.registry.ModComponents;
 import com.mythstack.variant.VariantPile;
 import com.mythstack.variant.VariantPiles;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -89,10 +87,6 @@ public abstract class AbstractContainerScreenMixin {
 		int index = mythstack$selectionSlotIndex();
 		if (index >= 0) {
 			ClientPlayNetworking.send(new SelectVariantPayload(index, wood));
-		}
-		if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
-			MythStack.LOGGER.info("[sel] scroll index={} wood={}", index,
-					net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(wood).getPath());
 		}
 		cir.setReturnValue(true); // consume the scroll so it doesn't fall through to vanilla
 	}

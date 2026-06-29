@@ -1,16 +1,11 @@
 package com.mythstack.client.mixin;
 
-import com.mythstack.MythStack;
-import com.mythstack.registry.ModComponents;
 import com.mythstack.variant.VariantGroups;
-import com.mythstack.variant.VariantPile;
 import com.mythstack.variant.VariantPiles;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
@@ -79,33 +74,13 @@ public abstract class CreativeModeInventoryScreenMixin {
 		AbstractContainerMenu inv = player.inventoryMenu;
 		// The server accepts creative slot edits for inventory-menu indices 1..45 (0 is the crafting result).
 		int max = Math.min(inv.slots.size() - 1, 45);
-		StringBuilder synced = new StringBuilder();
 		for (int i = 1; i <= max; i++) {
 			ItemStack now = inv.slots.get(i).getItem();
 			ItemStack was = i < snapshot.size() ? snapshot.get(i) : ItemStack.EMPTY;
 			if (!ItemStack.matches(was, now)) {
 				gameMode.handleCreativeModeItemAdd(now, i);
-				if (VariantPiles.isPile(now)) {
-					synced.append(' ').append(i).append('=').append(mythstack$sel(now));
-				}
 			}
 		}
-		if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
-			ItemStack carried = inv.getCarried();
-			ItemStack clicked = slot != null ? slot.getItem() : ItemStack.EMPTY;
-			MythStack.LOGGER.info("[sel] click slot={} input={} -> carried={} clicked={} synced=[{}]",
-					slotId, input, mythstack$sel(carried), mythstack$sel(clicked), synced.toString().trim());
-		}
-	}
-
-	/** Dev trace: the pile's raw selected wood ({@code NONE} = selection lost), or empty/plain. */
-	@Unique
-	private static String mythstack$sel(ItemStack stack) {
-		VariantPile pile = stack.get(ModComponents.VARIANT_PILE);
-		if (pile == null) {
-			return stack.isEmpty() ? "empty" : "plain";
-		}
-		return pile.selected().map(wood -> BuiltInRegistries.ITEM.getKey(wood).getPath()).orElse("NONE");
 	}
 
 	@Unique
