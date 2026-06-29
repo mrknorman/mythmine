@@ -1,6 +1,7 @@
 package com.mythstack;
 
 import com.mythstack.dev.SelfTest;
+import com.mythstack.net.PileNetworking;
 import com.mythstack.registry.ModBlocks;
 import com.mythstack.registry.ModComponents;
 import com.mythstack.variant.VariantGroups;
@@ -22,6 +23,7 @@ public class MythStack implements ModInitializer {
 	public void onInitialize() {
 		ModComponents.initialize();
 		ModBlocks.initialize();
+		PileNetworking.register();
 
 		// Snapshot variant-group membership whenever tags load/sync (client + server), so resolving an
 		// item to its group never depends on a flaky per-call tag binding during container prediction.
