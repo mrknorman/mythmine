@@ -1,6 +1,8 @@
 package com.mythstack;
 
+import com.mythstack.dev.SelfTest;
 import com.mythstack.registry.ModBlocks;
+import com.mythstack.registry.ModComponents;
 import com.mythstack.variant.VariantGroups;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
@@ -17,15 +19,20 @@ public class MythStack implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+		ModComponents.initialize();
 		ModBlocks.initialize();
 
 		// Drop the test block into the vanilla Building Blocks creative tab.
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.BUILDING_BLOCKS)
 				.register(output -> output.accept(ModBlocks.WHITE_BLOCK));
 
-		// Dev-only: once datapack tags have loaded, dump a few variant-group resolutions (phase 2).
+		// Dev-only: once datapack tags have loaded, dump variant-group resolutions (phase 2) and run
+		// the headless self-test for the VariantPiles layer (phase 4).
 		if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
-			ServerLifecycleEvents.SERVER_STARTED.register(server -> VariantGroups.logSampleResolutions());
+			ServerLifecycleEvents.SERVER_STARTED.register(server -> {
+				VariantGroups.logSampleResolutions();
+				SelfTest.run();
+			});
 		}
 
 		LOGGER.info("mythstack initialized");
