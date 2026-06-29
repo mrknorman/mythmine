@@ -1,6 +1,7 @@
 package com.mythstack.dev;
 
 import com.mythstack.MythStack;
+import com.mythstack.interaction.Pickup;
 import com.mythstack.registry.ModComponents;
 import com.mythstack.variant.VariantGroup;
 import com.mythstack.variant.VariantGroups;
@@ -10,6 +11,7 @@ import com.mythstack.variant.VariantPiles;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -76,6 +78,28 @@ public final class SelfTest {
 
 		// 7. Pile name via the getHoverName mixin is the form word.
 		check("pile name -> 'Logs'", "Logs".equals(pile.getHoverName().getString()), failures);
+
+		// 8. Auto-grouping on pickup (spec §5).
+		List<ItemStack> inv1 = new ArrayList<>(List.of(new ItemStack(Items.OAK_LOG, 30)));
+		ItemStack in1 = new ItemStack(Items.OAK_LOG, 10);
+		boolean d1 = Pickup.consolidate(inv1, in1);
+		check("pickup oak onto pure oak -> oak x40 (same-variant tops up)",
+				d1 && in1.isEmpty() && inv1.get(0).getItem() == Items.OAK_LOG
+						&& inv1.get(0).getCount() == 40 && !VariantPiles.isPile(inv1.get(0)), failures);
+
+		List<ItemStack> inv2 = new ArrayList<>(List.of(new ItemStack(Items.OAK_LOG, 30)));
+		ItemStack in2 = new ItemStack(Items.BIRCH_LOG, 10);
+		boolean d2 = Pickup.consolidate(inv2, in2);
+		check("pickup birch onto pure oak -> Logs pile {oak30,birch10} (auto-consolidate)",
+				d2 && in2.isEmpty() && VariantPiles.isPile(inv2.get(0)) && inv2.get(0).getCount() == 40
+						&& contentsEqual(inv2.get(0), Items.OAK_LOG, 30, Items.BIRCH_LOG, 10), failures);
+
+		List<ItemStack> inv3 = new ArrayList<>(List.of(new ItemStack(Items.OAK_LOG, 30), pile.copy()));
+		ItemStack in3 = new ItemStack(Items.OAK_LOG, 5);
+		Pickup.consolidate(inv3, in3);
+		check("pickup oak: tops up pure oak, not the pile",
+				in3.isEmpty() && inv3.get(0).getCount() == 35 && !VariantPiles.isPile(inv3.get(0))
+						&& inv3.get(1).getCount() == 60 && VariantPiles.isPile(inv3.get(1)), failures);
 
 		if (failures[0] == 0) {
 			MythStack.LOGGER.info("[selftest] ALL CHECKS PASSED");
