@@ -2,6 +2,7 @@ package com.mythstack.client;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.mythstack.MythStack;
 import com.mythstack.registry.ModComponents;
 import com.mythstack.variant.VariantPile;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -12,6 +13,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A custom item-model {@code select} property — {@code mythstack:content_variant} — that returns the
@@ -28,13 +32,21 @@ public record ContentVariantProperty(int index) implements SelectItemModelProper
 					).apply(instance, ContentVariantProperty::new)),
 					BuiltInRegistries.ITEM.byNameCodec());
 
+	/** Diagnostic: each distinct (index, size, result) is logged once so we can see what the model selects. */
+	private static final Set<String> DEBUG_SEEN = ConcurrentHashMap.newKeySet();
+
 	@Override
 	public Item get(ItemStack stack, ClientLevel level, LivingEntity entity, int seed, ItemDisplayContext context) {
 		VariantPile pile = stack.get(ModComponents.VARIANT_PILE);
-		if (pile == null || index < 0 || index >= pile.contents().size()) {
-			return Items.AIR;
+		Item result = (pile == null || index < 0 || index >= pile.contents().size())
+				? Items.AIR
+				: pile.contents().get(index).item();
+		String key = index + "/" + (pile == null ? -1 : pile.contents().size()) + "/" + BuiltInRegistries.ITEM.getKey(result);
+		if (DEBUG_SEEN.add(key)) {
+			MythStack.LOGGER.info("[content_variant] index={} size={} ctx={} -> {}",
+					index, pile == null ? -1 : pile.contents().size(), context, BuiltInRegistries.ITEM.getKey(result));
 		}
-		return pile.contents().get(index).item();
+		return result;
 	}
 
 	@Override
