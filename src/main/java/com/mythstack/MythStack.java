@@ -39,7 +39,7 @@ public class MythStack implements ModInitializer {
 		if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
 			ServerLifecycleEvents.SERVER_STARTED.register(server -> {
 				VariantGroups.logSampleResolutions();
-				SelfTest.run();
+				SelfTest.run(server.overworld());
 			});
 		}
 

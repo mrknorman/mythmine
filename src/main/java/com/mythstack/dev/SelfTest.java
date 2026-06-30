@@ -1,6 +1,7 @@
 package com.mythstack.dev;
 
 import com.mythstack.MythStack;
+import com.mythstack.craft.CraftTransmute;
 import com.mythstack.interaction.Pickup;
 import com.mythstack.registry.ModComponents;
 import com.mythstack.variant.VariantGroup;
@@ -8,11 +9,13 @@ import com.mythstack.variant.VariantGroups;
 import com.mythstack.variant.VariantPile;
 import com.mythstack.variant.VariantPile.Entry;
 import com.mythstack.variant.VariantPiles;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Dev-only headless self-test for the {@link VariantPiles} layer (build phase 4). Runs on server
@@ -23,7 +26,7 @@ public final class SelfTest {
 	private SelfTest() {
 	}
 
-	public static void run() {
+	public static void run(ServerLevel level) {
 		int[] failures = {0};
 		VariantGroup logs = VariantGroups.LOGS;
 
@@ -185,6 +188,18 @@ public final class SelfTest {
 				new ItemStack(Items.OAK_SIGN, 10), new ItemStack(Items.SPRUCE_SIGN, 10))));
 		check("20 signs -> 2 stacks at cap 16", signStacks.size() == 2 && signStacks.get(0).getCount() == 16, failures);
 		check("first sign stack is a capped mixed pile", VariantPiles.isPile(signStacks.get(0)), failures);
+
+		// 17. Transmute (phase 2): a mixed-log pile crafts to ratio planks (logs->planks, 1 log/craft, x4).
+		ItemStack logPile = VariantPiles.makeStacks(logs, VariantPiles.pool(logs, List.of(
+				new ItemStack(Items.OAK_LOG, 30), new ItemStack(Items.SPRUCE_LOG, 30)))).get(0);
+		CraftTransmute.Outcome out = CraftTransmute.plan(List.of(logPile), 1, 1, level);
+		check("transmute: mixed-log pile yields a plan", out != null && !out.isEmpty(), failures);
+		if (out != null) {
+			check("transmute: 30 oak + 30 spruce logs -> 120 oak + 120 spruce planks",
+					out.products().equals(Map.of(Items.OAK_PLANKS, 120, Items.SPRUCE_PLANKS, 120)), failures);
+			check("transmute: consumes the whole log pile",
+					out.consumed().equals(Map.of(Items.OAK_LOG, 30, Items.SPRUCE_LOG, 30)), failures);
+		}
 
 		if (failures[0] == 0) {
 			MythStack.LOGGER.info("[selftest] ALL CHECKS PASSED");

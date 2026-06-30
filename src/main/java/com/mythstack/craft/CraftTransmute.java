@@ -1,0 +1,143 @@
+package com.mythstack.craft;
+
+import com.mythstack.registry.ModComponents;
+import com.mythstack.variant.VariantGroups;
+import com.mythstack.variant.VariantPile;
+import com.mythstack.variant.VariantPiles;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeType;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * The transmute layer (plan §7 crafting redesign — phase 2). Reads a crafting grid whose wood members may
+ * be piles and produces a <em>ratio-preserving</em> craft plan: which product items to make, and how much
+ * of each input wood to consume, driven by {@link CraftPlanner}.
+ *
+ * <p>It never hardcodes wood→product. It identifies the recipe by matching the grid as-is (the piles host
+ * on their canonical, so vanilla matches the canonical recipe), then for each output wood it <b>substitutes
+ * that wood into the grid and re-assembles</b> — the parallel per-wood recipe yields that wood's product.
+ * That covers every wood→wood recipe (and modded woods) for free. If the assembled result is itself in a
+ * variant group the output is wood-typed (ratio); otherwise it's a non-wood output planned by entropy.
+ */
+public final class CraftTransmute {
+	private CraftTransmute() {
+	}
+
+	/** What to make ({@code product item → count}) and what to eat ({@code input wood → count}). */
+	public record Outcome(LinkedHashMap<Item, Integer> products, LinkedHashMap<Item, Integer> consumed) {
+		public boolean isEmpty() {
+			return products.isEmpty();
+		}
+	}
+
+	/**
+	 * Plan the transmuted craft for {@code grid} (row-major, {@code width × height}), or {@code null} if it
+	 * isn't a craftable wood recipe. {@code level} supplies the recipe set.
+	 */
+	public static Outcome plan(List<ItemStack> grid, int width, int height, ServerLevel level) {
+		CraftingInput input = CraftingInput.of(width, height, grid);
+		Optional<RecipeHolder<CraftingRecipe>> recipe =
+				level.recipeAccess().getRecipeFor(RecipeType.CRAFTING, input, level);
+		if (recipe.isEmpty()) {
+			return null;
+		}
+		ItemStack result = recipe.get().value().assemble(input);
+		if (result.isEmpty()) {
+			return null;
+		}
+		int outputPerCraft = result.getCount();
+		int perCraft = woodSlots(grid);
+		LinkedHashMap<Item, Integer> pool = buildPool(grid);
+		if (perCraft == 0 || pool.isEmpty()) {
+			return null;
+		}
+
+		LinkedHashMap<Item, Integer> products = new LinkedHashMap<>();
+		LinkedHashMap<Item, Integer> consumed;
+		if (VariantGroups.of(result.getItem()) != null) {
+			// Wood-typed output: ratio plan, each output wood mapped to its product by substitution.
+			CraftPlanner.RatioPlan<Item> plan = CraftPlanner.planRatio(pool, perCraft);
+			for (var entry : plan.craftsByWood().entrySet()) {
+				Item product = productFor(grid, width, height, entry.getKey(), level);
+				if (product != null) {
+					products.merge(product, entry.getValue() * outputPerCraft, Integer::sum);
+				}
+			}
+			consumed = subtract(pool, plan.leftover());
+		} else {
+			// Non-wood output: entropy plan, the single product repeated.
+			CraftPlanner.EntropyPlan<Item> plan = CraftPlanner.planEntropy(pool, perCraft);
+			if (plan.crafts() > 0) {
+				products.put(result.getItem(), plan.crafts() * outputPerCraft);
+			}
+			consumed = subtract(pool, plan.leftover());
+		}
+		return new Outcome(products, consumed);
+	}
+
+	/** The product made when {@code wood} fills every wood slot — found by substitute-and-assemble. */
+	private static Item productFor(List<ItemStack> grid, int width, int height, Item wood, ServerLevel level) {
+		List<ItemStack> substituted = new ArrayList<>(grid.size());
+		for (ItemStack stack : grid) {
+			substituted.add(isWood(stack) ? new ItemStack(wood) : stack.copy());
+		}
+		CraftingInput input = CraftingInput.of(width, height, substituted);
+		Optional<RecipeHolder<CraftingRecipe>> recipe =
+				level.recipeAccess().getRecipeFor(RecipeType.CRAFTING, input, level);
+		if (recipe.isEmpty()) {
+			return null;
+		}
+		ItemStack result = recipe.get().value().assemble(input);
+		return result.isEmpty() ? null : result.getItem();
+	}
+
+	/** Pool the grid's wood into {@code wood → count}, expanding piles into their contents (slot order). */
+	private static LinkedHashMap<Item, Integer> buildPool(List<ItemStack> grid) {
+		LinkedHashMap<Item, Integer> pool = new LinkedHashMap<>();
+		for (ItemStack stack : grid) {
+			VariantPile pile = stack.get(ModComponents.VARIANT_PILE);
+			if (pile != null) {
+				for (VariantPile.Entry entry : pile.contents()) {
+					pool.merge(entry.item(), entry.count(), Integer::sum);
+				}
+			} else if (isWood(stack)) {
+				pool.merge(stack.getItem(), stack.getCount(), Integer::sum);
+			}
+		}
+		return pool;
+	}
+
+	private static int woodSlots(List<ItemStack> grid) {
+		int n = 0;
+		for (ItemStack stack : grid) {
+			if (isWood(stack)) {
+				n++;
+			}
+		}
+		return n;
+	}
+
+	private static boolean isWood(ItemStack stack) {
+		return !stack.isEmpty() && (VariantPiles.isPile(stack) || VariantGroups.of(stack.getItem()) != null);
+	}
+
+	private static LinkedHashMap<Item, Integer> subtract(LinkedHashMap<Item, Integer> pool, LinkedHashMap<Item, Integer> leftover) {
+		LinkedHashMap<Item, Integer> consumed = new LinkedHashMap<>();
+		for (var entry : pool.entrySet()) {
+			int eaten = entry.getValue() - leftover.getOrDefault(entry.getKey(), 0);
+			if (eaten > 0) {
+				consumed.put(entry.getKey(), eaten);
+			}
+		}
+		return consumed;
+	}
+}
