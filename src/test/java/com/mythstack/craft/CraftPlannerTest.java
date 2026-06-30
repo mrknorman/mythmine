@@ -42,11 +42,12 @@ class CraftPlannerTest {
 	}
 
 	@Test
-	void mixedPass_anchorsOnPrimary_andLeavesTheRest() {
-		// Nothing reaches 6 alone. Mixed craft eats the primary (oak 5) first, then 1 spruce -> majority oak.
+	void mixedPass_smallestFirst_consolidatesLeftovers() {
+		// Nothing reaches 6 alone. Smallest-first eats spruce 2 + birch 3 + 1 oak -> majority birch, and the
+		// leftover lands in a single oak stack (less clutter than anchoring on the primary would leave).
 		RatioPlan<String> plan = CraftPlanner.planRatio(pool("oak", 5, "spruce", 2, "birch", 3), 6);
-		assertEquals(Map.of("oak", 1), plan.craftsByWood());
-		assertEquals(Map.of("spruce", 1, "birch", 3), plan.leftover());
+		assertEquals(Map.of("birch", 1), plan.craftsByWood());
+		assertEquals(Map.of("oak", 4), plan.leftover());
 	}
 
 	@Test

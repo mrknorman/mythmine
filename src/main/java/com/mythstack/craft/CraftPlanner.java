@@ -9,17 +9,17 @@ import java.util.Map;
  * No Minecraft runtime — variants are an abstract {@code V} so it unit-tests as plain Strings.
  *
  * <p>The {@code pool} is a {@link LinkedHashMap} in <em>priority order</em>: the first key is "pile&nbsp;1's
- * primary wood", used to anchor mixed crafts and to break ties. Two modes:
+ * primary wood", used only to break ties. Two modes:
  *
  * <ul>
  *   <li>{@link #planRatio} — wood-typed output (logs→planks, planks→stairs…). <b>Pure passes</b> first:
  *       each wood makes {@code floor(have/perCraft)} crafts <em>of itself</em>, so the bulk output mirrors
  *       the input ratio. Then a <b>mixed pass</b> folds the sub-craft remainders together — each mixed
- *       craft consumes the pile-1 primary first, then the smallest remaining woods (lowering entropy), and
- *       is attributed to the <b>majority</b> wood it consumed (ties → earliest in pool order).</li>
- *   <li>{@link #planEntropy} — non-wood output (planks→crafting table / sticks). No ratio to keep, so it
- *       just consumes the <b>smallest remaining stacks first</b> to clear clutter, {@code perCraft} per
- *       craft, until less than a craft's worth remains.</li>
+ *       craft consumes the <b>smallest remaining stacks first</b> (consolidating leftovers into fewer
+ *       stacks) and is attributed to the <b>majority</b> wood it consumed (ties → earliest in pool order).</li>
+ *   <li>{@link #planEntropy} — non-wood output (planks→crafting table / sticks). Same smallest-first
+ *       consumption to clear clutter, {@code perCraft} per craft, until less than a craft's worth remains;
+ *       just no output wood to attribute.</li>
  * </ul>
  */
 public final class CraftPlanner {
@@ -37,7 +37,6 @@ public final class CraftPlanner {
 	public static <V> RatioPlan<V> planRatio(LinkedHashMap<V, Integer> pool, int perCraft) {
 		LinkedHashMap<V, Integer> work = new LinkedHashMap<>(pool);
 		LinkedHashMap<V, Integer> crafts = new LinkedHashMap<>();
-		V primary = pool.isEmpty() ? null : pool.keySet().iterator().next();
 
 		// Pure passes: each wood crafts as many same-wood items as it can.
 		for (V wood : pool.keySet()) {
@@ -49,9 +48,9 @@ public final class CraftPlanner {
 			}
 		}
 
-		// Mixed pass: fold the sub-craft remainders into majority-wood crafts.
+		// Mixed pass: fold the sub-craft remainders into majority-wood crafts, smallest-first to consolidate.
 		while (total(work) >= perCraft) {
-			Map<V, Integer> consumed = consumeMixed(work, perCraft, primary);
+			Map<V, Integer> consumed = consumeSmallestFirst(work, perCraft);
 			crafts.merge(majority(consumed, pool), 1, Integer::sum);
 		}
 		return new RatioPlan<>(crafts, prune(work));
@@ -67,15 +66,9 @@ public final class CraftPlanner {
 		return new EntropyPlan<>(crafts, prune(work));
 	}
 
-	/** Consume {@code need} units: the pile-1 primary first, then the smallest remaining woods. */
-	private static <V> Map<V, Integer> consumeMixed(LinkedHashMap<V, Integer> work, int need, V primary) {
+	/** Consume {@code need} units from the smallest remaining stacks first; returns what was consumed. */
+	private static <V> LinkedHashMap<V, Integer> consumeSmallestFirst(LinkedHashMap<V, Integer> work, int need) {
 		LinkedHashMap<V, Integer> consumed = new LinkedHashMap<>();
-		int takePrimary = Math.min(need, work.getOrDefault(primary, 0));
-		if (takePrimary > 0) {
-			consumed.merge(primary, takePrimary, Integer::sum);
-			work.put(primary, work.get(primary) - takePrimary);
-			need -= takePrimary;
-		}
 		while (need > 0) {
 			V wood = smallestNonZero(work);
 			if (wood == null) {
@@ -87,18 +80,6 @@ public final class CraftPlanner {
 			need -= take;
 		}
 		return consumed;
-	}
-
-	private static <V> void consumeSmallestFirst(LinkedHashMap<V, Integer> work, int need) {
-		while (need > 0) {
-			V wood = smallestNonZero(work);
-			if (wood == null) {
-				return;
-			}
-			int take = Math.min(need, work.get(wood));
-			work.put(wood, work.get(wood) - take);
-			need -= take;
-		}
 	}
 
 	/** The non-empty wood with the fewest units; ties → earliest in iteration order. */
