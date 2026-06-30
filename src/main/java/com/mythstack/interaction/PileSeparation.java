@@ -79,7 +79,7 @@ public final class PileSeparation {
 		}
 		ItemStack leftover = packed.get(0);
 		data.selected().ifPresent(active -> VariantPiles.seed(leftover, active));
-		VariantPiles.markManual(leftover, data.manual()); // the leftover keeps the source's curated/auto status
+		VariantPiles.markManual(leftover, true); // a deliberate spread is curated — protect the leftover too
 		return leftover;
 	}
 

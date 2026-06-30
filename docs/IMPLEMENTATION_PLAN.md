@@ -503,10 +503,10 @@ Raised during implementation; captured here so they aren't lost.
   first — keeping it a plain T stack — before converting it into a mixed pile. Avoids polluting a
   deliberate pure stack.
 - **`manual` flag on `VariantPile` — DONE.** A pile carries `manual` (boolean): true = the player curated
-  it on purpose, false = it merely accumulated. Set true by the deliberate-drag paths — **drag-merge** and
-  **quick-craft drag-distribute**; inherited across **expand / split**; left false (auto) by **contract**
-  (compression) and **pickup** auto-grouping. Preserved across reconcile / split / seed. `Pickup.consolidate`
-  skips manual piles, so auto-grouping never disturbs a curated pile.
+  it on purpose, false = it merely accumulated. Set true by every **deliberate spread/assemble** —
+  **drag-merge**, **quick-craft drag-distribute**, and **expand**; inherited across **split / move**; left
+  false (auto) only by **contract** (compression) and **pickup** auto-grouping. Preserved across reconcile /
+  split / seed. `Pickup.consolidate` skips manual piles, so auto-grouping never disturbs a curated pile.
 - **Auto-expand overflow to pure stacks — DONE.** `Pickup.autoExpandOverflow`: after a pickup, any wood
   with a full stack's worth (`>= 64`) across **auto** piles of the group is pulled into pure stacks (top up
   pure stacks, then empty slots), leaving the sub-stack remainder in piles; drained piles collapse to pure
