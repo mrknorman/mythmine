@@ -364,13 +364,13 @@ src/main/resources/
 `oak`.** Variant order for deterministic peel = that list (oak first).
 
 **Forms (each is a variant group).** The engine was proven on **`logs` + `planks`** first (the smeltable
-and non-smeltable paths), then fanned out as pure data. **STATUS: implemented — 15 groups** (all the
-64-stackable forms below, plus `leaves`). The pile machinery is group-agnostic, so each form is just a
-`VariantGroup` (tag + canonical) in `VariantGroups` + a pile-icon item-model override. Manufactured forms
-reuse vanilla `#wooden_*`/family item tags (modded woods tag in for free); the raw log forms use custom
-`#mythstack:wood/*` tags (vanilla `#*_logs` conflate log/wood/stripped). **Deferred:** `signs` (stack 16),
-`hanging_signs` (16), `boats` (1), `chest_boats` (1) — the fixed 64 cap (`VariantPiles.CAP`) can't host
-them; they need a per-group cap = the canonical's max stack size.
+and non-smeltable paths), then fanned out as pure data. **STATUS: implemented — 17 groups** (every form below plus `leaves`). The pile machinery is group-agnostic,
+so each form is just a `VariantGroup` (tag + canonical) in `VariantGroups` + a pile-icon item-model
+override. Manufactured forms reuse vanilla `#wooden_*`/family item tags (modded woods tag in for free); the
+raw log forms use custom `#mythstack:wood/*` tags (vanilla `#*_logs` conflate log/wood/stripped). The pile
+**cap is per-group** (`VariantGroup#cap` = the canonical's max stack size), so `signs`/`hanging_signs` pile
+fine capped at 16. **`boats`/`chest_boats` are dropped permanently:** they stack to 1, so a pile (which
+needs ≥ 2 of an item in one stack) can never form.
 
 | Form | VariantGroup tag | Canonical | Notes |
 |------|-----------|-----------|-------|
@@ -389,10 +389,9 @@ them; they need a per-group cap = the canonical's max stack size.
 | buttons | `#wooden_buttons` | `oak_button` | |
 | shelves | `#wooden_shelves` | `oak_shelf` | new in 26.2 |
 | leaves | `#minecraft:leaves` | `oak_leaves` | also folds in azalea / flowering-azalea |
-| signs | `#signs` | `oak_sign` | **deferred** — stacks to 16, needs per-group cap |
-| hanging_signs | `#hanging_signs` | `oak_hanging_sign` | **deferred** — stacks to 16 |
-| boats | `#boats` | `oak_boat` | **deferred** — stacks to 1 (`#boats` nests `#chest_boats`) |
-| chest_boats | `#chest_boats` | `oak_chest_boat` | **deferred** — stacks to 1 |
+| signs | `#signs` | `oak_sign` | per-group cap 16 |
+| hanging_signs | `#hanging_signs` | `oak_hanging_sign` | per-group cap 16 |
+| ~~boats / chest_boats~~ | — | — | **dropped** — stack to 1, can't ever pile |
 
 A **tag file** lists the members, e.g. `data/mythstack/tags/item/wood/logs.json`:
 
