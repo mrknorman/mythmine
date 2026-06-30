@@ -137,11 +137,74 @@ public final class SelfTest {
 		check("partial split: peeled oak-only portion carries no stale selection",
 				!selectedIs(peeledOak, Items.BIRCH_LOG), failures);
 
+		// 13. The manual (curated) flag survives split/reconcile; freshly-built piles are auto.
+		ItemStack tri = VariantPiles.makeStacks(logs, VariantPiles.pool(logs, List.of(
+				new ItemStack(Items.OAK_LOG, 20), new ItemStack(Items.BIRCH_LOG, 20),
+				new ItemStack(Items.SPRUCE_LOG, 20)))).get(0);
+		check("fresh pile is auto (not manual)", !VariantPiles.isManual(tri), failures);
+		ItemStack triManual = tri.copy();
+		VariantPiles.markManual(triManual, true);
+		check("markManual sets the flag", VariantPiles.isManual(triManual), failures);
+		ItemStack manualPeeled = VariantPiles.splitPile(triManual, 30); // peeled {oak20,birch10}, rem {birch10,spruce20}
+		check("split of a manual pile: peeled stays manual", VariantPiles.isManual(manualPeeled), failures);
+		check("split of a manual pile: remainder stays manual", VariantPiles.isManual(triManual), failures);
+		check("split of an auto pile: peeled stays auto", !VariantPiles.isManual(VariantPiles.splitPile(tri.copy(), 30)), failures);
+
+		// 14. Auto-expand-overflow: a wood at >= a full stack across AUTO piles is pulled into pure stacks,
+		//     the sub-stack remainder stays in the piles, and piles that lose a wood collapse to pure stacks.
+		List<ItemStack> ovInv = new ArrayList<>();
+		ovInv.add(VariantPiles.makeStacks(logs, VariantPiles.pool(logs, List.of(
+				new ItemStack(Items.OAK_LOG, 40), new ItemStack(Items.BIRCH_LOG, 24)))).get(0)); // {oak40,birch24}
+		ovInv.add(VariantPiles.makeStacks(logs, VariantPiles.pool(logs, List.of(
+				new ItemStack(Items.OAK_LOG, 40), new ItemStack(Items.SPRUCE_LOG, 30)))).get(0)); // {oak40,spruce30}
+		ovInv.add(ItemStack.EMPTY);
+		ovInv.add(ItemStack.EMPTY);
+		Pickup.autoExpandOverflow(ovInv, logs);
+		check("overflow: 64 oak pulled into a pure stack", pureCount(ovInv, Items.OAK_LOG) == 64, failures);
+		check("overflow: 16 oak left in piles", pileCount(ovInv, Items.OAK_LOG) == 16, failures);
+		check("overflow: drained pile collapsed to pure birch x24", pureCount(ovInv, Items.BIRCH_LOG) == 24, failures);
+
+		// 15. Manual piles are invisible to overflow — never drained, never counted toward the threshold.
+		List<ItemStack> mInv = new ArrayList<>();
+		ItemStack curated = VariantPiles.makeStacks(logs, VariantPiles.pool(logs, List.of(
+				new ItemStack(Items.OAK_LOG, 50), new ItemStack(Items.BIRCH_LOG, 14)))).get(0);
+		VariantPiles.markManual(curated, true);
+		mInv.add(curated); // {oak50,birch14} MANUAL
+		mInv.add(VariantPiles.makeStacks(logs, VariantPiles.pool(logs, List.of(
+				new ItemStack(Items.OAK_LOG, 30), new ItemStack(Items.SPRUCE_LOG, 30)))).get(0)); // {oak30,spruce30} auto
+		mInv.add(ItemStack.EMPTY);
+		Pickup.autoExpandOverflow(mInv, logs);
+		check("overflow leaves the manual pile untouched (still 50 oak, still manual)",
+				VariantPiles.isManual(mInv.get(0)) && VariantPiles.countOf(mInv.get(0), Items.OAK_LOG) == 50, failures);
+		check("overflow pulled nothing (auto oak only 30 < 64)", pureCount(mInv, Items.OAK_LOG) == 0, failures);
+
 		if (failures[0] == 0) {
 			MythStack.LOGGER.info("[selftest] ALL CHECKS PASSED");
 		} else {
 			MythStack.LOGGER.error("[selftest] {} CHECK(S) FAILED", failures[0]);
 		}
+	}
+
+	/** Total of {@code wood} held in plain (non-pile) stacks across {@code slots}. */
+	private static int pureCount(List<ItemStack> slots, net.minecraft.world.item.Item wood) {
+		int count = 0;
+		for (ItemStack slot : slots) {
+			if (!slot.isEmpty() && !VariantPiles.isPile(slot) && slot.getItem() == wood) {
+				count += slot.getCount();
+			}
+		}
+		return count;
+	}
+
+	/** Total of {@code wood} held inside piles across {@code slots}. */
+	private static int pileCount(List<ItemStack> slots, net.minecraft.world.item.Item wood) {
+		int count = 0;
+		for (ItemStack slot : slots) {
+			if (VariantPiles.isPile(slot)) {
+				count += VariantPiles.countOf(slot, wood);
+			}
+		}
+		return count;
 	}
 
 	private static boolean selectedIs(ItemStack stack, net.minecraft.world.item.Item wood) {

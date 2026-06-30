@@ -70,9 +70,30 @@ public final class VariantPiles {
 			stack.remove(ModComponents.VARIANT_PILE);
 			return null;
 		}
-		VariantPile pile = new VariantPile(List.copyOf(contents), preserveSelected(stack, contents));
+		VariantPile pile = new VariantPile(List.copyOf(contents), preserveSelected(stack, contents),
+				preserveManual(stack));
 		stack.set(ModComponents.VARIANT_PILE, pile);
 		return pile;
+	}
+
+	/** Keep the old pile's {@code manual} flag through an in-place rebuild (reconcile / split remainder). */
+	private static boolean preserveManual(ItemStack stack) {
+		VariantPile old = stack.get(ModComponents.VARIANT_PILE);
+		return old != null && old.manual();
+	}
+
+	/** Whether {@code stack} is a pile the player built deliberately (vs auto-formed / compression). */
+	public static boolean isManual(ItemStack stack) {
+		VariantPile pile = stack.get(ModComponents.VARIANT_PILE);
+		return pile != null && pile.manual();
+	}
+
+	/** Set the {@code manual} flag on a pile — no-op on a plain stack or if already set. */
+	public static void markManual(ItemStack stack, boolean manual) {
+		VariantPile pile = stack.get(ModComponents.VARIANT_PILE);
+		if (pile != null && pile.manual() != manual) {
+			stack.set(ModComponents.VARIANT_PILE, new VariantPile(pile.contents(), pile.selected(), manual));
+		}
 	}
 
 	/** Keep the old pile's active wood if it survives into {@code contents}, otherwise none. */
@@ -142,6 +163,7 @@ public final class VariantPiles {
 		// The peeled portion (e.g. the whole pile on a full pickup) inherits the active wood if it's still
 		// in there — otherwise picking a pile up or moving it would silently reset the selection.
 		pile.selected().ifPresent(active -> seed(peeled, active));
+		markManual(peeled, pile.manual()); // a split of a curated pile stays curated
 		return peeled;
 	}
 
@@ -179,6 +201,7 @@ public final class VariantPiles {
 		applyContents(stack, canonicalOrder(split.remainder(), group));
 		ItemStack peeled = stackOf(group, canonicalOrder(split.peeled(), group));
 		pile.selected().ifPresent(active -> seed(peeled, active)); // peeled keeps the active wood if present
+		markManual(peeled, pile.manual()); // and the curated/auto status
 		return peeled;
 	}
 
@@ -284,7 +307,7 @@ public final class VariantPiles {
 			stack.setCount(0); // becomes empty — never reached for a valid (>=2 wood) pile losing one wood
 			return;
 		}
-		stack.set(ModComponents.VARIANT_PILE, new VariantPile(List.copyOf(entries), selected));
+		stack.set(ModComponents.VARIANT_PILE, new VariantPile(List.copyOf(entries), selected, preserveManual(stack)));
 		stack.setCount(total);
 	}
 
@@ -300,7 +323,7 @@ public final class VariantPiles {
 		}
 		for (Entry entry : pile.contents()) {
 			if (entry.item() == seed) {
-				stack.set(ModComponents.VARIANT_PILE, new VariantPile(pile.contents(), Optional.of(seed)));
+				stack.set(ModComponents.VARIANT_PILE, new VariantPile(pile.contents(), Optional.of(seed), pile.manual()));
 				return;
 			}
 		}
@@ -323,7 +346,7 @@ public final class VariantPiles {
 		}
 		Item host = canonicalHostFor(group, entries);
 		ItemStack stack = new ItemStack(host, total);
-		stack.set(ModComponents.VARIANT_PILE, new VariantPile(List.copyOf(entries), Optional.empty()));
+		stack.set(ModComponents.VARIANT_PILE, new VariantPile(List.copyOf(entries), Optional.empty(), false));
 		return stack;
 	}
 

@@ -52,7 +52,10 @@ public final class PileSeparation {
 		splitTargets(menu, origin, sameContainer, otherContainer);
 
 		List<ItemStack> leftovers = new ArrayList<>();
-		for (Entry entry : data.contents()) {
+		// Place the active wood first so it lands in the origin slot (where the mouse is) — radiatingPass
+		// fills the origin first. Contracting that slot again then re-seeds the same active wood, so the
+		// selection round-trips through expand/contract (QoL).
+		for (Entry entry : orderedEntries(data)) {
 			ItemStack stack = new ItemStack(entry.item(), entry.count());
 			// Expansion area: fill empties / top up matching stacks in radiating order until this wood is
 			// placed, so only the slots actually reached (where the pile expands to) get used — distant
@@ -71,7 +74,13 @@ public final class PileSeparation {
 		// Keep the minimal unplaceable amount as a pile (the original was <= 64, so this packs to one stack).
 		VariantGroup group = VariantGroups.of(pile.getItem());
 		List<ItemStack> packed = VariantPiles.makeStacks(group, VariantPiles.pool(group, leftovers));
-		return packed.isEmpty() ? ItemStack.EMPTY : packed.get(0);
+		if (packed.isEmpty()) {
+			return ItemStack.EMPTY;
+		}
+		ItemStack leftover = packed.get(0);
+		data.selected().ifPresent(active -> VariantPiles.seed(leftover, active));
+		VariantPiles.markManual(leftover, data.manual()); // the leftover keeps the source's curated/auto status
+		return leftover;
 	}
 
 	/**
@@ -277,6 +286,7 @@ public final class PileSeparation {
 				// makeStacks builds fresh piles with no selection; carry the active wood onto each share so
 				// dragging a pile apart doesn't reset its active variant (same fix as the split path).
 				data.selected().ifPresent(active -> VariantPiles.seed(share, active));
+				VariantPiles.markManual(share, data.manual()); // shares inherit the source's curated/auto status
 				targets.get(i).set(share);
 			}
 		}

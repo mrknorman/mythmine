@@ -85,6 +85,7 @@ public final class DragMerge {
 		if (pureDeposit) {
 			VariantPiles.seed(merged, depositedWood); // the wood you just deposited becomes the active one
 		}
+		VariantPiles.markManual(merged, true); // a pile you assembled by hand is curated — protect it from auto-sort
 		slot.set(merged);
 		return true;
 	}

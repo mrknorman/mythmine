@@ -22,8 +22,13 @@ import java.util.Optional;
  * when contents reorder or a wood is peeled out; empty = none (display falls back to canonical-first).
  * The host item is the variant group's canonical member, so to vanilla the pile simply <em>is</em> a
  * stack of canonical items.
+ *
+ * <p>{@code manual} marks a pile the player <em>curated on purpose</em> (built by a drag-merge) versus one
+ * that merely <em>accumulated</em> (auto-formed on pickup, or a compression pile from contract). Automatic
+ * organisation — pickup consolidation, auto-expand-overflow — must never disturb a {@code manual} pile.
+ * See the guiding tenet in the implementation plan (§1).
  */
-public record VariantPile(List<Entry> contents, Optional<Item> selected) {
+public record VariantPile(List<Entry> contents, Optional<Item> selected, boolean manual) {
 
 	public record Entry(Item item, int count) {
 	}
@@ -43,7 +48,8 @@ public record VariantPile(List<Entry> contents, Optional<Item> selected) {
 
 	public static final Codec<VariantPile> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			ENTRY_CODEC.listOf().fieldOf("contents").forGetter(VariantPile::contents),
-			BuiltInRegistries.ITEM.byNameCodec().optionalFieldOf("selected").forGetter(VariantPile::selected)
+			BuiltInRegistries.ITEM.byNameCodec().optionalFieldOf("selected").forGetter(VariantPile::selected),
+			Codec.BOOL.optionalFieldOf("manual", false).forGetter(VariantPile::manual)
 	).apply(instance, VariantPile::new));
 
 	public static final StreamCodec<RegistryFriendlyByteBuf, Entry> ENTRY_STREAM_CODEC = StreamCodec.composite(
@@ -54,5 +60,6 @@ public record VariantPile(List<Entry> contents, Optional<Item> selected) {
 	public static final StreamCodec<RegistryFriendlyByteBuf, VariantPile> STREAM_CODEC = StreamCodec.composite(
 			ENTRY_STREAM_CODEC.apply(ByteBufCodecs.list()), VariantPile::contents,
 			ByteBufCodecs.optional(ByteBufCodecs.registry(Registries.ITEM)), VariantPile::selected,
+			ByteBufCodecs.BOOL, VariantPile::manual,
 			VariantPile::new);
 }

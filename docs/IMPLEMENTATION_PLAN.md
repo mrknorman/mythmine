@@ -52,6 +52,21 @@ MVP is **wood only** and ends at phase 9. Nether wood (crimson/warped) and bambo
 deferred (they're irregular — see §2). Typed sticks (§13 of the spec) and stone (§12)
 are post-MVP.
 
+### The guiding tenet — inventory tends toward order through use
+
+> **Piles exist so the normal act of playing leaves the inventory _more_ organised, not less.**
+> Picking things up, crafting, placing — each should passively reduce clutter as a *side effect* of
+> what the player was already doing, never add to it. Auto-grouping a pickup, auto-expanding an
+> overflowing wood back into clean full stacks, compressing scattered offcuts into a pile — these are
+> not "sort" commands the player has to remember to run; they happen on their own, as a consequence of
+> use. The inventory should drift toward tidiness by itself.
+
+Every pile feature is judged against this: **does it reduce entropy on use?** A feature that lets
+disorder accumulate, or that forces the player to manually tidy, is working against the grain. The one
+thing the system must respect is the difference between what the player **curated on purpose** (leave it
+alone) and what merely **accumulated** (free to reorganise) — which is exactly what the `manual` flag on
+a pile records (§6.2).
+
 ---
 
 ## 2. Locked decisions
