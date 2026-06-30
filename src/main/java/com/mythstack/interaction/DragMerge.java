@@ -49,7 +49,7 @@ public final class DragMerge {
 		if (slotStack.getItem() == carried.getItem() && !anyPile) {
 			return false;
 		}
-		int space = VariantPiles.CAP - slotStack.getCount();
+		int space = slotStack.getMaxStackSize() - slotStack.getCount(); // per-group cap = the host's max stack
 		if (space <= 0) {
 			return false; // target already full — let vanilla swap
 		}

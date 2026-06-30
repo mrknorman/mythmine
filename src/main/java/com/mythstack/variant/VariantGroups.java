@@ -56,15 +56,17 @@ public final class VariantGroups {
 	public static final VariantGroup PRESSURE_PLATES = group("pressure_plates", vanillaTag("wooden_pressure_plates"), Items.OAK_PRESSURE_PLATE);
 	public static final VariantGroup BUTTONS = group("buttons", vanillaTag("wooden_buttons"), Items.OAK_BUTTON);
 	public static final VariantGroup SHELVES = group("shelves", vanillaTag("wooden_shelves"), Items.OAK_SHELF);
+	public static final VariantGroup SIGNS = group("signs", vanillaTag("signs"), Items.OAK_SIGN);
+	public static final VariantGroup HANGING_SIGNS = group("hanging_signs", vanillaTag("hanging_signs"), Items.OAK_HANGING_SIGN);
 	// Leaves: #minecraft:leaves also tags azalea / flowering-azalea (not a wood, but harmless to pile in).
 	public static final VariantGroup LEAVES = group("leaves", vanillaTag("leaves"), Items.OAK_LEAVES);
 
-	// Only forms that stack to 64 are pile-able under the fixed cap. Signs (16) and boats (1) are deferred
-	// until the cap is made per-group (see VariantPiles.CAP) — hosting a 64-pile on a sign/boat would
-	// exceed the item's real max stack size.
+	// The pile cap is per-group ({@link VariantGroup#cap} = the canonical's max stack size), so signs
+	// (cap 16) pile fine. Boats are intentionally absent: they stack to 1, so a pile (which needs >= 2 of
+	// an item in one stack) can never form — there's nothing to pile.
 	private static final List<VariantGroup> ALL = List.of(
 			LOGS, WOODS, STRIPPED_LOGS, STRIPPED_WOODS, PLANKS, STAIRS, SLABS, FENCES, FENCE_GATES, DOORS,
-			TRAPDOORS, PRESSURE_PLATES, BUTTONS, SHELVES, LEAVES);
+			TRAPDOORS, PRESSURE_PLATES, BUTTONS, SHELVES, SIGNS, HANGING_SIGNS, LEAVES);
 
 	/** item -> group, snapshotted from the tags when they are loaded/synced (bindings reliable on both sides). */
 	private static volatile Map<Item, VariantGroup> membership = Map.of();
@@ -126,7 +128,7 @@ public final class VariantGroups {
 	/** Dev-only sanity dump (build phase 2). Logged on server start in the dev environment. */
 	public static void logSampleResolutions() {
 		List<Item> samples = List.of(Items.OAK_LOG, Items.OAK_WOOD, Items.STRIPPED_OAK_LOG,
-				Items.OAK_STAIRS, Items.OAK_SLAB, Items.OAK_DOOR, Items.OAK_BUTTON, Items.OAK_SHELF,
+				Items.OAK_STAIRS, Items.OAK_SLAB, Items.OAK_DOOR, Items.OAK_SIGN, Items.OAK_SHELF,
 				Items.OAK_LEAVES, Items.AZALEA_LEAVES, Items.CRIMSON_STAIRS, Items.BAMBOO_PLANKS, Items.STONE);
 		for (Item item : samples) {
 			VariantGroup group = of(item);

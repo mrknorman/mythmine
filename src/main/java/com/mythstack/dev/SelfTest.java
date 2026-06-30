@@ -178,6 +178,14 @@ public final class SelfTest {
 				VariantPiles.isManual(mInv.get(0)) && VariantPiles.countOf(mInv.get(0), Items.OAK_LOG) == 50, failures);
 		check("overflow pulled nothing (auto oak only 30 < 64)", pureCount(mInv, Items.OAK_LOG) == 0, failures);
 
+		// 16. Per-group cap: signs stack to 16, so packing caps a sign pile at 16 (not 64 like logs).
+		VariantGroup signs = VariantGroups.SIGNS;
+		check("signs group cap is 16", signs.cap() == 16, failures);
+		List<ItemStack> signStacks = VariantPiles.makeStacks(signs, VariantPiles.pool(signs, List.of(
+				new ItemStack(Items.OAK_SIGN, 10), new ItemStack(Items.SPRUCE_SIGN, 10))));
+		check("20 signs -> 2 stacks at cap 16", signStacks.size() == 2 && signStacks.get(0).getCount() == 16, failures);
+		check("first sign stack is a capped mixed pile", VariantPiles.isPile(signStacks.get(0)), failures);
+
 		if (failures[0] == 0) {
 			MythStack.LOGGER.info("[selftest] ALL CHECKS PASSED");
 		} else {

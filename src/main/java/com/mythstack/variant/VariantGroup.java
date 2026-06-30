@@ -21,4 +21,13 @@ public record VariantGroup(Identifier id, TagKey<Item> members, Item canonical) 
 		return BuiltInRegistries.ITEM.wrapAsHolder(item).is(members)
 				&& !VariantGroups.isDeferredMaterial(item);
 	}
+
+	/**
+	 * The pile cap for this group — the canonical member's max stack size. 64 for most wood forms, but 16
+	 * for signs, so a pile never exceeds the host item's real stackability. Boats (stack 1) can't pile at
+	 * all and are simply not declared as a group.
+	 */
+	public int cap() {
+		return canonical.getDefaultMaxStackSize();
+	}
 }

@@ -90,7 +90,8 @@ public final class Pickup {
 					total += VariantPiles.countOf(slot, wood);
 				}
 			}
-			int fullStacks = (total / VariantPiles.CAP) * VariantPiles.CAP;
+			int cap = wood.getDefaultMaxStackSize();
+			int fullStacks = (total / cap) * cap;
 			if (fullStacks == 0) {
 				continue;
 			}
@@ -108,12 +109,13 @@ public final class Pickup {
 
 	/** Room to add pure {@code wood}: free space in existing pure stacks of it + empty slots. */
 	private static int pureCapacity(List<ItemStack> slots, Item wood) {
+		int cap = wood.getDefaultMaxStackSize();
 		int room = 0;
 		for (ItemStack slot : slots) {
 			if (slot.isEmpty()) {
-				room += VariantPiles.CAP;
+				room += cap;
 			} else if (!VariantPiles.isPile(slot) && slot.getItem() == wood) {
-				room += VariantPiles.CAP - slot.getCount();
+				room += cap - slot.getCount();
 			}
 		}
 		return room;
@@ -136,17 +138,18 @@ public final class Pickup {
 
 	/** Place {@code amount} of pure {@code wood}: top up existing pure stacks first, then fill empty slots. */
 	private static void addPure(List<ItemStack> slots, Item wood, int amount) {
+		int cap = wood.getDefaultMaxStackSize();
 		for (int i = 0; i < slots.size() && amount > 0; i++) {
 			ItemStack slot = slots.get(i);
-			if (!slot.isEmpty() && !VariantPiles.isPile(slot) && slot.getItem() == wood && slot.getCount() < VariantPiles.CAP) {
-				int add = Math.min(VariantPiles.CAP - slot.getCount(), amount);
+			if (!slot.isEmpty() && !VariantPiles.isPile(slot) && slot.getItem() == wood && slot.getCount() < cap) {
+				int add = Math.min(cap - slot.getCount(), amount);
 				slot.grow(add);
 				amount -= add;
 			}
 		}
 		for (int i = 0; i < slots.size() && amount > 0; i++) {
 			if (slots.get(i).isEmpty()) {
-				int add = Math.min(VariantPiles.CAP, amount);
+				int add = Math.min(cap, amount);
 				slots.set(i, new ItemStack(wood, add));
 				amount -= add;
 			}
@@ -156,7 +159,7 @@ public final class Pickup {
 	/** Move up to the cap-remaining of {@code incoming} into slot {@code index}, re-normalizing it. */
 	private static void absorb(List<ItemStack> slots, int index, ItemStack incoming, VariantGroup group) {
 		ItemStack target = slots.get(index);
-		int space = VariantPiles.CAP - target.getCount();
+		int space = target.getMaxStackSize() - target.getCount(); // per-group cap = the host's max stack
 		if (space <= 0) {
 			return;
 		}

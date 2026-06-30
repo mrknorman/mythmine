@@ -27,7 +27,8 @@ import java.util.Optional;
  * canonical-hosted — a benign cosmetic edge case (it extracts as its real variant). See plan §6.4.
  */
 public final class VariantPiles {
-	/** Vanilla per-stack hard cap. */
+	/** Default per-stack cap (most wood forms). Per-group caps come from {@link VariantGroup#cap()} —
+	 *  e.g. signs cap at 16 — and per-stack caps from {@link ItemStack#getMaxStackSize()}. */
 	public static final int CAP = 64;
 
 	private VariantPiles() {
@@ -408,7 +409,8 @@ public final class VariantPiles {
 
 	/** Normalize a canonical-ordered pool into the minimal set of stacks (the drag-merge/combine core). */
 	public static List<ItemStack> makeStacks(VariantGroup group, Map<Item, Integer> orderedPool) {
-		List<CanonicalPacking.PackedStack<Item>> packed = CanonicalPacking.normalize(orderedPool, CAP);
+		List<CanonicalPacking.PackedStack<Item>> packed =
+				CanonicalPacking.normalize(orderedPool, group == null ? CAP : group.cap());
 		List<ItemStack> out = new ArrayList<>();
 		for (CanonicalPacking.PackedStack<Item> stack : packed) {
 			List<Entry> entries = new ArrayList<>();

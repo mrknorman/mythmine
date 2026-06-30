@@ -97,7 +97,7 @@ public final class PileSeparation {
 		if (group == null) {
 			return carried;
 		}
-		int cap = VariantPiles.CAP;
+		int cap = group.cap();
 		List<ItemStack> gathered = new ArrayList<>();
 		gathered.add(carried.copy());
 		int total = carried.getCount();
