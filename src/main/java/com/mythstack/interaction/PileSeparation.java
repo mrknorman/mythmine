@@ -286,7 +286,7 @@ public final class PileSeparation {
 				// makeStacks builds fresh piles with no selection; carry the active wood onto each share so
 				// dragging a pile apart doesn't reset its active variant (same fix as the split path).
 				data.selected().ifPresent(active -> VariantPiles.seed(share, active));
-				VariantPiles.markManual(share, data.manual()); // shares inherit the source's curated/auto status
+				VariantPiles.markManual(share, true); // a quick-craft spread is a deliberate arrangement → curated
 				targets.get(i).set(share);
 			}
 		}
