@@ -201,6 +201,20 @@ public final class SelfTest {
 					out.consumed().equals(Map.of(Items.OAK_LOG, 30, Items.SPRUCE_LOG, 30)), failures);
 		}
 
+		// 18. A SHAPED recipe (stairs) with mixed woods across slots — and no oak, no piles — must still
+		//     match via canonical normalization and produce ratio stairs (the multi-item regression).
+		List<ItemStack> stairsGrid = List.of(
+				new ItemStack(Items.SPRUCE_PLANKS, 10), ItemStack.EMPTY, ItemStack.EMPTY,
+				new ItemStack(Items.SPRUCE_PLANKS, 10), new ItemStack(Items.SPRUCE_PLANKS, 10), ItemStack.EMPTY,
+				new ItemStack(Items.BIRCH_PLANKS, 10), new ItemStack(Items.BIRCH_PLANKS, 10), new ItemStack(Items.BIRCH_PLANKS, 10));
+		CraftTransmute.Outcome stairs = CraftTransmute.plan(stairsGrid, 3, 3, level);
+		check("transmute: mixed-wood shaped stairs matches via canonical normalization",
+				stairs != null && !stairs.isEmpty(), failures);
+		if (stairs != null) {
+			check("transmute: 30 spruce + 30 birch planks -> 20 spruce + 20 birch stairs",
+					stairs.products().equals(Map.of(Items.SPRUCE_STAIRS, 20, Items.BIRCH_STAIRS, 20)), failures);
+		}
+
 		if (failures[0] == 0) {
 			MythStack.LOGGER.info("[selftest] ALL CHECKS PASSED");
 		} else {

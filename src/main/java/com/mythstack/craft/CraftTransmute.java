@@ -1,6 +1,7 @@
 package com.mythstack.craft;
 
 import com.mythstack.registry.ModComponents;
+import com.mythstack.variant.VariantGroup;
 import com.mythstack.variant.VariantGroups;
 import com.mythstack.variant.VariantPile;
 import com.mythstack.variant.VariantPiles;
@@ -48,32 +49,36 @@ public final class CraftTransmute {
 	 * isn't a craftable wood recipe. {@code level} supplies the recipe set.
 	 */
 	public static Outcome plan(List<ItemStack> grid, int width, int height, ServerLevel level) {
-		CraftingInput input = CraftingInput.of(width, height, grid);
-		Optional<RecipeHolder<CraftingRecipe>> recipe =
-				level.recipeAccess().getRecipeFor(RecipeType.CRAFTING, input, level);
-		if (recipe.isEmpty()) {
-			return null;
+		// Only transmute pure-wood recipes: every non-empty ingredient must be a wood member. A recipe that
+		// also needs sticks etc. is left to vanilla — we wouldn't consume the non-wood ingredients.
+		for (ItemStack stack : grid) {
+			if (!stack.isEmpty() && !isWood(stack)) {
+				return null;
+			}
 		}
-		ItemStack result = recipe.get().value().assemble(input);
-		if (result.isEmpty()) {
-			return null;
-		}
-		int outputPerCraft = result.getCount();
+		VariantGroup group = inputGroup(grid);
 		int perCraft = woodSlots(grid);
 		LinkedHashMap<Item, Integer> pool = buildPool(grid);
-		if (perCraft == 0 || pool.isEmpty()) {
+		if (group == null || perCraft == 0 || pool.isEmpty()) {
 			return null;
 		}
+		// Identify the recipe by normalizing every wood slot to the canonical wood — so a shape filled with
+		// MIXED woods (which matches no per-wood recipe as laid out) still resolves to its canonical recipe.
+		ItemStack canonical = productStack(grid, width, height, group.canonical(), level);
+		if (canonical == null || canonical.isEmpty()) {
+			return null;
+		}
+		int outputPerCraft = canonical.getCount();
 
 		LinkedHashMap<Item, Integer> products = new LinkedHashMap<>();
 		LinkedHashMap<Item, Integer> leftover;
-		if (VariantGroups.of(result.getItem()) != null) {
+		if (VariantGroups.of(canonical.getItem()) != null) {
 			// Wood-typed output: ratio plan, each output wood mapped to its product by substitution.
 			CraftPlanner.RatioPlan<Item> plan = CraftPlanner.planRatio(pool, perCraft);
 			for (var entry : plan.craftsByWood().entrySet()) {
-				Item product = productFor(grid, width, height, entry.getKey(), level);
-				if (product != null) {
-					products.merge(product, entry.getValue() * outputPerCraft, Integer::sum);
+				ItemStack product = productStack(grid, width, height, entry.getKey(), level);
+				if (product != null && !product.isEmpty()) {
+					products.merge(product.getItem(), entry.getValue() * outputPerCraft, Integer::sum);
 				}
 			}
 			leftover = plan.leftover();
@@ -81,27 +86,31 @@ public final class CraftTransmute {
 			// Non-wood output: entropy plan, the single product repeated.
 			CraftPlanner.EntropyPlan<Item> plan = CraftPlanner.planEntropy(pool, perCraft);
 			if (plan.crafts() > 0) {
-				products.put(result.getItem(), plan.crafts() * outputPerCraft);
+				products.put(canonical.getItem(), plan.crafts() * outputPerCraft);
 			}
 			leftover = plan.leftover();
 		}
 		return new Outcome(products, subtract(pool, leftover), leftover);
 	}
 
-	/** The product made when {@code wood} fills every wood slot — found by substitute-and-assemble. */
-	private static Item productFor(List<ItemStack> grid, int width, int height, Item wood, ServerLevel level) {
+	/** Assemble the product when {@code wood} fills every wood slot (substitute-and-assemble), or null. */
+	private static ItemStack productStack(List<ItemStack> grid, int width, int height, Item wood, ServerLevel level) {
 		List<ItemStack> substituted = new ArrayList<>(grid.size());
 		for (ItemStack stack : grid) {
 			substituted.add(isWood(stack) ? new ItemStack(wood) : stack.copy());
 		}
 		CraftingInput input = CraftingInput.of(width, height, substituted);
-		Optional<RecipeHolder<CraftingRecipe>> recipe =
-				level.recipeAccess().getRecipeFor(RecipeType.CRAFTING, input, level);
-		if (recipe.isEmpty()) {
-			return null;
+		return level.recipeAccess().getRecipeFor(RecipeType.CRAFTING, input, level)
+				.map(holder -> holder.value().assemble(input)).orElse(null);
+	}
+
+	private static VariantGroup inputGroup(List<ItemStack> grid) {
+		for (ItemStack stack : grid) {
+			if (isWood(stack)) {
+				return VariantGroups.of(stack.getItem());
+			}
 		}
-		ItemStack result = recipe.get().value().assemble(input);
-		return result.isEmpty() ? null : result.getItem();
+		return null;
 	}
 
 	/** Pool the grid's wood into {@code wood → count}, expanding piles into their contents (slot order). */
