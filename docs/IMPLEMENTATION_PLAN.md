@@ -502,12 +502,15 @@ Raised during implementation; captured here so they aren't lost.
   pile onto a **pure** stack of wood T (not itself a pile), exhaust the pile's T into that stack
   first — keeping it a plain T stack — before converting it into a mixed pile. Avoids polluting a
   deliberate pure stack.
-- **`manual` flag on `VariantPile`** *(data model; prerequisite for the next item).* Mark piles the
-  player built deliberately vs. ones auto-formed on pickup. Auto-consolidation must never disturb a
-  `manual` pile.
-- **Auto-expand overflow to pure stacks** *(Phase 6).* On pickup / auto-group, if the total of a
-  single wood across **auto** piles exceeds 64, expand it into pure 64-stacks instead of hoarding it
-  in a pile — but never touch `manual` piles.
+- **`manual` flag on `VariantPile` — DONE.** A pile carries `manual` (boolean): true = the player curated
+  it on purpose (set by a drag-merge; inherited by drag-distribute / expand / split), false = it merely
+  accumulated (auto-formed on pickup, or a compression pile from contract). Preserved across reconcile /
+  split / seed. `Pickup.consolidate` skips manual piles, so auto-grouping never disturbs a curated pile.
+- **Auto-expand overflow to pure stacks — DONE.** `Pickup.autoExpandOverflow`: after a pickup, any wood
+  with a full stack's worth (`>= 64`) across **auto** piles of the group is pulled into pure stacks (top up
+  pure stacks, then empty slots), leaving the sub-stack remainder in piles; drained piles collapse to pure
+  stacks. Manual piles are never drained or counted. Capped by available room so nothing is lost. Covered
+  by SelfTest.
 - **Selective extraction for crafting & recipe book** *(Phase 7).* Pulling components out of a pile
   for the crafting grid and recipe-book auto-fill should take the **intended** variant, not blindly
   canonical-first. Enumerate + test the edge cases: shift-click into grid, recipe-book fill, the
