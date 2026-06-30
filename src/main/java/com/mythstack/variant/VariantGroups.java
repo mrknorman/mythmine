@@ -35,18 +35,36 @@ public final class VariantGroups {
 	private VariantGroups() {
 	}
 
-	// Our own membership tag: vanilla has no "bare logs only" tag (#*_logs include wood + stripped).
-	public static final TagKey<Item> WOOD_LOGS = itemTag(MythStack.id("wood/logs"));
-
-	private static final TagKey<Item> VANILLA_PLANKS = itemTag(vanilla("planks"));
 	private static final TagKey<Item> NON_FLAMMABLE_WOOD = itemTag(vanilla("non_flammable_wood"));
 
-	public static final VariantGroup LOGS =
-			new VariantGroup(MythStack.id("wood/logs"), WOOD_LOGS, Items.OAK_LOG);
-	public static final VariantGroup PLANKS =
-			new VariantGroup(MythStack.id("wood/planks"), VANILLA_PLANKS, Items.OAK_PLANKS);
+	// One group per wood FORM, keyed by wood type, canonical = the oak member (spec §D2). Membership comes
+	// from a tag: a vanilla #wooden_*/family tag where one cleanly exists (so modded woods tag in for free),
+	// or our own #mythstack:wood/* tag for the raw log forms (vanilla #*_logs conflate log/wood/stripped).
+	// Deferred materials (nether via #non_flammable_wood, bamboo by name — decision D4) are filtered at
+	// snapshot time, so a family tag that happens to include them is fine.
+	public static final VariantGroup LOGS = group("logs", custom("wood/logs"), Items.OAK_LOG);
+	public static final VariantGroup WOODS = group("wood", custom("wood/wood"), Items.OAK_WOOD);
+	public static final VariantGroup STRIPPED_LOGS = group("stripped_logs", custom("wood/stripped_logs"), Items.STRIPPED_OAK_LOG);
+	public static final VariantGroup STRIPPED_WOODS = group("stripped_wood", custom("wood/stripped_wood"), Items.STRIPPED_OAK_WOOD);
+	public static final VariantGroup PLANKS = group("planks", vanillaTag("planks"), Items.OAK_PLANKS);
+	public static final VariantGroup STAIRS = group("stairs", vanillaTag("wooden_stairs"), Items.OAK_STAIRS);
+	public static final VariantGroup SLABS = group("slabs", vanillaTag("wooden_slabs"), Items.OAK_SLAB);
+	public static final VariantGroup FENCES = group("fences", vanillaTag("wooden_fences"), Items.OAK_FENCE);
+	public static final VariantGroup FENCE_GATES = group("fence_gates", vanillaTag("fence_gates"), Items.OAK_FENCE_GATE);
+	public static final VariantGroup DOORS = group("doors", vanillaTag("wooden_doors"), Items.OAK_DOOR);
+	public static final VariantGroup TRAPDOORS = group("trapdoors", vanillaTag("wooden_trapdoors"), Items.OAK_TRAPDOOR);
+	public static final VariantGroup PRESSURE_PLATES = group("pressure_plates", vanillaTag("wooden_pressure_plates"), Items.OAK_PRESSURE_PLATE);
+	public static final VariantGroup BUTTONS = group("buttons", vanillaTag("wooden_buttons"), Items.OAK_BUTTON);
+	public static final VariantGroup SHELVES = group("shelves", vanillaTag("wooden_shelves"), Items.OAK_SHELF);
+	// Leaves: #minecraft:leaves also tags azalea / flowering-azalea (not a wood, but harmless to pile in).
+	public static final VariantGroup LEAVES = group("leaves", vanillaTag("leaves"), Items.OAK_LEAVES);
 
-	private static final List<VariantGroup> ALL = List.of(LOGS, PLANKS);
+	// Only forms that stack to 64 are pile-able under the fixed cap. Signs (16) and boats (1) are deferred
+	// until the cap is made per-group (see VariantPiles.CAP) — hosting a 64-pile on a sign/boat would
+	// exceed the item's real max stack size.
+	private static final List<VariantGroup> ALL = List.of(
+			LOGS, WOODS, STRIPPED_LOGS, STRIPPED_WOODS, PLANKS, STAIRS, SLABS, FENCES, FENCE_GATES, DOORS,
+			TRAPDOORS, PRESSURE_PLATES, BUTTONS, SHELVES, LEAVES);
 
 	/** item -> group, snapshotted from the tags when they are loaded/synced (bindings reliable on both sides). */
 	private static volatile Map<Item, VariantGroup> membership = Map.of();
@@ -107,8 +125,9 @@ public final class VariantGroups {
 
 	/** Dev-only sanity dump (build phase 2). Logged on server start in the dev environment. */
 	public static void logSampleResolutions() {
-		List<Item> samples = List.of(Items.OAK_LOG, Items.BIRCH_LOG, Items.PALE_OAK_LOG,
-				Items.OAK_PLANKS, Items.CRIMSON_PLANKS, Items.BAMBOO_PLANKS, Items.STONE);
+		List<Item> samples = List.of(Items.OAK_LOG, Items.OAK_WOOD, Items.STRIPPED_OAK_LOG,
+				Items.OAK_STAIRS, Items.OAK_SLAB, Items.OAK_DOOR, Items.OAK_BUTTON, Items.OAK_SHELF,
+				Items.OAK_LEAVES, Items.AZALEA_LEAVES, Items.CRIMSON_STAIRS, Items.BAMBOO_PLANKS, Items.STONE);
 		for (Item item : samples) {
 			VariantGroup group = of(item);
 			MythStack.LOGGER.info("[variant-group] {} -> {}",
@@ -117,6 +136,18 @@ public final class VariantGroups {
 							? "(none)"
 							: group.id() + " canonical=" + BuiltInRegistries.ITEM.getKey(group.canonical()));
 		}
+	}
+
+	private static VariantGroup group(String form, TagKey<Item> members, Item canonical) {
+		return new VariantGroup(MythStack.id("wood/" + form), members, canonical);
+	}
+
+	private static TagKey<Item> custom(String path) {
+		return itemTag(MythStack.id(path));
+	}
+
+	private static TagKey<Item> vanillaTag(String path) {
+		return itemTag(vanilla(path));
 	}
 
 	private static TagKey<Item> itemTag(Identifier id) {
