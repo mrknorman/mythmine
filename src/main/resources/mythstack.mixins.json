@@ -4,8 +4,11 @@
 	"compatibilityLevel": "JAVA_25",
 	"mixins": [
 		"AbstractContainerMenuMixin",
+		"AbstractCraftingMenuAccessor",
 		"BlockItemPlaceMixin",
+		"CraftingMenuMixin",
 		"InventoryAddMixin",
+		"InventoryMenuMixin",
 		"ItemMixin",
 		"ItemStackSplitMixin",
 		"ItemTooltipImageMixin",

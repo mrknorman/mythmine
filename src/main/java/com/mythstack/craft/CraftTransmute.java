@@ -32,8 +32,12 @@ public final class CraftTransmute {
 	private CraftTransmute() {
 	}
 
-	/** What to make ({@code product item → count}) and what to eat ({@code input wood → count}). */
-	public record Outcome(LinkedHashMap<Item, Integer> products, LinkedHashMap<Item, Integer> consumed) {
+	/**
+	 * What to make ({@code product item → count}), what to eat ({@code input wood → count}), and the input
+	 * wood left in the grid afterwards ({@code input wood → count}).
+	 */
+	public record Outcome(LinkedHashMap<Item, Integer> products, LinkedHashMap<Item, Integer> consumed,
+			LinkedHashMap<Item, Integer> leftover) {
 		public boolean isEmpty() {
 			return products.isEmpty();
 		}
@@ -62,7 +66,7 @@ public final class CraftTransmute {
 		}
 
 		LinkedHashMap<Item, Integer> products = new LinkedHashMap<>();
-		LinkedHashMap<Item, Integer> consumed;
+		LinkedHashMap<Item, Integer> leftover;
 		if (VariantGroups.of(result.getItem()) != null) {
 			// Wood-typed output: ratio plan, each output wood mapped to its product by substitution.
 			CraftPlanner.RatioPlan<Item> plan = CraftPlanner.planRatio(pool, perCraft);
@@ -72,16 +76,16 @@ public final class CraftTransmute {
 					products.merge(product, entry.getValue() * outputPerCraft, Integer::sum);
 				}
 			}
-			consumed = subtract(pool, plan.leftover());
+			leftover = plan.leftover();
 		} else {
 			// Non-wood output: entropy plan, the single product repeated.
 			CraftPlanner.EntropyPlan<Item> plan = CraftPlanner.planEntropy(pool, perCraft);
 			if (plan.crafts() > 0) {
 				products.put(result.getItem(), plan.crafts() * outputPerCraft);
 			}
-			consumed = subtract(pool, plan.leftover());
+			leftover = plan.leftover();
 		}
-		return new Outcome(products, consumed);
+		return new Outcome(products, subtract(pool, leftover), leftover);
 	}
 
 	/** The product made when {@code wood} fills every wood slot — found by substitute-and-assemble. */
