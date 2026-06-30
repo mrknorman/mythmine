@@ -12,7 +12,8 @@
 		"ItemMixin",
 		"ItemStackSplitMixin",
 		"ItemTooltipImageMixin",
-		"PickItemFromBlockMixin"
+		"PickItemFromBlockMixin",
+		"ResultSlotMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

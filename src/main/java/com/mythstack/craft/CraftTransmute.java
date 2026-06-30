@@ -113,9 +113,48 @@ public final class CraftTransmute {
 		return null;
 	}
 
-	/** Pool the grid's wood into {@code wood → count}, expanding piles into their contents (slot order). */
+	/** The product + consumed wood of the next single craft (for the result preview / one-at-a-time take). */
+	public record Single(ItemStack product, LinkedHashMap<Item, Integer> consumed) {
+	}
+
+	/** The next single craft this grid would make, or {@code null} if it isn't a transmutable wood craft. */
+	public static Single firstCraft(List<ItemStack> grid, int width, int height, ServerLevel level) {
+		for (ItemStack stack : grid) {
+			if (!stack.isEmpty() && !isWood(stack)) {
+				return null;
+			}
+		}
+		VariantGroup group = inputGroup(grid);
+		LinkedHashMap<Item, Integer> pool = buildPool(grid);
+		int perCraft = woodSlots(grid);
+		if (group == null || pool.isEmpty() || perCraft == 0) {
+			return null;
+		}
+		ItemStack canonical = productStack(grid, width, height, group.canonical(), level);
+		if (canonical == null || canonical.isEmpty() || VariantGroups.of(canonical.getItem()) == null) {
+			return null; // not a wood-typed craft
+		}
+		CraftPlanner.Craft<Item> craft = CraftPlanner.firstCraft(pool, perCraft);
+		if (craft == null) {
+			return null;
+		}
+		ItemStack product = productStack(grid, width, height, craft.output(), level);
+		return product == null || product.isEmpty() ? null : new Single(product, craft.consumed());
+	}
+
+	/** The result-slot preview: one craft's worth of the head wood's product, or empty. */
+	public static ItemStack previewProduct(List<ItemStack> grid, int width, int height, ServerLevel level) {
+		Single single = firstCraft(grid, width, height, level);
+		return single == null ? ItemStack.EMPTY : single.product();
+	}
+
+	/** Pool the grid's wood into {@code wood → count}, leading with the first slot's active wood. */
 	private static LinkedHashMap<Item, Integer> buildPool(List<ItemStack> grid) {
 		LinkedHashMap<Item, Integer> pool = new LinkedHashMap<>();
+		Item primary = primaryWood(grid);
+		if (primary != null) {
+			pool.put(primary, 0); // reserve first position so the active wood leads (preview + tie-breaks)
+		}
 		for (ItemStack stack : grid) {
 			VariantPile pile = stack.get(ModComponents.VARIANT_PILE);
 			if (pile != null) {
@@ -126,7 +165,17 @@ public final class CraftTransmute {
 				pool.merge(stack.getItem(), stack.getCount(), Integer::sum);
 			}
 		}
+		pool.values().removeIf(count -> count == 0);
 		return pool;
+	}
+
+	private static Item primaryWood(List<ItemStack> grid) {
+		for (ItemStack stack : grid) {
+			if (isWood(stack)) {
+				return VariantPiles.isPile(stack) ? VariantPiles.activeWood(stack) : stack.getItem();
+			}
+		}
+		return null;
 	}
 
 	private static int woodSlots(List<ItemStack> grid) {
