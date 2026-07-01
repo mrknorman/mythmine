@@ -4,14 +4,18 @@ import com.mythstack.dev.SelfTest;
 import com.mythstack.net.PileNetworking;
 import com.mythstack.registry.ModBlocks;
 import com.mythstack.registry.ModComponents;
+import com.mythstack.registry.ModItems;
 import com.mythstack.variant.VariantGroups;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.CommonLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.registry.FuelValueEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +27,14 @@ public class MythStack implements ModInitializer {
 	public void onInitialize() {
 		ModComponents.initialize();
 		ModBlocks.initialize();
+		ModItems.initialize();
 		PileNetworking.register();
+
+		// Typed sticks sit next to the vanilla stick in Ingredients and burn exactly like it.
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(output ->
+				output.insertAfter(Items.STICK, ModItems.TYPED_STICKS.stream().map(ItemStack::new).toArray(ItemStack[]::new)));
+		FuelValueEvents.BUILD.register((builder, context) ->
+				ModItems.TYPED_STICKS.forEach(stick -> builder.add(stick, 100)));
 
 		// Snapshot variant-group membership whenever tags load/sync (client + server), so resolving an
 		// item to its group never depends on a flaky per-call tag binding during container prediction.

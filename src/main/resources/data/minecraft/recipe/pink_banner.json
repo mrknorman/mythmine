@@ -1,0 +1,16 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"group": "banner",
+	"key": {
+		"#": "minecraft:pink_wool",
+		"|": "#mythstack:wood/sticks"
+	},
+	"pattern": [
+		"###",
+		"###",
+		" | "
+	],
+	"result": {
+		"id": "minecraft:pink_banner"
+	}
+}

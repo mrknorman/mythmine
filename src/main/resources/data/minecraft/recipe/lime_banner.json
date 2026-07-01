@@ -1,0 +1,16 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"group": "banner",
+	"key": {
+		"#": "minecraft:lime_wool",
+		"|": "#mythstack:wood/sticks"
+	},
+	"pattern": [
+		"###",
+		"###",
+		" | "
+	],
+	"result": {
+		"id": "minecraft:lime_banner"
+	}
+}

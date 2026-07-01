@@ -2,6 +2,7 @@ package com.mythstack.dev;
 
 import com.mythstack.MythStack;
 import com.mythstack.registry.ModComponents;
+import com.mythstack.registry.ModItems;
 import com.mythstack.variant.VariantGroups;
 import com.mythstack.variant.VariantPile;
 import com.mythstack.variant.VariantPiles;
@@ -43,6 +44,7 @@ public final class MenuSelfTest {
 		inventoryTwoByTwo(level, player, failures);
 		nonGroupOutputs(level, player, failures);
 		pileOnPileUnmix(level, player, failures);
+		typedSticks(level, player, failures);
 
 		player.getInventory().clearContent();
 		player.containerMenu = player.inventoryMenu;
@@ -267,6 +269,47 @@ public final class MenuSelfTest {
 				VariantPiles.activeWood(cursor) == Items.BIRCH_LOG, failures);
 		menu.setCarried(ItemStack.EMPTY);
 		menu.getSlot(9).set(ItemStack.EMPTY);
+	}
+
+	/** Typed sticks (spec §13 phase A): per-wood creation, family-stick acceptance, ratio mass craft. */
+	private static void typedSticks(ServerLevel level, FakePlayer player, int[] failures) {
+		// A mixed planks column makes the first-placed wood's typed sticks.
+		CraftingMenu menu = table(level, player);
+		menu.getSlot(1).set(new ItemStack(Items.SPRUCE_PLANKS, 1));
+		menu.getSlot(4).set(new ItemStack(Items.BIRCH_PLANKS, 1));
+		ItemStack preview = menu.getSlot(0).getItem();
+		check("sticks: mixed planks column previews spruce sticks x4",
+				preview.getItem() == ModItems.SPRUCE_STICK && preview.getCount() == 4, failures);
+		ItemStack sticks = take(menu, player);
+		check("sticks: take yields spruce sticks and consumes both planks",
+				sticks.getItem() == ModItems.SPRUCE_STICK && sticks.getCount() == 4
+						&& menu.getSlot(1).getItem().isEmpty() && menu.getSlot(4).getItem().isEmpty(), failures);
+
+		// A ladder from MIXED typed sticks — the acceptance overrides + non-group output path together.
+		CraftingMenu ladder = table(level, player);
+		for (int slot : new int[]{1, 3, 4, 5, 6, 7, 9}) {
+			ladder.getSlot(slot).set(new ItemStack(slot <= 4 ? ModItems.SPRUCE_STICK : ModItems.BIRCH_STICK, 1));
+		}
+		check("sticks: a ladder crafts from mixed typed sticks",
+				ladder.getSlot(0).getItem().getItem() == Items.LADDER, failures);
+		ItemStack lad = take(ladder, player);
+		check("sticks: ladder take consumes a stick from every slot",
+				lad.getItem() == Items.LADDER && gridTotal(ladder, 9, ModItems.SPRUCE_STICK) == 0
+						&& gridTotal(ladder, 9, ModItems.BIRCH_STICK) == 0, failures);
+
+		// Mass craft two mixed plank piles into the stick ratio (plain sticks ARE oak's).
+		CraftingMenu mass = table(level, player);
+		player.getInventory().clearContent();
+		for (int slot : new int[]{1, 4}) {
+			mass.getSlot(slot).set(VariantPiles.makeStacks(VariantGroups.PLANKS, VariantPiles.pool(VariantGroups.PLANKS,
+					List.of(new ItemStack(Items.OAK_PLANKS, 4), new ItemStack(Items.SPRUCE_PLANKS, 4)))).get(0));
+		}
+		mass.clicked(0, 0, ContainerInput.QUICK_MOVE, player);
+		check("sticks: mass craft yields the ratio (16 plain + 16 spruce sticks)",
+				invTotal(player, Items.STICK) == 16 && invTotal(player, ModItems.SPRUCE_STICK) == 16, failures);
+		check("sticks: mass craft consumes both plank piles",
+				mass.getSlot(1).getItem().isEmpty() && mass.getSlot(4).getItem().isEmpty(), failures);
+		player.getInventory().clearContent();
 	}
 
 	private static CraftingMenu table(ServerLevel level, FakePlayer player) {

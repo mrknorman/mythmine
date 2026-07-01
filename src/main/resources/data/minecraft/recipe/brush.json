@@ -1,0 +1,17 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"category": "equipment",
+	"key": {
+		"#": "minecraft:copper_ingot",
+		"I": "#mythstack:wood/sticks",
+		"X": "minecraft:feather"
+	},
+	"pattern": [
+		"X",
+		"#",
+		"I"
+	],
+	"result": {
+		"id": "minecraft:brush"
+	}
+}

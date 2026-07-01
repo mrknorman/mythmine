@@ -558,8 +558,18 @@ Raised during implementation; captured here so they aren't lost.
 
 ### Post-MVP (outline only)
 - **Fan-out:** declare the remaining forms from §7 as data; smoke-test each.
-- **Typed sticks (§13):** new stick variant group derived from wood; per-recipe propagate-vs-discard
-  policy; revert fence & fence-gate recipes to stick-only.
+- **Typed sticks (§13) — phase A DONE.** 8 `mythstack:<wood>_stick` items (vanilla stick = the
+  oak/canonical member — no duplicate; vanilla stick texture for now), STICKS variant group
+  (`#mythstack:wood/sticks`), per-wood planks→stick recipes with `minecraft:stick` restricted to
+  oak/bamboo/crimson/warped planks (deterministic per-wood resolution), creative tab next to the
+  stick, fuel 100. **109 vanilla recipes** (all tool tiers incl. copper/spears, torch/soul/redstone
+  torch, rails, fences, gates, signs, banners, ladder, bow/crossbow, campfires, grindstone, item
+  frame, painting, armor stand, brush, fishing rod, lever, tripwire hook) overridden mechanically to
+  accept `#mythstack:wood/sticks` — typed sticks never dead-end. Transmuter handles mixed/pile stick
+  CREATION for free (per-wood recipes + substitution). **Phase B (deferred): propagation** — fence /
+  gate / sign outputs carrying the wood of their inputs needs multi-group per-slot substitution
+  (planks slot → W planks, stick slot → W stick) keyed by a cross-group wood identity (member index
+  in canonical tag order).
 - **Nether & bamboo (D4):** crimson/warped as their own (non-smelting) variant groups; bamboo with
   a name-map for its irregular forms.
 - **Stone (§12):** subgroup split + content to close smelting gaps.

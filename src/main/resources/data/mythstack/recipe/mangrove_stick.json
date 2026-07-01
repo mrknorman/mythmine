@@ -1,0 +1,15 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"group": "sticks",
+	"key": {
+		"#": "minecraft:mangrove_planks"
+	},
+	"pattern": [
+		"#",
+		"#"
+	],
+	"result": {
+		"count": 4,
+		"id": "mythstack:mangrove_stick"
+	}
+}
