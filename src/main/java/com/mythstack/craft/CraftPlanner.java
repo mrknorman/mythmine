@@ -34,30 +34,6 @@ public final class CraftPlanner {
 	public record EntropyPlan<V>(int crafts, LinkedHashMap<V, Integer> leftover) {
 	}
 
-	/** A single craft: the wood it's attributed to (its output) and what it consumes. */
-	public record Craft<V>(V output, LinkedHashMap<V, Integer> consumed) {
-	}
-
-	/**
-	 * The first craft a ratio plan would perform on {@code pool}, or {@code null} if none can be made — the
-	 * head used for the result preview and one-at-a-time taking. A pure craft of the first wood that has a
-	 * full craft's worth (pool order = priority), else a mixed craft (smallest-first, majority output).
-	 */
-	public static <V> Craft<V> firstCraft(LinkedHashMap<V, Integer> pool, int perCraft) {
-		for (V wood : pool.keySet()) {
-			if (pool.getOrDefault(wood, 0) >= perCraft) {
-				LinkedHashMap<V, Integer> consumed = new LinkedHashMap<>();
-				consumed.put(wood, perCraft);
-				return new Craft<>(wood, consumed);
-			}
-		}
-		if (total(pool) < perCraft) {
-			return null;
-		}
-		LinkedHashMap<V, Integer> consumed = consumeSmallestFirst(new LinkedHashMap<>(pool), perCraft);
-		return new Craft<>(majority(consumed, pool), consumed);
-	}
-
 	public static <V> RatioPlan<V> planRatio(LinkedHashMap<V, Integer> pool, int perCraft) {
 		LinkedHashMap<V, Integer> work = new LinkedHashMap<>(pool);
 		LinkedHashMap<V, Integer> crafts = new LinkedHashMap<>();

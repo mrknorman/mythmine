@@ -66,8 +66,9 @@ public final class CraftMenuTransmute {
 	}
 
 	/**
-	 * Single-take: craft one. The player already holds the result (the preview), so we just consume the
-	 * wood for that one craft from the grid. Returns true if handled (caller cancels vanilla onTake).
+	 * Single-take: craft one. The player already holds the result (the preview), so we consume that one
+	 * craft's wood — one item from <em>each</em> contributing slot, exactly like vanilla, so the recipe
+	 * shape survives repeated takes. Returns true if handled (caller cancels vanilla onTake).
 	 */
 	public static boolean trySingleCraft(AbstractContainerMenu menu, CraftingContainer grid, ServerPlayer player) {
 		CraftTransmute.Single single = CraftTransmute.firstCraft(
@@ -75,36 +76,18 @@ public final class CraftMenuTransmute {
 		if (single == null) {
 			return false;
 		}
-		consume(grid, single.consumed());
-		menu.broadcastChanges();
-		return true;
-	}
-
-	/** Remove {@code woodCounts} ({@code wood → count}) from the grid's piles / plain stacks. */
-	private static void consume(CraftingContainer grid, Map<Item, Integer> woodCounts) {
-		for (Map.Entry<Item, Integer> want : woodCounts.entrySet()) {
-			Item wood = want.getKey();
-			int remaining = want.getValue();
-			for (int i = 0; i < grid.getContainerSize() && remaining > 0; i++) {
-				ItemStack slot = grid.getItem(i);
-				if (slot.isEmpty()) {
-					continue;
-				}
-				if (VariantPiles.isPile(slot)) {
-					int take = Math.min(remaining, VariantPiles.countOf(slot, wood));
-					if (take > 0) {
-						VariantPiles.removeWood(slot, wood, take);
-						grid.setItem(i, slot.getCount() <= 0 ? ItemStack.EMPTY : VariantPiles.collapseToReal(slot));
-						remaining -= take;
-					}
-				} else if (slot.getItem() == wood) {
-					int take = Math.min(remaining, slot.getCount());
-					slot.shrink(take);
-					grid.setItem(i, slot.isEmpty() ? ItemStack.EMPTY : slot);
-					remaining -= take;
-				}
+		for (CraftTransmute.SlotTake take : single.takes()) {
+			ItemStack slot = grid.getItem(take.slot());
+			if (VariantPiles.isPile(slot)) {
+				VariantPiles.removeWood(slot, take.wood(), 1);
+				grid.setItem(take.slot(), slot.getCount() <= 0 ? ItemStack.EMPTY : VariantPiles.collapseToReal(slot));
+			} else {
+				slot.shrink(1);
+				grid.setItem(take.slot(), slot.isEmpty() ? ItemStack.EMPTY : slot);
 			}
 		}
+		menu.broadcastChanges();
+		return true;
 	}
 
 	private static List<ItemStack> toStacks(Map<Item, Integer> counts) {

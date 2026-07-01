@@ -8,7 +8,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Tests for the crafting plan engine (plan §7 — phase 1). Pure logic, variants are Strings.
@@ -74,25 +73,6 @@ class CraftPlannerTest {
 		EntropyPlan<String> plan = CraftPlanner.planEntropy(pool("oak", 4, "spruce", 4), 4);
 		assertEquals(2, plan.crafts());
 		assertEquals(Map.of(), plan.leftover());
-	}
-
-	@Test
-	void firstCraft_pure_picksFirstWoodWithEnough_inPoolOrder() {
-		CraftPlanner.Craft<String> craft = CraftPlanner.firstCraft(pool("spruce", 30, "oak", 30), 6);
-		assertEquals("spruce", craft.output());
-		assertEquals(Map.of("spruce", 6), craft.consumed());
-	}
-
-	@Test
-	void firstCraft_mixed_whenNoneHasEnough_majorityOutput() {
-		CraftPlanner.Craft<String> craft = CraftPlanner.firstCraft(pool("oak", 2, "spruce", 4), 6);
-		assertEquals("spruce", craft.output());
-		assertEquals(Map.of("oak", 2, "spruce", 4), craft.consumed());
-	}
-
-	@Test
-	void firstCraft_none_whenNotEnoughTotal() {
-		assertNull(CraftPlanner.firstCraft(pool("oak", 2, "spruce", 1), 6));
 	}
 
 	@Test

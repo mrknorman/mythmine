@@ -215,6 +215,9 @@ public final class SelfTest {
 					stairs.products().equals(Map.of(Items.SPRUCE_STAIRS, 20, Items.BIRCH_STAIRS, 20)), failures);
 		}
 
+		// 19. End-to-end menu path: a fake player driving real crafting-menu clicks (phase 3).
+		failures[0] += MenuSelfTest.run(level);
+
 		if (failures[0] == 0) {
 			MythStack.LOGGER.info("[selftest] ALL CHECKS PASSED");
 		} else {

@@ -113,11 +113,22 @@ public final class CraftTransmute {
 		return null;
 	}
 
-	/** The product + consumed wood of the next single craft (for the result preview / one-at-a-time take). */
-	public record Single(ItemStack product, LinkedHashMap<Item, Integer> consumed) {
+	/** One slot's contribution to a single craft: take one {@code wood} from grid slot {@code slot}. */
+	public record SlotTake(int slot, Item wood) {
 	}
 
-	/** The next single craft this grid would make, or {@code null} if it isn't a transmutable wood craft. */
+	/** The product + per-slot consumption of the next single craft (result preview / one-at-a-time take). */
+	public record Single(ItemStack product, List<SlotTake> takes) {
+	}
+
+	/**
+	 * The next single craft this grid would make, or {@code null} if it isn't a transmutable wood craft.
+	 * A single craft is <em>per-slot</em>, exactly like vanilla: each occupied wood slot contributes one
+	 * item — a plain stack its own wood, a pile its <b>active</b> wood (scroll the pile in the grid to
+	 * steer it). That keeps the grid shape intact across takes (a pooled draw would empty the first slots
+	 * and break the recipe shape mid-way). Output = the majority contribution; ties go to the earliest
+	 * contributing wood (the first-placed rule). Ratio/pooled crafting is the shift-click mass path.
+	 */
 	public static Single firstCraft(List<ItemStack> grid, int width, int height, ServerLevel level) {
 		for (ItemStack stack : grid) {
 			if (!stack.isEmpty() && !isWood(stack)) {
@@ -125,21 +136,40 @@ public final class CraftTransmute {
 			}
 		}
 		VariantGroup group = inputGroup(grid);
-		LinkedHashMap<Item, Integer> pool = buildPool(grid);
-		int perCraft = woodSlots(grid);
-		if (group == null || pool.isEmpty() || perCraft == 0) {
+		if (group == null) {
+			return null;
+		}
+		List<SlotTake> takes = new ArrayList<>();
+		LinkedHashMap<Item, Integer> tally = new LinkedHashMap<>(); // insertion order = first-placed order
+		for (int i = 0; i < grid.size(); i++) {
+			ItemStack stack = grid.get(i);
+			if (!isWood(stack)) {
+				continue;
+			}
+			Item give = VariantPiles.isPile(stack) ? VariantPiles.activeWood(stack) : stack.getItem();
+			if (give == null) {
+				return null;
+			}
+			takes.add(new SlotTake(i, give));
+			tally.merge(give, 1, Integer::sum);
+		}
+		if (takes.isEmpty()) {
 			return null;
 		}
 		ItemStack canonical = productStack(grid, width, height, group.canonical(), level);
 		if (canonical == null || canonical.isEmpty() || VariantGroups.of(canonical.getItem()) == null) {
 			return null; // not a wood-typed craft
 		}
-		CraftPlanner.Craft<Item> craft = CraftPlanner.firstCraft(pool, perCraft);
-		if (craft == null) {
-			return null;
+		Item output = null;
+		int best = 0;
+		for (var entry : tally.entrySet()) {
+			if (entry.getValue() > best) { // strict > keeps the earliest wood on ties
+				output = entry.getKey();
+				best = entry.getValue();
+			}
 		}
-		ItemStack product = productStack(grid, width, height, craft.output(), level);
-		return product == null || product.isEmpty() ? null : new Single(product, craft.consumed());
+		ItemStack product = productStack(grid, width, height, output, level);
+		return product == null || product.isEmpty() ? null : new Single(product, takes);
 	}
 
 	/** The result-slot preview: one craft's worth of the head wood's product, or empty. */
