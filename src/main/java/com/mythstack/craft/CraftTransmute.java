@@ -16,6 +16,7 @@ import net.minecraft.world.item.crafting.RecipeType;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -73,12 +74,21 @@ public final class CraftTransmute {
 		LinkedHashMap<Item, Integer> products = new LinkedHashMap<>();
 		LinkedHashMap<Item, Integer> leftover;
 		if (VariantGroups.of(canonical.getItem()) != null) {
-			// Wood-typed output: ratio plan, each output wood mapped to its product by substitution.
-			CraftPlanner.RatioPlan<Item> plan = CraftPlanner.planRatio(pool, perCraft);
-			for (var entry : plan.craftsByWood().entrySet()) {
-				ItemStack product = productStack(grid, width, height, entry.getKey(), level);
+			// Wood-typed output: resolve each wood's product up front. A wood with no product for this
+			// recipe (there is no crimson boat) is unproductive — consumable by mixed crafts but never an
+			// output. Counts are PER WOOD: a bamboo block yields 2 planks where a log yields 4.
+			LinkedHashMap<Item, ItemStack> productByWood = new LinkedHashMap<>();
+			for (Item wood : pool.keySet()) {
+				ItemStack product = productStack(grid, width, height, wood, level);
 				if (product != null && !product.isEmpty()) {
-					products.merge(product.getItem(), entry.getValue() * outputPerCraft, Integer::sum);
+					productByWood.put(wood, product);
+				}
+			}
+			CraftPlanner.RatioPlan<Item> plan = CraftPlanner.planRatio(pool, perCraft, productByWood.keySet());
+			for (var entry : plan.craftsByWood().entrySet()) {
+				ItemStack product = productByWood.get(entry.getKey());
+				if (product != null) {
+					products.merge(product.getItem(), entry.getValue() * product.getCount(), Integer::sum);
 				}
 			}
 			leftover = plan.leftover();
@@ -163,16 +173,18 @@ public final class CraftTransmute {
 		// Note the output need NOT belong to a variant group: per-wood outputs outside any group (boats)
 		// transmute by substitution like everything else, and wood-agnostic outputs (chest, sticks) come
 		// out identical for every wood — reproducing vanilla, but with active-wood pile consumption.
-		Item output = null;
-		int best = 0;
-		for (var entry : tally.entrySet()) {
-			if (entry.getValue() > best) { // strict > keeps the earliest wood on ties
-				output = entry.getKey();
-				best = entry.getValue();
+		// Output = the most common contribution that actually HAS a product for this recipe: there is
+		// no crimson boat, so a crimson-majority grid makes the runner-up wood's boat. Descending count,
+		// stable sort — ties keep first-placed order. No productive wood at all -> not craftable.
+		List<Map.Entry<Item, Integer>> byCount = new ArrayList<>(tally.entrySet());
+		byCount.sort((a, b) -> Integer.compare(b.getValue(), a.getValue()));
+		for (var entry : byCount) {
+			ItemStack product = productStack(grid, width, height, entry.getKey(), level);
+			if (product != null && !product.isEmpty()) {
+				return new Single(product, takes);
 			}
 		}
-		ItemStack product = productStack(grid, width, height, output, level);
-		return product == null || product.isEmpty() ? null : new Single(product, takes);
+		return null;
 	}
 
 	/** The result-slot preview: one craft's worth of the head wood's product, or empty. */

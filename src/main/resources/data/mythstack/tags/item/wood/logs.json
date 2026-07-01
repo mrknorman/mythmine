@@ -8,6 +8,9 @@
 		"minecraft:dark_oak_log",
 		"minecraft:mangrove_log",
 		"minecraft:cherry_log",
-		"minecraft:pale_oak_log"
+		"minecraft:pale_oak_log",
+		"minecraft:bamboo_block",
+		"minecraft:crimson_stem",
+		"minecraft:warped_stem"
 	]
 }

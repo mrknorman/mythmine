@@ -26,10 +26,14 @@ public final class ModItems {
 	public static final Item MANGROVE_STICK = stick("mangrove_stick");
 	public static final Item CHERRY_STICK = stick("cherry_stick");
 	public static final Item PALE_OAK_STICK = stick("pale_oak_stick");
+	public static final Item BAMBOO_STICK = stick("bamboo_stick");
+	public static final Item CRIMSON_STICK = stick("crimson_stick");
+	public static final Item WARPED_STICK = stick("warped_stick");
 
 	/** The typed sticks in canonical wood order (vanilla stick — oak — is the group's canonical). */
 	public static final List<Item> TYPED_STICKS = List.of(SPRUCE_STICK, BIRCH_STICK, JUNGLE_STICK,
-			ACACIA_STICK, DARK_OAK_STICK, MANGROVE_STICK, CHERRY_STICK, PALE_OAK_STICK);
+			ACACIA_STICK, DARK_OAK_STICK, MANGROVE_STICK, CHERRY_STICK, PALE_OAK_STICK,
+			BAMBOO_STICK, CRIMSON_STICK, WARPED_STICK);
 
 	private static Item stick(String name) {
 		ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, MythStack.id(name));

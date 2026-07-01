@@ -2,6 +2,7 @@ package com.mythstack.craft;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * The pure crafting plan (plan §7 crafting redesign — phase 1). Decides, for a recipe that eats
@@ -35,11 +36,26 @@ public final class CraftPlanner {
 	}
 
 	public static <V> RatioPlan<V> planRatio(LinkedHashMap<V, Integer> pool, int perCraft) {
+		return planRatio(pool, perCraft, pool.keySet());
+	}
+
+	/**
+	 * As {@link #planRatio(LinkedHashMap, int)}, but only {@code productive} woods can be an OUTPUT —
+	 * some recipes have no product for a wood (there is no crimson boat). Unproductive wood never
+	 * pure-crafts and never receives attribution; mixed crafts still consume it, attributed to the
+	 * most-consumed productive wood (ties → pool order), falling back to the pool's leading productive
+	 * wood if a mixed bite happened to eat none. With no productive wood left, crafting stops — the
+	 * rest is leftover (a pure-crimson boat grid crafts nothing).
+	 */
+	public static <V> RatioPlan<V> planRatio(LinkedHashMap<V, Integer> pool, int perCraft, Set<V> productive) {
 		LinkedHashMap<V, Integer> work = new LinkedHashMap<>(pool);
 		LinkedHashMap<V, Integer> crafts = new LinkedHashMap<>();
 
-		// Pure passes: each wood crafts as many same-wood items as it can.
+		// Pure passes: each productive wood crafts as many same-wood items as it can.
 		for (V wood : pool.keySet()) {
+			if (!productive.contains(wood)) {
+				continue;
+			}
 			int have = work.getOrDefault(wood, 0);
 			int n = have / perCraft;
 			if (n > 0) {
@@ -49,9 +65,9 @@ public final class CraftPlanner {
 		}
 
 		// Mixed pass: fold the sub-craft remainders into majority-wood crafts, smallest-first to consolidate.
-		while (total(work) >= perCraft) {
+		while (total(work) >= perCraft && hasProductive(work, productive)) {
 			Map<V, Integer> consumed = consumeSmallestFirst(work, perCraft);
-			crafts.merge(majority(consumed, pool), 1, Integer::sum);
+			crafts.merge(majority(consumed, pool, productive), 1, Integer::sum);
 		}
 		return new RatioPlan<>(crafts, prune(work));
 	}
@@ -96,11 +112,18 @@ public final class CraftPlanner {
 		return best;
 	}
 
-	/** The most-consumed wood; ties → earliest in {@code order}. */
-	private static <V> V majority(Map<V, Integer> consumed, LinkedHashMap<V, Integer> order) {
+	/**
+	 * The most-consumed PRODUCTIVE wood; ties → earliest in {@code order}. If the bite consumed no
+	 * productive wood at all, the pool's first productive wood takes the attribution (the caller's
+	 * loop guard ensures one exists).
+	 */
+	private static <V> V majority(Map<V, Integer> consumed, LinkedHashMap<V, Integer> order, Set<V> productive) {
 		V best = null;
 		int bestCount = -1;
 		for (V wood : order.keySet()) {
+			if (!productive.contains(wood)) {
+				continue;
+			}
 			int count = consumed.getOrDefault(wood, 0);
 			if (count > bestCount) {
 				bestCount = count;
@@ -108,6 +131,16 @@ public final class CraftPlanner {
 			}
 		}
 		return best;
+	}
+
+	/** True if any productive wood still has units left in {@code work}. */
+	private static <V> boolean hasProductive(Map<V, Integer> work, Set<V> productive) {
+		for (Map.Entry<V, Integer> entry : work.entrySet()) {
+			if (entry.getValue() > 0 && productive.contains(entry.getKey())) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private static <V> int total(Map<V, Integer> map) {

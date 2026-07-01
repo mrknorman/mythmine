@@ -1,11 +1,14 @@
 {
 	"block.mythstack.white_block": "White Block",
 	"item.mythstack.acacia_stick": "Acacia Stick",
+	"item.mythstack.bamboo_stick": "Bamboo Stick",
 	"item.mythstack.birch_stick": "Birch Stick",
 	"item.mythstack.cherry_stick": "Cherry Stick",
+	"item.mythstack.crimson_stick": "Crimson Stick",
 	"item.mythstack.dark_oak_stick": "Dark Oak Stick",
 	"item.mythstack.jungle_stick": "Jungle Stick",
 	"item.mythstack.mangrove_stick": "Mangrove Stick",
 	"item.mythstack.pale_oak_stick": "Pale Oak Stick",
-	"item.mythstack.spruce_stick": "Spruce Stick"
+	"item.mythstack.spruce_stick": "Spruce Stick",
+	"item.mythstack.warped_stick": "Warped Stick"
 }

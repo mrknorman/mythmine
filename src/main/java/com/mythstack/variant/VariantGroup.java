@@ -16,10 +16,9 @@ import net.minecraft.world.item.Item;
  */
 public record VariantGroup(Identifier id, TagKey<Item> members, Item canonical) {
 
-	/** True if {@code item} is a member of this group and is not a deferred material (nether/bamboo). */
+	/** True if {@code item} is a member of this group. */
 	public boolean contains(Item item) {
-		return BuiltInRegistries.ITEM.wrapAsHolder(item).is(members)
-				&& !VariantGroups.isDeferredMaterial(item);
+		return BuiltInRegistries.ITEM.wrapAsHolder(item).is(members);
 	}
 
 	/**

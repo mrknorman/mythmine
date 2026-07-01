@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -73,6 +74,22 @@ class CraftPlannerTest {
 		EntropyPlan<String> plan = CraftPlanner.planEntropy(pool("oak", 4, "spruce", 4), 4);
 		assertEquals(2, plan.crafts());
 		assertEquals(Map.of(), plan.leftover());
+	}
+
+	@Test
+	void ratio_unproductiveWood_neverPureCraftsNorAttributed() {
+		// Boats: crimson has no product. 10 crimson + 4 spruce, 5 per craft: one mixed craft eats the
+		// 4 spruce (smallest) + 1 crimson, attributed to spruce; then no productive wood remains.
+		RatioPlan<String> plan = CraftPlanner.planRatio(pool("crimson", 10, "spruce", 4), 5, Set.of("spruce"));
+		assertEquals(Map.of("spruce", 1), plan.craftsByWood());
+		assertEquals(Map.of("crimson", 9), plan.leftover());
+	}
+
+	@Test
+	void ratio_allUnproductive_allLeftover() {
+		RatioPlan<String> plan = CraftPlanner.planRatio(pool("crimson", 10, "warped", 10), 5, Set.of());
+		assertEquals(Map.of(), plan.craftsByWood());
+		assertEquals(Map.of("crimson", 10, "warped", 10), plan.leftover());
 	}
 
 	@Test

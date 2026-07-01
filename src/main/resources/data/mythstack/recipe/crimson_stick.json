@@ -2,7 +2,7 @@
 	"type": "minecraft:crafting_shaped",
 	"group": "sticks",
 	"key": {
-		"#": "minecraft:oak_planks"
+		"#": "minecraft:crimson_planks"
 	},
 	"pattern": [
 		"#",
@@ -10,6 +10,6 @@
 	],
 	"result": {
 		"count": 4,
-		"id": "minecraft:stick"
+		"id": "mythstack:crimson_stick"
 	}
 }

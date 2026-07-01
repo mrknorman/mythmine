@@ -12,7 +12,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,11 +19,11 @@ import java.util.Set;
 /**
  * Declares the wood {@link VariantGroup}s and resolves an item to its group.
  *
- * <p>MVP scope (build phase 2): just {@code logs} and {@code planks}. Planks reuse the vanilla
- * {@code #minecraft:planks} tag directly; logs use our own tag because vanilla conflates
- * log / wood / stripped under {@code #*_logs}. Deferred materials (nether + bamboo, decision
- * D4) are filtered out at lookup, reusing vanilla's {@code #non_flammable_wood} for the
- * nether half so we don't hand-list it.
+ * <p>Planks and most forms reuse vanilla family tags directly; the raw log forms use our own
+ * tags because vanilla conflates log / wood / stripped under {@code #*_logs}. All vanilla wood
+ * materials are in — including nether (crimson/warped) and bamboo (D4 reversed): bamboo_block
+ * takes the log slot, forms a wood lacks (bamboo hyphae, nether boats) are simply absent, and
+ * the crafting layer handles the gaps (unproductive woods never receive attribution).
  *
  * <p>Resolution goes through a {@link #membership} snapshot rebuilt whenever tags load/sync
  * ({@code CommonLifecycleEvents.TAGS_LOADED}). A per-call {@code holder.is(tag)} check is unreliable
@@ -35,13 +34,9 @@ public final class VariantGroups {
 	private VariantGroups() {
 	}
 
-	private static final TagKey<Item> NON_FLAMMABLE_WOOD = itemTag(vanilla("non_flammable_wood"));
-
 	// One group per wood FORM, keyed by wood type, canonical = the oak member (spec §D2). Membership comes
 	// from a tag: a vanilla #wooden_*/family tag where one cleanly exists (so modded woods tag in for free),
 	// or our own #mythstack:wood/* tag for the raw log forms (vanilla #*_logs conflate log/wood/stripped).
-	// Deferred materials (nether via #non_flammable_wood, bamboo by name — decision D4) are filtered at
-	// snapshot time, so a family tag that happens to include them is fine.
 	public static final VariantGroup LOGS = group("logs", custom("wood/logs"), Items.OAK_LOG);
 	public static final VariantGroup WOODS = group("wood", custom("wood/wood"), Items.OAK_WOOD);
 	public static final VariantGroup STRIPPED_LOGS = group("stripped_logs", custom("wood/stripped_logs"), Items.STRIPPED_OAK_LOG);
@@ -73,7 +68,7 @@ public final class VariantGroups {
 	/** item -> group, snapshotted from the tags when they are loaded/synced (bindings reliable on both sides). */
 	private static volatile Map<Item, VariantGroup> membership = Map.of();
 
-	/** The group {@code item} belongs to, or {@code null} if none (or a deferred material). */
+	/** The group {@code item} belongs to, or {@code null} if none. */
 	public static VariantGroup of(Item item) {
 		VariantGroup cached = membership.get(item);
 		if (cached != null) {
@@ -96,35 +91,15 @@ public final class VariantGroups {
 	 */
 	public static void rebuildMembership(RegistryAccess registries) {
 		Registry<Item> items = registries.lookup(Registries.ITEM).orElseThrow();
-		Set<Item> nonFlammable = new HashSet<>();
-		for (Holder<Item> holder : items.getTagOrEmpty(NON_FLAMMABLE_WOOD)) {
-			nonFlammable.add(holder.value());
-		}
 		Map<Item, VariantGroup> map = new HashMap<>();
 		for (VariantGroup group : ALL) {
 			for (Holder<Item> holder : items.getTagOrEmpty(group.members())) {
-				Item item = holder.value();
-				if (!nonFlammable.contains(item) && !isBamboo(item)) {
-					map.putIfAbsent(item, group);
-				}
+				map.putIfAbsent(holder.value(), group);
 			}
 		}
 		membership = Map.copyOf(map);
 		MythStack.LOGGER.info("[variant-group] membership snapshot rebuilt: {} items across {} groups",
 				map.size(), ALL.size());
-	}
-
-	/** Materials deferred out of the MVP (D4): nether wood (crimson/warped) and bamboo. */
-	public static boolean isDeferredMaterial(Item item) {
-		if (BuiltInRegistries.ITEM.wrapAsHolder(item).is(NON_FLAMMABLE_WOOD)) {
-			return true; // crimson / warped
-		}
-		return isBamboo(item);
-	}
-
-	private static boolean isBamboo(Item item) {
-		Identifier id = BuiltInRegistries.ITEM.getKey(item);
-		return "minecraft".equals(id.getNamespace()) && id.getPath().startsWith("bamboo_");
 	}
 
 	/** Dev-only sanity dump (build phase 2). Logged on server start in the dev environment. */

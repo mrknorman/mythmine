@@ -45,6 +45,7 @@ public final class MenuSelfTest {
 		nonGroupOutputs(level, player, failures);
 		pileOnPileUnmix(level, player, failures);
 		typedSticks(level, player, failures);
+		netherAndBamboo(level, player, failures);
 
 		player.getInventory().clearContent();
 		player.containerMenu = player.inventoryMenu;
@@ -310,6 +311,70 @@ public final class MenuSelfTest {
 		check("sticks: mass craft consumes both plank piles",
 				mass.getSlot(1).getItem().isEmpty() && mass.getSlot(4).getItem().isEmpty(), failures);
 		player.getInventory().clearContent();
+	}
+
+	/** D4 reversed: crimson/warped/bamboo are family woods; the crafting layer covers their gaps. */
+	private static void netherAndBamboo(ServerLevel level, FakePlayer player, int[] failures) {
+		// A crimson-MAJORITY boat grid: no crimson boat exists, so the runner-up wood's boat crafts.
+		CraftingMenu menu = table(level, player);
+		menu.getSlot(1).set(new ItemStack(Items.CRIMSON_PLANKS, 1));
+		menu.getSlot(3).set(new ItemStack(Items.CRIMSON_PLANKS, 1));
+		menu.getSlot(4).set(new ItemStack(Items.CRIMSON_PLANKS, 1));
+		menu.getSlot(5).set(new ItemStack(Items.SPRUCE_PLANKS, 1));
+		menu.getSlot(6).set(new ItemStack(Items.SPRUCE_PLANKS, 1));
+		check("d4: crimson-majority boat grid previews the runner-up wood's boat (spruce)",
+				menu.getSlot(0).getItem().getItem() == Items.SPRUCE_BOAT, failures);
+		ItemStack boat = take(menu, player);
+		check("d4: the boat take still consumes the crimson planks (one per slot)",
+				boat.getItem() == Items.SPRUCE_BOAT && gridTotal(menu, 9, Items.CRIMSON_PLANKS) == 0
+						&& gridTotal(menu, 9, Items.SPRUCE_PLANKS) == 0, failures);
+
+		// A PURE crimson boat grid crafts nothing at all.
+		CraftingMenu pure = table(level, player);
+		for (int slot : new int[]{1, 3, 4, 5, 6}) {
+			pure.getSlot(slot).set(new ItemStack(Items.CRIMSON_PLANKS, 1));
+		}
+		check("d4: a pure crimson boat grid is not craftable", pure.getSlot(0).getItem().isEmpty(), failures);
+
+		// Bamboo IS boat-productive — via its raft.
+		CraftingMenu raft = table(level, player);
+		for (int slot : new int[]{1, 3, 4, 5, 6}) {
+			raft.getSlot(slot).set(new ItemStack(Items.BAMBOO_PLANKS, 1));
+		}
+		check("d4: pure bamboo boat grid previews the raft",
+				raft.getSlot(0).getItem().getItem() == Items.BAMBOO_RAFT, failures);
+
+		// A log pile mixing oak and bamboo block masses with PER-WOOD plank counts (4 vs 2 per craft).
+		CraftingMenu mass = table(level, player);
+		player.getInventory().clearContent();
+		mass.getSlot(1).set(VariantPiles.makeStacks(VariantGroups.LOGS, VariantPiles.pool(VariantGroups.LOGS,
+				List.of(new ItemStack(Items.OAK_LOG, 2), new ItemStack(Items.BAMBOO_BLOCK, 2)))).get(0));
+		mass.clicked(0, 0, ContainerInput.QUICK_MOVE, player);
+		check("d4: oak+bamboo log pile masses to per-wood counts (8 oak + 4 bamboo planks)",
+				invTotal(player, Items.OAK_PLANKS) == 8 && invTotal(player, Items.BAMBOO_PLANKS) == 4
+						&& mass.getSlot(1).getItem().isEmpty(), failures);
+		player.getInventory().clearContent();
+
+		// Crimson sticks craft per-wood like any family wood's.
+		CraftingMenu sticks = table(level, player);
+		sticks.getSlot(1).set(new ItemStack(Items.CRIMSON_PLANKS, 1));
+		sticks.getSlot(4).set(new ItemStack(Items.CRIMSON_PLANKS, 1));
+		check("d4: crimson planks column previews crimson sticks x4",
+				sticks.getSlot(0).getItem().getItem() == ModItems.CRIMSON_STICK
+						&& sticks.getSlot(0).getItem().getCount() == 4, failures);
+
+		// Bamboo mosaic stays pure-bamboo: a mixed slab column transmutes to nothing (no oak recipe
+		// exists for the shape), while pure bamboo slabs still match vanilla directly.
+		CraftingMenu mixedSlabs = table(level, player);
+		mixedSlabs.getSlot(1).set(new ItemStack(Items.BAMBOO_SLAB, 1));
+		mixedSlabs.getSlot(4).set(new ItemStack(Items.OAK_SLAB, 1));
+		check("d4: a mixed slab column crafts nothing (mosaic is bamboo-only)",
+				mixedSlabs.getSlot(0).getItem().isEmpty(), failures);
+		CraftingMenu mosaic = table(level, player);
+		mosaic.getSlot(1).set(new ItemStack(Items.BAMBOO_SLAB, 1));
+		mosaic.getSlot(4).set(new ItemStack(Items.BAMBOO_SLAB, 1));
+		check("d4: pure bamboo slabs still craft the mosaic (vanilla path)",
+				mosaic.getSlot(0).getItem().getItem() == Items.BAMBOO_MOSAIC, failures);
 	}
 
 	private static CraftingMenu table(ServerLevel level, FakePlayer player) {

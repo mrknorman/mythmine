@@ -2,14 +2,13 @@
 	"type": "minecraft:crafting_shaped",
 	"group": "sticks",
 	"key": {
-		"#": "minecraft:oak_planks"
+		"#": "minecraft:bamboo"
 	},
 	"pattern": [
 		"#",
 		"#"
 	],
 	"result": {
-		"count": 4,
-		"id": "minecraft:stick"
+		"id": "mythstack:bamboo_stick"
 	}
 }

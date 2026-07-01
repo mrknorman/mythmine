@@ -49,7 +49,7 @@ code. Our mod only intervenes at the **boundaries** — when a pile is split, co
 displayed, or picked up.
 
 MVP is **wood only** and ends at phase 9. Nether wood (crimson/warped) and bamboo are
-deferred (they're irregular — see §2). Typed sticks (§13 of the spec) and stone (§12)
+**in** (D4 reversed — see §2); their irregularities are handled at the crafting layer. Typed sticks (§13 of the spec) and stone (§12)
 are post-MVP.
 
 ### The guiding tenet — inventory tends toward order through use
@@ -78,8 +78,8 @@ a pile records (§6.2).
 | ID | Mod id / namespace | **`mythstack`** | Per spec (repo is `mythmine`; mod id may differ — that's fine) |
 | D1 | Carrier representation | **Hosted-on-canonical** — a pile is a real stack of the canonical member + a `VariantPile` overlay component. No new item types. | "Behaves identically to a stack except at the boundary." Vanilla does comparator/craft/smelt/transport for free. |
 | D2 | VariantGroup granularity | **One variant group per wood *form*** (logs, planks, stairs, slabs, fences, …), each keyed by wood type, canonical = the `oak` member. | Matches the natural product line; the engine is written once and forms are declared as data. |
-| D3 | Crafting a mix | **Always collapse to canonical.** No way to craft a "mixed item." | See §3 — keeps the whole thing tractable; free under D1. |
-| D4 | Nether & bamboo | **Deferred.** MVP = the 9 regular overworld woods only. | They break closure (nether isn't fuel/doesn't smelt; bamboo has no-analog forms). |
+| D3 | Crafting a mix | **REVERSED by the §7 crafting redesign.** Ratio-preserving transmute: pile-in → pile-out in the input woods' ratio (shift-click mass); single takes are per-slot, output = majority/first-placed *productive* wood. No mixed *items* ever — outputs are definite per-wood items. | The invariant in §3 (mixedness is stack-level only) still holds; only the "first craft canonicalizes" cost was removed. |
+| D4 | Nether & bamboo | **REVERSED — they're in.** All 12 vanilla woods are family members; `bamboo_block` takes the log slot. | The gaps are handled per-layer: a wood with no product for a recipe (no crimson/warped boat) is *unproductive* — consumable in mixed crafts but never the output (attribution falls to the runner-up wood); bamboo-only forms (mosaic) stay pure-bamboo because no canonical/oak recipe exists to transmute against; nether sticks aren't furnace fuel. **Open (phase 8): furnaces** — a pile hosted on `oak_log` containing crimson stems must not smelt/burn as oak; needs pile-aware furnace handling. |
 
 **Rejected alternative (don't do this, but know why):** a *distinct* carrier item
 (`mythstack:wood_pile`). It avoids mixing into vanilla `Item`, but then you must
@@ -104,9 +104,10 @@ Everything else follows from this:
 - A pile smelts to charcoal **for free** — vanilla smelts the host `oak_log`.
 - The rule is **self-enforcing**: vanilla never writes our component, so vanilla can
   never create an illegal "mixed item." Only our combine/normalize code mints a mix.
-- The cost we accept: **the first craft canonicalizes the rainbow permanently.** Mixed
-  logs → *all* oak planks. The mix survives storage and transport but dies at the first
-  craft. Players who want a specific variant separate first (§10 of spec).
+- ~~The cost we accept: the first craft canonicalizes the rainbow permanently.~~ **Superseded
+  by the §7 crafting redesign:** the transmute layer plans ratio-preserving per-wood outputs
+  *before* vanilla sees the grid, so a mix crafts into a mix-of-definite-products instead of
+  all-oak. The invariant above still holds — no mixed *item* is ever produced.
 
 ---
 
@@ -359,7 +360,7 @@ src/main/resources/
 
 ## 7. The wood variant groups (MVP data)
 
-**Woods (9, regular overworld only — D4):**
+**Woods (12 — all vanilla, D4 reversed; bamboo lacks the wood/hyphae form):**
 `oak, spruce, birch, jungle, acacia, dark_oak, mangrove, cherry, pale_oak`. **Canonical =
 `oak`.** Variant order for deterministic peel = that list (oak first).
 
@@ -561,7 +562,8 @@ Raised during implementation; captured here so they aren't lost.
 - **Typed sticks (§13) — phase A DONE.** 8 `mythstack:<wood>_stick` items (vanilla stick = the
   oak/canonical member — no duplicate; vanilla stick texture for now), STICKS variant group
   (`#mythstack:wood/sticks`), per-wood planks→stick recipes with `minecraft:stick` restricted to
-  oak/bamboo/crimson/warped planks (deterministic per-wood resolution), creative tab next to the
+  oak planks only (deterministic per-wood resolution; D4 woods have their own typed sticks, and raw
+  bamboo items craft the bamboo stick), creative tab next to the
   stick, fuel 100. **109 vanilla recipes** (all tool tiers incl. copper/spears, torch/soul/redstone
   torch, rails, fences, gates, signs, banners, ladder, bow/crossbow, campfires, grindstone, item
   frame, painting, armor stand, brush, fishing rod, lever, tripwire hook) overridden mechanically to
@@ -570,8 +572,6 @@ Raised during implementation; captured here so they aren't lost.
   gate / sign outputs carrying the wood of their inputs needs multi-group per-slot substitution
   (planks slot → W planks, stick slot → W stick) keyed by a cross-group wood identity (member index
   in canonical tag order).
-- **Nether & bamboo (D4):** crimson/warped as their own (non-smelting) variant groups; bamboo with
-  a name-map for its irregular forms.
 - **Stone (§12):** subgroup split + content to close smelting gaps.
 
 ---
@@ -604,8 +604,6 @@ Raised during implementation; captured here so they aren't lost.
 
 ## 11. Out of scope / deferred
 
-- **Nether wood** (crimson/warped) — separate, non-smelting variant groups. Deferred (D4).
-- **Bamboo** — irregular forms (`mosaic`, `raft`, `block`); needs a name-map. Deferred (D4).
 - **Typed sticks & recipe reverts** (§13 of spec) — first post-MVP phase.
 - **Stone variant group** (§12) — content-addition work; post-MVP.
 - **Icon-grid (bundle-style) tooltip rendering** — MVP uses text lines via

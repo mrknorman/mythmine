@@ -30,11 +30,13 @@ public class MythStack implements ModInitializer {
 		ModItems.initialize();
 		PileNetworking.register();
 
-		// Typed sticks sit next to the vanilla stick in Ingredients and burn exactly like it.
+		// Typed sticks sit next to the vanilla stick in Ingredients and burn exactly like it —
+		// except the nether ones: crimson/warped wood is not furnace fuel, so neither are its sticks.
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(output ->
 				output.insertAfter(Items.STICK, ModItems.TYPED_STICKS.stream().map(ItemStack::new).toArray(ItemStack[]::new)));
-		FuelValueEvents.BUILD.register((builder, context) ->
-				ModItems.TYPED_STICKS.forEach(stick -> builder.add(stick, 100)));
+		FuelValueEvents.BUILD.register((builder, context) -> ModItems.TYPED_STICKS.stream()
+				.filter(stick -> stick != ModItems.CRIMSON_STICK && stick != ModItems.WARPED_STICK)
+				.forEach(stick -> builder.add(stick, 100)));
 
 		// Snapshot variant-group membership whenever tags load/sync (client + server), so resolving an
 		// item to its group never depends on a flaky per-call tag binding during container prediction.
