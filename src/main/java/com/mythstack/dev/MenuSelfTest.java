@@ -41,6 +41,8 @@ public final class MenuSelfTest {
 		massCraftRatio(level, player, failures);
 		massCraftLeftover(level, player, failures);
 		inventoryTwoByTwo(level, player, failures);
+		nonGroupOutputs(level, player, failures);
+		pileOnPileUnmix(level, player, failures);
 
 		player.getInventory().clearContent();
 		player.containerMenu = player.inventoryMenu;
@@ -190,6 +192,81 @@ public final class MenuSelfTest {
 				invTotal(player, Items.OAK_PLANKS) == 16 && invTotal(player, Items.BIRCH_PLANKS) == 16
 						&& menu.getSlot(1).getItem().isEmpty(), failures);
 		player.getInventory().clearContent();
+	}
+
+	/** Outputs OUTSIDE any variant group: per-wood (boat) transmutes by wood, tag-based (chest) is inert. */
+	private static void nonGroupOutputs(ServerLevel level, FakePlayer player, int[] failures) {
+		CraftingMenu menu = table(level, player);
+		// Boat: "# #" / "###" — 3 spruce + 2 birch, no oak, no piles. Majority wood wins.
+		menu.getSlot(1).set(new ItemStack(Items.SPRUCE_PLANKS, 1));
+		menu.getSlot(3).set(new ItemStack(Items.SPRUCE_PLANKS, 1));
+		menu.getSlot(4).set(new ItemStack(Items.SPRUCE_PLANKS, 1));
+		menu.getSlot(5).set(new ItemStack(Items.BIRCH_PLANKS, 1));
+		menu.getSlot(6).set(new ItemStack(Items.BIRCH_PLANKS, 1));
+		check("menu: mixed boat previews the majority wood (spruce boat)",
+				menu.getSlot(0).getItem().getItem() == Items.SPRUCE_BOAT, failures);
+		ItemStack boat = take(menu, player);
+		check("menu: boat take consumes one plank from every slot",
+				boat.getItem() == Items.SPRUCE_BOAT && boat.getCount() == 1
+						&& gridTotal(menu, 9, Items.SPRUCE_PLANKS) == 0
+						&& gridTotal(menu, 9, Items.BIRCH_PLANKS) == 0, failures);
+
+		// Chest ring, 4+4 mixed: output is wood-agnostic, must still preview and craft.
+		CraftingMenu chestMenu = table(level, player);
+		for (int slot : new int[]{1, 2, 3, 4}) {
+			chestMenu.getSlot(slot).set(new ItemStack(Items.SPRUCE_PLANKS, 1));
+		}
+		for (int slot : new int[]{6, 7, 8, 9}) {
+			chestMenu.getSlot(slot).set(new ItemStack(Items.BIRCH_PLANKS, 1));
+		}
+		check("menu: mixed chest ring previews a chest",
+				chestMenu.getSlot(0).getItem().getItem() == Items.CHEST, failures);
+		ItemStack chest = take(chestMenu, player);
+		check("menu: chest take consumes the ring",
+				chest.getItem() == Items.CHEST && gridTotal(chestMenu, 9, Items.SPRUCE_PLANKS) == 0
+						&& gridTotal(chestMenu, 9, Items.BIRCH_PLANKS) == 0, failures);
+	}
+
+	/** Dropping a pile on a same-group pile unmixes: purest stack stays in the slot, rest on the cursor. */
+	private static void pileOnPileUnmix(ServerLevel level, FakePlayer player, int[] failures) {
+		player.containerMenu = player.inventoryMenu;
+		AbstractContainerMenu menu = player.inventoryMenu;
+		player.getInventory().clearContent();
+
+		// Two half-and-half piles -> one pure oak stack in the slot, one pure birch stack on the cursor.
+		menu.getSlot(9).set(VariantPiles.makeStacks(VariantGroups.LOGS, VariantPiles.pool(VariantGroups.LOGS,
+				List.of(new ItemStack(Items.OAK_LOG, 32), new ItemStack(Items.BIRCH_LOG, 32)))).get(0));
+		menu.setCarried(VariantPiles.makeStacks(VariantGroups.LOGS, VariantPiles.pool(VariantGroups.LOGS,
+				List.of(new ItemStack(Items.OAK_LOG, 32), new ItemStack(Items.BIRCH_LOG, 32)))).get(0));
+		menu.clicked(9, 0, ContainerInput.PICKUP, player);
+		ItemStack inSlot = menu.getSlot(9).getItem();
+		ItemStack cursor = menu.getCarried();
+		check("unmix: two half piles -> plain oak x64 in the slot",
+				!VariantPiles.isPile(inSlot) && inSlot.getItem() == Items.OAK_LOG && inSlot.getCount() == 64, failures);
+		check("unmix: plain birch x64 on the cursor",
+				!VariantPiles.isPile(cursor) && cursor.getItem() == Items.BIRCH_LOG && cursor.getCount() == 64, failures);
+		menu.setCarried(ItemStack.EMPTY);
+
+		// Partial: {oak30,birch20} + {oak40,birch24} -> pure oak 64 in the slot, {oak6,birch44} carried,
+		// with the carried pile's birch selection surviving the repack.
+		menu.getSlot(9).set(VariantPiles.makeStacks(VariantGroups.LOGS, VariantPiles.pool(VariantGroups.LOGS,
+				List.of(new ItemStack(Items.OAK_LOG, 30), new ItemStack(Items.BIRCH_LOG, 20)))).get(0));
+		ItemStack held = VariantPiles.makeStacks(VariantGroups.LOGS, VariantPiles.pool(VariantGroups.LOGS,
+				List.of(new ItemStack(Items.OAK_LOG, 40), new ItemStack(Items.BIRCH_LOG, 24)))).get(0);
+		VariantPiles.seed(held, Items.BIRCH_LOG);
+		menu.setCarried(held);
+		menu.clicked(9, 0, ContainerInput.PICKUP, player);
+		inSlot = menu.getSlot(9).getItem();
+		cursor = menu.getCarried();
+		check("unmix: uneven piles -> pure oak x64 in the slot",
+				!VariantPiles.isPile(inSlot) && inSlot.getItem() == Items.OAK_LOG && inSlot.getCount() == 64, failures);
+		check("unmix: remainder pile {oak6,birch44} on the cursor, well-formed",
+				VariantPiles.isPile(cursor) && VariantPiles.countOf(cursor, Items.OAK_LOG) == 6
+						&& VariantPiles.countOf(cursor, Items.BIRCH_LOG) == 44 && wellFormed(cursor), failures);
+		check("unmix: the cursor's active selection (birch) survives the repack",
+				VariantPiles.activeWood(cursor) == Items.BIRCH_LOG, failures);
+		menu.setCarried(ItemStack.EMPTY);
+		menu.getSlot(9).set(ItemStack.EMPTY);
 	}
 
 	private static CraftingMenu table(ServerLevel level, FakePlayer player) {

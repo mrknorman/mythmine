@@ -157,9 +157,12 @@ public final class CraftTransmute {
 			return null;
 		}
 		ItemStack canonical = productStack(grid, width, height, group.canonical(), level);
-		if (canonical == null || canonical.isEmpty() || VariantGroups.of(canonical.getItem()) == null) {
-			return null; // not a wood-typed craft
+		if (canonical == null || canonical.isEmpty()) {
+			return null; // no recipe under canonical normalization
 		}
+		// Note the output need NOT belong to a variant group: per-wood outputs outside any group (boats)
+		// transmute by substitution like everything else, and wood-agnostic outputs (chest, sticks) come
+		// out identical for every wood — reproducing vanilla, but with active-wood pile consumption.
 		Item output = null;
 		int best = 0;
 		for (var entry : tally.entrySet()) {

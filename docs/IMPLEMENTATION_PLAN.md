@@ -522,6 +522,21 @@ Raised during implementation; captured here so they aren't lost.
   for the crafting grid and recipe-book auto-fill should take the **intended** variant, not blindly
   canonical-first. Enumerate + test the edge cases: shift-click into grid, recipe-book fill, the
   crafter block, quick-move, and JEI/REI-style click-fill.
+- **Pile-on-pile unmix — DONE.** Left-clicking a carried pile onto a same-group pile repacks BOTH
+  piles' contents canonical-first (`DragMerge.unmix`, hooked at `clicked` — the cursor's host item can
+  change): the slot keeps the purest possible stack (often a plain pure 64), the cursor the remainder.
+  Two half-mixed piles → one pure oak + one pure birch stack instead of the vanilla swap (§1 tenet).
+  Selections survive where their wood does; the slot result is curated (manual); already-optimal pairs
+  fall through to the vanilla swap. Right-click drip and plain-stack deposits unchanged. Covered by
+  MenuSelfTest via real clicks.
+- **Non-group crafting outputs — DONE.** The transmuter no longer requires the output to belong to a
+  variant group: per-wood outputs outside any group (**boats**) transmute by substitution like everything
+  else (mixed grid → majority wood's boat), and wood-agnostic outputs (chest, sticks) run through the same
+  path — same result as vanilla, but piles are consumed by their active wood. Mass (shift-click) for
+  unstackable/non-group outputs stays the vanilla serial loop over our single-takes. Boats stay OUT of the
+  variant groups: a group's contract is "stackable family that piles" (drives pickup, merge, split, pack),
+  and max-stack-1 boats would need special-casing in every interaction hook — the crafting layer is the
+  right home for wood-typed outputs, groups are not.
 - **Middle-click (pick-block) snaps to a matching pile — DONE.** `PickItemFromBlockMixin` hooks the
   server-side `tryPickItem`: when no loose stack of the clicked wood exists (and not creative), it hands
   over a pile containing that wood, set to place it (`seed`), via `pickSlot`/`setSelectedSlot`. So

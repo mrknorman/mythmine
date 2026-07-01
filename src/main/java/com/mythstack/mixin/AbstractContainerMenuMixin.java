@@ -1,5 +1,6 @@
 package com.mythstack.mixin;
 
+import com.mythstack.interaction.DragMerge;
 import com.mythstack.interaction.PileSeparation;
 import com.mythstack.variant.VariantGroups;
 import com.mythstack.variant.VariantPiles;
@@ -69,6 +70,23 @@ public abstract class AbstractContainerMenuMixin {
 					}
 					this.resetQuickCraft();
 					ci.cancel();
+				}
+			} else if (input == ContainerInput.PICKUP && button == 0
+					&& slotId >= 0 && slotId < self.slots.size()
+					&& VariantPiles.isPile(self.getSlot(slotId).getItem())
+					&& VariantGroups.of(self.getSlot(slotId).getItem().getItem()) == VariantGroups.of(carried.getItem())) {
+				// Pile dropped on a same-group pile: unmix (repack both, purest stack stays in the slot,
+				// remainder on the cursor) instead of the vanilla swap. If the pair is already optimally
+				// packed the acting side falls through to vanilla, so the click still swaps.
+				if (run) {
+					if (DragMerge.unmix(self, self.getSlot(slotId), carried)) {
+						if (server) {
+							self.broadcastChanges();
+						}
+						ci.cancel();
+					}
+				} else {
+					ci.cancel(); // survival client: wait for the server's authoritative result
 				}
 			} else if (input == ContainerInput.PICKUP_ALL) {
 				if (run) {

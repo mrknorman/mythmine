@@ -1,8 +1,11 @@
 package com.mythstack.interaction;
 
+import com.mythstack.registry.ModComponents;
 import com.mythstack.variant.VariantGroup;
 import com.mythstack.variant.VariantGroups;
+import com.mythstack.variant.VariantPile;
 import com.mythstack.variant.VariantPiles;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
@@ -88,5 +91,58 @@ public final class DragMerge {
 		VariantPiles.markManual(merged, true); // a pile you assembled by hand is curated — protect it from auto-sort
 		slot.set(merged);
 		return true;
+	}
+
+	/**
+	 * Left-clicking a carried pile onto another pile of the same group repacks BOTH piles' contents
+	 * canonical-first (<b>unmix</b>): the slot keeps the purest possible stack, the cursor the remainder.
+	 * Two half-mixed piles become a pure full stack plus the rest, where the vanilla swap would just
+	 * shuffle the mix — §1 tenet, order through use. Needs menu-level cursor access (the cursor's host
+	 * item can change, and an ItemStack's item is final), hence the {@code clicked}-level hook rather
+	 * than the {@code overrideStackedOnOther} path. Returns false — nothing touched — when the repack
+	 * would change nothing or the slot refuses the stack, so the click falls back to vanilla.
+	 */
+	public static boolean unmix(AbstractContainerMenu menu, Slot slot, ItemStack carried) {
+		ItemStack slotStack = slot.getItem();
+		if (!VariantPiles.isPile(slotStack) || !VariantPiles.isPile(carried)) {
+			return false;
+		}
+		VariantGroup group = VariantGroups.of(slotStack.getItem());
+		if (group == null || VariantGroups.of(carried.getItem()) != group) {
+			return false;
+		}
+		List<ItemStack> repacked = VariantPiles.makeStacks(group,
+				VariantPiles.pool(group, List.of(slotStack, carried)));
+		if (repacked.isEmpty() || repacked.size() > 2) {
+			return false; // two piles always repack into at most two stacks; never risk dropping wood
+		}
+		ItemStack intoSlot = repacked.get(0);
+		ItemStack ontoCursor = repacked.size() == 2 ? repacked.get(1) : ItemStack.EMPTY;
+		if (!slot.mayPlace(intoSlot)) {
+			return false;
+		}
+		if (ItemStack.matches(intoSlot, slotStack) && ItemStack.matches(ontoCursor, carried)) {
+			return false; // already optimally packed — fall through to the vanilla swap
+		}
+		if (VariantPiles.isPile(intoSlot)) {
+			VariantPiles.markManual(intoSlot, true); // hand-assembled = curated, same rule as a merge
+		}
+		keepSelection(slotStack, intoSlot);
+		keepSelection(carried, ontoCursor);
+		slot.set(intoSlot);
+		menu.setCarried(ontoCursor);
+		return true;
+	}
+
+	/** Carry a stack's active selection over to its repacked successor if that wood is still in it. */
+	private static void keepSelection(ItemStack before, ItemStack after) {
+		if (!VariantPiles.isPile(before) || !VariantPiles.isPile(after)) {
+			return;
+		}
+		VariantPile pile = before.get(ModComponents.VARIANT_PILE);
+		if (pile != null && pile.selected().isPresent()
+				&& VariantPiles.countOf(after, pile.selected().get()) > 0) {
+			VariantPiles.seed(after, pile.selected().get());
+		}
 	}
 }
