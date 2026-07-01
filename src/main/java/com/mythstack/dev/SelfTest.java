@@ -218,6 +218,9 @@ public final class SelfTest {
 		// 19. End-to-end menu path: a fake player driving real crafting-menu clicks (phase 3).
 		failures[0] += MenuSelfTest.run(level);
 
+		// 20. Pile-aware furnaces: a real block entity ticked through serverTick (phase 8).
+		failures[0] += FurnaceSelfTest.run(level);
+
 		if (failures[0] == 0) {
 			MythStack.LOGGER.info("[selftest] ALL CHECKS PASSED");
 		} else {

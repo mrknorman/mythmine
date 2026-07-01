@@ -487,12 +487,23 @@ Each phase ships before the next. "DoD" = definition of done / acceptance test.
 - **DoD:** a mixed log pile in a crafting table yields oak planks; the remainder pile stays
   consistent; the crafter block does the same deterministically.
 
-### Phase 8 — Smelting (verify)
-- **Goal:** confirm a mixed pile smelts to charcoal, ratio-preserving by construction.
-- **Do:** **verification** — vanilla smelts the host oak logs → charcoal one per tick; the
-  shrink path reconciles the pile. (For wood, all members → charcoal, so output is a
-  homogeneous charcoal stack — not a bug, §8.)
-- **DoD:** a mixed log pile in a furnace produces charcoal and drains the pile correctly.
+### Phase 8 — Smelting — DONE (pile-aware furnaces)
+- **What shipped:** furnaces consume piles **per element** (`PileFurnace` +
+  `AbstractFurnaceBlockEntityMixin`, covering smoker/blast via the shared base class):
+  - **Fuel:** each burn eats one *burnable* element at that element's own fuel value; with none
+    left the furnace goes cold on the remainder ("piles burn down to their unburnable elements").
+  - **Smelt:** the recipe is resolved for the next *smeltable* element (smallest-count-first, the
+    entropy tenet) — result, cook time, and the XP ledger (`setRecipeUsed`) follow the element, so
+    materials whose variants smelt differently (stone, modded woods) extend without rework. A pile
+    with no smeltable element resolves to no recipe → idles on the remainder (crimson/warped/bamboo
+    for charcoal — bamboo blocks are fuel but not in `#logs_that_burn`).
+  - **QOL:** hoppers may extract *unburnable* stacks from the fuel slot (vanilla's bucket escape
+    hatch, widened) so burned-down nether remainders don't jam automation. Input-side remainders
+    idle vanilla-style. The pile's selected/active wood is ignored (furnaces are automation).
+- **Deferred to stone:** output-slot-aware element choice (avoid stalls on mixed outputs) and
+  output-side pile consolidation — both slot into `PileFurnace` without touching the mixin.
+- **DoD met:** FurnaceSelfTest drives a real block entity through `serverTick`: per-element order,
+  smelt-down/burn-down remainders, never-ignites, extraction rules.
 
 ### Phase 9 — Automation pass
 - **Goal:** carriers are well-behaved single-identity items in redstone/automation.

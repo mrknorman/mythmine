@@ -5,6 +5,8 @@
 	"mixins": [
 		"AbstractContainerMenuMixin",
 		"AbstractCraftingMenuAccessor",
+		"AbstractFurnaceBlockEntityAccessor",
+		"AbstractFurnaceBlockEntityMixin",
 		"BlockItemPlaceMixin",
 		"CraftingMenuMixin",
 		"InventoryAddMixin",
