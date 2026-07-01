@@ -14,6 +14,7 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,11 +36,12 @@ public final class CraftTransmute {
 	}
 
 	/**
-	 * What to make ({@code product item → count}), what to eat ({@code input wood → count}), and the input
-	 * wood left in the grid afterwards ({@code input wood → count}).
+	 * What to make ({@code product item → count}), what to eat ({@code input wood → count}), the input
+	 * wood left in the grid afterwards ({@code input wood → count}), and the recipes that were used —
+	 * one per output wood — for the crafting ledger (stats, unlocks, advancement triggers).
 	 */
 	public record Outcome(LinkedHashMap<Item, Integer> products, LinkedHashMap<Item, Integer> consumed,
-			LinkedHashMap<Item, Integer> leftover) {
+			LinkedHashMap<Item, Integer> leftover, List<RecipeHolder<?>> recipes) {
 		public boolean isEmpty() {
 			return products.isEmpty();
 		}
@@ -65,30 +67,35 @@ public final class CraftTransmute {
 		}
 		// Identify the recipe by normalizing every wood slot to the canonical wood — so a shape filled with
 		// MIXED woods (which matches no per-wood recipe as laid out) still resolves to its canonical recipe.
-		ItemStack canonical = productStack(grid, width, height, group.canonical(), level);
-		if (canonical == null || canonical.isEmpty()) {
+		Map<Item, Optional<Resolved>> memo = new HashMap<>();
+		Resolved canonical = resolve(grid, width, height, group.canonical(), level, memo);
+		if (canonical == null || canonical.product().isEmpty()) {
 			return null;
 		}
-		int outputPerCraft = canonical.getCount();
 
 		LinkedHashMap<Item, Integer> products = new LinkedHashMap<>();
+		List<RecipeHolder<?>> recipes = new ArrayList<>();
 		LinkedHashMap<Item, Integer> leftover;
-		if (VariantGroups.of(canonical.getItem()) != null) {
-			// Wood-typed output: resolve each wood's product up front. A wood with no product for this
-			// recipe (there is no crimson boat) is unproductive — consumable by mixed crafts but never an
-			// output. Counts are PER WOOD: a bamboo block yields 2 planks where a log yields 4.
-			LinkedHashMap<Item, ItemStack> productByWood = new LinkedHashMap<>();
+		if (VariantGroups.of(canonical.product().getItem()) != null) {
+			// Wood-typed output: resolve each wood's recipe + product up front. A wood with no product
+			// for this recipe (there is no crimson boat) is unproductive — consumable by mixed crafts but
+			// never an output. Counts are PER WOOD: a bamboo block yields 2 planks where a log yields 4.
+			LinkedHashMap<Item, Resolved> byWood = new LinkedHashMap<>();
 			for (Item wood : pool.keySet()) {
-				ItemStack product = productStack(grid, width, height, wood, level);
-				if (product != null && !product.isEmpty()) {
-					productByWood.put(wood, product);
+				Resolved resolved = resolve(grid, width, height, wood, level, memo);
+				if (resolved != null && !resolved.product().isEmpty()) {
+					byWood.put(wood, resolved);
 				}
 			}
-			CraftPlanner.RatioPlan<Item> plan = CraftPlanner.planRatio(pool, perCraft, productByWood.keySet());
+			CraftPlanner.RatioPlan<Item> plan = CraftPlanner.planRatio(pool, perCraft, byWood.keySet());
 			for (var entry : plan.craftsByWood().entrySet()) {
-				ItemStack product = productByWood.get(entry.getKey());
-				if (product != null) {
-					products.merge(product.getItem(), entry.getValue() * product.getCount(), Integer::sum);
+				Resolved resolved = byWood.get(entry.getKey());
+				if (resolved != null && entry.getValue() > 0) {
+					products.merge(resolved.product().getItem(),
+							entry.getValue() * resolved.product().getCount(), Integer::sum);
+					if (!recipes.contains(resolved.recipe())) {
+						recipes.add(resolved.recipe());
+					}
 				}
 			}
 			leftover = plan.leftover();
@@ -96,22 +103,34 @@ public final class CraftTransmute {
 			// Non-wood output: entropy plan, the single product repeated.
 			CraftPlanner.EntropyPlan<Item> plan = CraftPlanner.planEntropy(pool, perCraft);
 			if (plan.crafts() > 0) {
-				products.put(canonical.getItem(), plan.crafts() * outputPerCraft);
+				products.put(canonical.product().getItem(), plan.crafts() * canonical.product().getCount());
+				recipes.add(canonical.recipe());
 			}
 			leftover = plan.leftover();
 		}
-		return new Outcome(products, subtract(pool, leftover), leftover);
+		return new Outcome(products, subtract(pool, leftover), leftover, recipes);
 	}
 
-	/** Assemble the product when {@code wood} fills every wood slot (substitute-and-assemble), or null. */
-	private static ItemStack productStack(List<ItemStack> grid, int width, int height, Item wood, ServerLevel level) {
-		List<ItemStack> substituted = new ArrayList<>(grid.size());
-		for (ItemStack stack : grid) {
-			substituted.add(isWood(stack) ? new ItemStack(wood) : stack.copy());
-		}
-		CraftingInput input = CraftingInput.of(width, height, substituted);
-		return level.recipeAccess().getRecipeFor(RecipeType.CRAFTING, input, level)
-				.map(holder -> holder.value().assemble(input)).orElse(null);
+	/** A wood's recipe + assembled product under substitution — what one craft of that wood uses/makes. */
+	private record Resolved(RecipeHolder<CraftingRecipe> recipe, ItemStack product) {
+	}
+
+	/**
+	 * Resolve the recipe matched (and product assembled) when {@code wood} fills every wood slot, or
+	 * {@code null}. Memoized per top-level call — the canonical wood and an output wood are often the
+	 * same lookup, and recipe-manager scans are the expensive part of a grid recompute.
+	 */
+	private static Resolved resolve(List<ItemStack> grid, int width, int height, Item wood, ServerLevel level,
+			Map<Item, Optional<Resolved>> memo) {
+		return memo.computeIfAbsent(wood, substituted -> {
+			List<ItemStack> stacks = new ArrayList<>(grid.size());
+			for (ItemStack stack : grid) {
+				stacks.add(isWood(stack) ? new ItemStack(substituted) : stack.copy());
+			}
+			CraftingInput input = CraftingInput.of(width, height, stacks);
+			return level.recipeAccess().getRecipeFor(RecipeType.CRAFTING, input, level)
+					.map(holder -> new Resolved(holder, holder.value().assemble(input)));
+		}).orElse(null);
 	}
 
 	private static VariantGroup inputGroup(List<ItemStack> grid) {
@@ -127,8 +146,11 @@ public final class CraftTransmute {
 	public record SlotTake(int slot, Item wood) {
 	}
 
-	/** The product + per-slot consumption of the next single craft (result preview / one-at-a-time take). */
-	public record Single(ItemStack product, List<SlotTake> takes) {
+	/**
+	 * The product + per-slot consumption of the next single craft (result preview / one-at-a-time take),
+	 * with the recipe that makes it — the crafting ledger (stats, unlocks, triggers) follows that recipe.
+	 */
+	public record Single(ItemStack product, List<SlotTake> takes, RecipeHolder<CraftingRecipe> recipe) {
 	}
 
 	/**
@@ -166,8 +188,9 @@ public final class CraftTransmute {
 		if (takes.isEmpty()) {
 			return null;
 		}
-		ItemStack canonical = productStack(grid, width, height, group.canonical(), level);
-		if (canonical == null || canonical.isEmpty()) {
+		Map<Item, Optional<Resolved>> memo = new HashMap<>();
+		Resolved canonical = resolve(grid, width, height, group.canonical(), level, memo);
+		if (canonical == null || canonical.product().isEmpty()) {
 			return null; // no recipe under canonical normalization
 		}
 		// Note the output need NOT belong to a variant group: per-wood outputs outside any group (boats)
@@ -179,9 +202,9 @@ public final class CraftTransmute {
 		List<Map.Entry<Item, Integer>> byCount = new ArrayList<>(tally.entrySet());
 		byCount.sort((a, b) -> Integer.compare(b.getValue(), a.getValue()));
 		for (var entry : byCount) {
-			ItemStack product = productStack(grid, width, height, entry.getKey(), level);
-			if (product != null && !product.isEmpty()) {
-				return new Single(product, takes);
+			Resolved resolved = resolve(grid, width, height, entry.getKey(), level, memo);
+			if (resolved != null && !resolved.product().isEmpty()) {
+				return new Single(resolved.product(), takes, resolved.recipe());
 			}
 		}
 		return null;

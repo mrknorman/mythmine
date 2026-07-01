@@ -8,7 +8,11 @@ import com.mythstack.variant.VariantPile;
 import com.mythstack.variant.VariantPiles;
 import net.fabricmc.fabric.api.entity.FakePlayer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.ContainerLevelAccess;
@@ -46,6 +50,7 @@ public final class MenuSelfTest {
 		pileOnPileUnmix(level, player, failures);
 		typedSticks(level, player, failures);
 		netherAndBamboo(level, player, failures);
+		craftLedger(level, player, failures);
 
 		player.getInventory().clearContent();
 		player.containerMenu = player.inventoryMenu;
@@ -375,6 +380,42 @@ public final class MenuSelfTest {
 		mosaic.getSlot(4).set(new ItemStack(Items.BAMBOO_SLAB, 1));
 		check("d4: pure bamboo slabs still craft the mosaic (vanilla path)",
 				mosaic.getSlot(0).getItem().getItem() == Items.BAMBOO_MOSAIC, failures);
+	}
+
+	/**
+	 * The crafting ledger: transmuted takes/mass-crafts unlock the ELEMENT recipes. The recipe-book
+	 * unlock is the observable proof the award path ran — the crafted stat rides the same call
+	 * ({@code ItemStack.onCraftedBy}) but is unobservable here because FakePlayer stubs
+	 * {@code awardStat} to a no-op by design.
+	 */
+	private static void craftLedger(ServerLevel level, FakePlayer player, int[] failures) {
+		// A single take of a transmuted (mixed, pile-less) craft.
+		CraftingMenu menu = table(level, player);
+		menu.getSlot(1).set(new ItemStack(Items.SPRUCE_PLANKS, 1));
+		menu.getSlot(4).set(new ItemStack(Items.SPRUCE_PLANKS, 1));
+		menu.getSlot(5).set(new ItemStack(Items.SPRUCE_PLANKS, 1));
+		menu.getSlot(7).set(new ItemStack(Items.BIRCH_PLANKS, 1));
+		menu.getSlot(8).set(new ItemStack(Items.BIRCH_PLANKS, 1));
+		menu.getSlot(9).set(new ItemStack(Items.BIRCH_PLANKS, 1));
+		ItemStack taken = take(menu, player);
+		check("ledger: a transmuted take crafts and unlocks the element recipe (spruce_stairs)",
+				taken.getItem() == Items.SPRUCE_STAIRS
+						&& player.getRecipeBook().contains(recipeKey("spruce_stairs")), failures);
+
+		// A mass craft unlocks every per-wood recipe the ratio plan used.
+		CraftingMenu mass = table(level, player);
+		player.getInventory().clearContent();
+		mass.getSlot(1).set(VariantPiles.makeStacks(VariantGroups.LOGS, VariantPiles.pool(VariantGroups.LOGS,
+				List.of(new ItemStack(Items.OAK_LOG, 3), new ItemStack(Items.JUNGLE_LOG, 2)))).get(0));
+		mass.clicked(0, 0, ContainerInput.QUICK_MOVE, player);
+		check("ledger: mass craft unlocks all per-wood recipes used (oak + jungle planks)",
+				player.getRecipeBook().contains(recipeKey("oak_planks"))
+						&& player.getRecipeBook().contains(recipeKey("jungle_planks")), failures);
+		player.getInventory().clearContent();
+	}
+
+	private static ResourceKey<Recipe<?>> recipeKey(String path) {
+		return ResourceKey.create(Registries.RECIPE, Identifier.fromNamespaceAndPath("minecraft", path));
 	}
 
 	private static CraftingMenu table(ServerLevel level, FakePlayer player) {

@@ -9,6 +9,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +39,16 @@ public final class CraftMenuTransmute {
 		if (outGroup == null) {
 			return false; // non-wood output — vanilla already handles mixed input fine
 		}
+
+		// The ledger for the whole ratio plan (grid still pre-consume, as vanilla): crafted stats per
+		// product, and every per-wood recipe the plan used — triggered and unlocked.
+		for (Map.Entry<Item, Integer> product : outcome.products().entrySet()) {
+			new ItemStack(product.getKey()).onCraftedBy(player, product.getValue());
+		}
+		for (RecipeHolder<?> recipe : outcome.recipes()) {
+			player.triggerRecipeCrafted(recipe, items);
+		}
+		player.awardRecipes(outcome.recipes().stream().filter(recipe -> !recipe.value().isSpecial()).toList());
 
 		// Build the ratio output, packed into piles, and add it to the inventory (auto-consolidated).
 		for (ItemStack output : VariantPiles.makeStacks(outGroup, VariantPiles.pool(outGroup, toStacks(outcome.products())))) {
@@ -76,6 +87,10 @@ public final class CraftMenuTransmute {
 		if (single == null) {
 			return false;
 		}
+		// The ledger — vanilla's ResultSlot.checkTakeAchievements, per the ELEMENT recipe actually used:
+		// crafted stat + item hook, the recipe-crafted advancement trigger (grid pre-consume, as vanilla),
+		// and the recipe-book unlock.
+		award(player, single.product(), single.recipe(), grid);
 		for (CraftTransmute.SlotTake take : single.takes()) {
 			ItemStack slot = grid.getItem(take.slot());
 			if (VariantPiles.isPile(slot)) {
@@ -88,6 +103,15 @@ public final class CraftMenuTransmute {
 		}
 		menu.broadcastChanges();
 		return true;
+	}
+
+	/** Vanilla's take-achievements, aimed at the element recipe the transmuter actually used. */
+	private static void award(ServerPlayer player, ItemStack product, RecipeHolder<?> recipe, CraftingContainer grid) {
+		product.onCraftedBy(player, product.getCount());
+		player.triggerRecipeCrafted(recipe, grid.getItems());
+		if (!recipe.value().isSpecial()) {
+			player.awardRecipes(List.of(recipe));
+		}
 	}
 
 	private static List<ItemStack> toStacks(Map<Item, Integer> counts) {
