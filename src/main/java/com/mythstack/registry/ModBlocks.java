@@ -128,6 +128,10 @@ public final class ModBlocks {
 		return java.util.Collections.unmodifiableMap(families);
 	}
 
+	/** Permafrost: the frozen ground between tundra topsoil and the packed-ice band (worldgen). */
+	public static final Block PERMAFROST = register("permafrost", Block::new,
+			BlockBehaviour.Properties.ofFullCopy(Blocks.DIRT).strength(1.2f), true);
+
 	/** The sawmill: the stonecutter for wood (one block; the woodwork is in the recipes). */
 	public static final Block SAWMILL = register("sawmill", com.mythstack.block.SawmillBlock::new,
 			BlockBehaviour.Properties.ofFullCopy(Blocks.STONECUTTER), true);

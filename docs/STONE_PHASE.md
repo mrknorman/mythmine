@@ -1,5 +1,19 @@
 # Stone Phase — Normalization + Families
 
+**GEOLOGY OVERHAUL (worldgen) — core SHIPPED (2026-07-02).** Regional base stones via a
+surface-rule override of `noise_settings/overworld.json` (this makes mythstack a geology overhaul —
+incompatible with other terrain mods; new chunks only). The rule sequence: vanilla bedrock/surface/
+sulfur-caves | ICE band (snowy_plains/ice_spikes/snowy_taiga: permafrost under the topsoil, packed
+ice to y32) | SAND bands (sandstone under deserts, red under badlands, to y32) | TUFF regions
+(deepslate band, own dithered gradient) | vanilla deepslate | STONE REGIONS — noise-banded
+granite/diorite/andesite/calcite with shale (stone) as the fallthrough default. Region noise
+`mythstack:stone_regions` (firstOctave -10) ≈ few-hundred-block regions. Vanilla granite/diorite/
+andesite/tuff blob features removed (BiomeModifications). New block: PERMAFROST (frozen ground,
+shovel, dirt/ice blend texture). Verified headlessly: 24 far chunks sampled at y=40 show all five
+region stones and nothing outside the expected base-terrain set.
+REMAINING for the phase: shale rename cascade, ~48 per-material ore variants + ore-feature target
+overrides, blue ice veins, region-threshold tuning (shale currently a touch over-weighted).
+
 **Functional forms (2026-07-02, post-S2): +78 blocks — buttons + pressure plates for every
 material (vanilla placements kept: stone's and blackstone's polished pair stay canonical members),
 and furnaces / pistons / sticky pistons for every cobbled-bearing material (their bodies are

@@ -279,6 +279,39 @@ public final class SelfTest {
 		check("bundle: a partial unpack drains exactly what fit (4 in, 16 left)",
 				insertedPart == 4 && partialPile.getCount() == 16, failures);
 
+		// 18f. Geology: sample far, freshly-generated chunks and assert the regional stone bands
+		//      exist. Widely-spaced columns at y=40 must show several region stones (shale/granite/
+		//      diorite/andesite/calcite) — and nothing outside the expected base-terrain set.
+		java.util.Map<String, Integer> geology = new java.util.HashMap<>();
+		java.util.Set<String> allowedBase = java.util.Set.of(
+				"minecraft:stone", "minecraft:granite", "minecraft:diorite", "minecraft:andesite",
+				"minecraft:calcite", "minecraft:dirt", "minecraft:gravel", "minecraft:air",
+				"minecraft:water", "minecraft:lava", "minecraft:sandstone", "minecraft:red_sandstone",
+				"minecraft:packed_ice", "mythstack:permafrost", "minecraft:sand",
+				"minecraft:coal_ore", "minecraft:iron_ore", "minecraft:copper_ore", "minecraft:gold_ore",
+				"minecraft:redstone_ore", "minecraft:emerald_ore", "minecraft:lapis_ore",
+				"minecraft:diamond_ore", "minecraft:sulfur", "minecraft:cinnabar", "minecraft:tuff");
+		boolean unexpected = false;
+		for (int i = 0; i < 24; i++) {
+			int chunkX = 700 + i * 24; // ~380 blocks apart: crosses several regions
+			var chunk = level.getChunk(chunkX, 700,
+					net.minecraft.world.level.chunk.status.ChunkStatus.SURFACE, true);
+			var state = chunk.getBlockState(new net.minecraft.core.BlockPos(chunkX * 16 + 8, 40, 700 * 16 + 8));
+			String id = net.minecraft.core.registries.BuiltInRegistries.BLOCK
+					.getKey(state.getBlock()).toString();
+			geology.merge(id, 1, Integer::sum);
+			if (!allowedBase.contains(id)) {
+				MythStack.LOGGER.error("[selftest] unexpected base terrain at chunk {}: {}", chunkX, id);
+				unexpected = true;
+			}
+		}
+		MythStack.LOGGER.info("[selftest] geology sample: {}", geology);
+		long regionKinds = geology.keySet().stream().filter(java.util.Set.of(
+				"minecraft:stone", "minecraft:granite", "minecraft:diorite",
+				"minecraft:andesite", "minecraft:calcite")::contains).count();
+		check("geology: several distinct region stones across 24 far chunks (" + regionKinds + ")",
+				regionKinds >= 3 && !unexpected, failures);
+
 		// 19. End-to-end menu path: a fake player driving real crafting-menu clicks (phase 3).
 		failures[0] += MenuSelfTest.run(level);
 
