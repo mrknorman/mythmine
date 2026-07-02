@@ -11,5 +11,11 @@
 	"result": {
 		"id": "mythstack:mossy_calcite_brick_stairs",
 		"count": 4
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

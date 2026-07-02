@@ -5,5 +5,11 @@
 	"ingredient": "mythstack:tuff_diamond_ore",
 	"result": {
 		"id": "minecraft:diamond"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "terrain"
+		}
+	]
 }

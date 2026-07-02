@@ -3,5 +3,11 @@
 	"ingredient": "minecraft:diorite",
 	"result": {
 		"id": "mythstack:diorite_pillar"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

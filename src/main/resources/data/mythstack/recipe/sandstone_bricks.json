@@ -10,5 +10,11 @@
 	"result": {
 		"id": "mythstack:sandstone_bricks",
 		"count": 4
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

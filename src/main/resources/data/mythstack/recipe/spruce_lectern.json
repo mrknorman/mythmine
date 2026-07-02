@@ -12,5 +12,11 @@
 	],
 	"result": {
 		"id": "mythstack:spruce_lectern"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

@@ -107,6 +107,7 @@ public final class AutomationSelfTest {
 		level.setBlock(CHEST_A, Blocks.SPRUCE_LEAVES.defaultBlockState(), 3);
 		int typed = 0;
 		int plain = 0;
+		if (com.mythstack.config.ModConfig.TYPED_STICKS) {
 		for (int i = 0; i < 1200; i++) {
 			for (ItemStack drop : Block.getDrops(level.getBlockState(CHEST_A), level, CHEST_A, null)) {
 				if (drop.getItem() == ModItems.SPRUCE_STICK) {
@@ -118,6 +119,7 @@ public final class AutomationSelfTest {
 		}
 		check("loot: spruce leaves drop spruce sticks, never plain (" + typed + " typed)",
 				typed > 0 && plain == 0, failures);
+		}
 
 		// 4c. Typed blocks: a placed typed chest gets a REAL working chest block entity (the widened
 		//     vanilla type), and typed ladders/chests drop themselves.
@@ -170,6 +172,7 @@ public final class AutomationSelfTest {
 						.get(ModBlocks.SAWMILL.defaultBlockState())
 						.is(com.mythstack.registry.ModVillagers.CARPENTER_POI_KEY);
 		check("carpenter: profession registered and the sawmill is its job site", professionOk && poiOk, failures);
+		if (com.mythstack.config.ModConfig.SAWMILL) {
 		var tradeSets = level.registryAccess()
 				.lookupOrThrow(net.minecraft.core.registries.Registries.TRADE_SET);
 		var trades = level.registryAccess()
@@ -184,6 +187,7 @@ public final class AutomationSelfTest {
 				.filter(ref -> ref.key().identifier().getNamespace().equals("mythstack")).count();
 		check("carpenter: all 5 trade sets + 53 trades loaded (" + tradeCount + ")",
 				setsOk && tradeCount == 53, failures);
+		}
 
 		// 4f. Stone kit S1a: 143 blocks registered (the count is enforced at init); loot
 		//     normalization (granite drops cobbled, silk touch restores); walls joined the wall
@@ -196,6 +200,7 @@ public final class AutomationSelfTest {
 		check("stone kit: all 329 blocks registered (kit 251 + functional 78)", kitCount == 329, failures);
 		Block cobbledGranite = net.minecraft.core.registries.BuiltInRegistries.BLOCK
 				.getValue(MythStack.id("cobbled_granite"));
+		if (com.mythstack.config.ModConfig.TERRAIN) {
 		BlockPos stonePos = new BlockPos(32, 200, 0);
 		level.setBlock(stonePos, net.minecraft.world.level.block.Blocks.GRANITE.defaultBlockState(), 3);
 		var plainDrops = net.minecraft.world.level.block.Block.getDrops(
@@ -211,6 +216,7 @@ public final class AutomationSelfTest {
 				plainDrops.size() == 1 && plainDrops.get(0).getItem() == cobbledGranite.asItem()
 						&& silkDrops.size() == 1 && silkDrops.get(0).getItem() == Items.GRANITE, failures);
 		level.setBlock(stonePos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
+		}
 		Block calciteWall = net.minecraft.core.registries.BuiltInRegistries.BLOCK
 				.getValue(MythStack.id("calcite_wall"));
 		check("stone kit: new walls join #minecraft:walls (calcite wall connects)",

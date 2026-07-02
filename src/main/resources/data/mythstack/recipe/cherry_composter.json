@@ -10,5 +10,11 @@
 	],
 	"result": {
 		"id": "mythstack:cherry_composter"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

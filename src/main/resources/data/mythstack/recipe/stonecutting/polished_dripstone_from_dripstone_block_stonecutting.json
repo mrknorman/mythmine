@@ -3,5 +3,11 @@
 	"ingredient": "minecraft:dripstone_block",
 	"result": {
 		"id": "mythstack:polished_dripstone"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

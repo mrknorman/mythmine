@@ -3,5 +3,11 @@
 	"ingredient": "mythstack:mossy_calcite_bricks",
 	"result": {
 		"id": "mythstack:mossy_calcite_brick_stairs"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

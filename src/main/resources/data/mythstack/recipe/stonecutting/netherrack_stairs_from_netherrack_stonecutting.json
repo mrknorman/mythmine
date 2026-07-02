@@ -3,5 +3,11 @@
 	"ingredient": "minecraft:netherrack",
 	"result": {
 		"id": "mythstack:netherrack_stairs"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

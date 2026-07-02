@@ -17,5 +17,11 @@
 				"minecraft:villager/variant": "minecraft:jungle"
 			}
 		}
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "sawmill"
+		}
+	]
 }

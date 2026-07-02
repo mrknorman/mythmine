@@ -3,5 +3,11 @@
 	"ingredient": "minecraft:smooth_stone",
 	"result": {
 		"id": "mythstack:smooth_stone_stairs"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

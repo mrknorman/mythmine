@@ -4,5 +4,15 @@
 	"result": {
 		"count": 3,
 		"id": "mythstack:cherry_ladder"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "sawmill"
+		},
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

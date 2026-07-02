@@ -3,5 +3,11 @@
 	"ingredient": "minecraft:tuff",
 	"result": {
 		"id": "mythstack:tuff_pillar"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

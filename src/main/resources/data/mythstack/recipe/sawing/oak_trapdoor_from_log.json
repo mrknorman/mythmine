@@ -4,5 +4,11 @@
 	"result": {
 		"count": 1,
 		"id": "minecraft:oak_trapdoor"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "sawmill"
+		}
+	]
 }

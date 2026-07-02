@@ -12,5 +12,11 @@
 	],
 	"result": {
 		"id": "mythstack:dark_oak_bookshelf"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

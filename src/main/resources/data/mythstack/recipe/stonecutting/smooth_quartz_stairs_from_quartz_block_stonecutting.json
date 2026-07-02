@@ -3,5 +3,11 @@
 	"ingredient": "minecraft:quartz_block",
 	"result": {
 		"id": "minecraft:smooth_quartz_stairs"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

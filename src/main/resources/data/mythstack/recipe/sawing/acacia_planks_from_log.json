@@ -4,5 +4,11 @@
 	"result": {
 		"count": 4,
 		"id": "minecraft:acacia_planks"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "sawmill"
+		}
+	]
 }

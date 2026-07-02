@@ -1,9 +1,30 @@
 {
 	"values": [
-		"mythstack:carpenter/5/emerald_pale_oak_sapling",
-		"mythstack:carpenter/5/emerald_mangrove_propagule",
-		"mythstack:carpenter/5/emerald_crimson_fungus",
-		"mythstack:carpenter/5/emerald_warped_fungus",
-		"mythstack:carpenter/5/emerald_enchanted_axe"
+		{
+			"id": "mythstack:carpenter/5/emerald_pale_oak_sapling",
+			"required": false
+		},
+		{
+			"id": "mythstack:carpenter/5/emerald_mangrove_propagule",
+			"required": false
+		},
+		{
+			"id": "mythstack:carpenter/5/emerald_crimson_fungus",
+			"required": false
+		},
+		{
+			"id": "mythstack:carpenter/5/emerald_warped_fungus",
+			"required": false
+		},
+		{
+			"id": "mythstack:carpenter/5/emerald_enchanted_axe",
+			"required": false
+		}
+	],
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "sawmill"
+		}
 	]
 }

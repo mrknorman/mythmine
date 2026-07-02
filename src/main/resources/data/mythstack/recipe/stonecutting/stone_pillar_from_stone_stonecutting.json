@@ -3,5 +3,11 @@
 	"ingredient": "minecraft:stone",
 	"result": {
 		"id": "mythstack:stone_pillar"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

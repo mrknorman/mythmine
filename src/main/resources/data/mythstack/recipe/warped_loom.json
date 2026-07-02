@@ -10,5 +10,11 @@
 	],
 	"result": {
 		"id": "mythstack:warped_loom"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

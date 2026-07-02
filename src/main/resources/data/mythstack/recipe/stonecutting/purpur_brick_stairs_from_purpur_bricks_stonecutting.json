@@ -3,5 +3,11 @@
 	"ingredient": "mythstack:purpur_bricks",
 	"result": {
 		"id": "mythstack:purpur_brick_stairs"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

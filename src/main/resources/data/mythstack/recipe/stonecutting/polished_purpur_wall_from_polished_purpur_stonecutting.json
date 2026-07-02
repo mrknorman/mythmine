@@ -3,5 +3,11 @@
 	"ingredient": "mythstack:polished_purpur",
 	"result": {
 		"id": "mythstack:polished_purpur_wall"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

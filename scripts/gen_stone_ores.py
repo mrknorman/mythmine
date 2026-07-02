@@ -106,7 +106,7 @@ for n in SJ.namelist():
     new_targets = [{"target": {"predicate_type": "minecraft:block_match", "block": f"minecraft:{m}"},
                     "state": {"Name": f"mythstack:{m}_{ore}"}} for m in MATERIALS]
     f["config"]["targets"] = new_targets + targets
-    write(f"data/minecraft/worldgen/configured_feature/{n.split('/')[-1]}", f)
+    write(f"resourcepacks/geology/data/minecraft/worldgen/configured_feature/{n.split('/')[-1]}", f)
     features += 1
 
 # --- blue ice veins in the tundra ice band ------------------------------------------------------

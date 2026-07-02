@@ -3,5 +3,11 @@
 	"ingredient": "minecraft:deepslate",
 	"result": {
 		"id": "mythstack:deepslate_pillar"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

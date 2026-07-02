@@ -1,21 +1,78 @@
 {
 	"values": [
-		"mythstack:carpenter/4/crimson_stems_emerald",
-		"mythstack:carpenter/4/warped_stems_emerald",
-		"mythstack:carpenter/4/emerald_boat_plains",
-		"mythstack:carpenter/4/emerald_bookshelf_plains",
-		"mythstack:carpenter/4/emerald_boat_taiga",
-		"mythstack:carpenter/4/emerald_bookshelf_taiga",
-		"mythstack:carpenter/4/emerald_boat_snow",
-		"mythstack:carpenter/4/emerald_bookshelf_snow",
-		"mythstack:carpenter/4/emerald_boat_desert",
-		"mythstack:carpenter/4/emerald_bookshelf_desert",
-		"mythstack:carpenter/4/emerald_boat_jungle",
-		"mythstack:carpenter/4/emerald_bookshelf_jungle",
-		"mythstack:carpenter/4/emerald_boat_savanna",
-		"mythstack:carpenter/4/emerald_bookshelf_savanna",
-		"mythstack:carpenter/4/emerald_boat_swamp",
-		"mythstack:carpenter/4/emerald_bookshelf_swamp",
-		"mythstack:carpenter/4/emerald_cherry_sapling"
+		{
+			"id": "mythstack:carpenter/4/crimson_stems_emerald",
+			"required": false
+		},
+		{
+			"id": "mythstack:carpenter/4/warped_stems_emerald",
+			"required": false
+		},
+		{
+			"id": "mythstack:carpenter/4/emerald_boat_plains",
+			"required": false
+		},
+		{
+			"id": "mythstack:carpenter/4/emerald_bookshelf_plains",
+			"required": false
+		},
+		{
+			"id": "mythstack:carpenter/4/emerald_boat_taiga",
+			"required": false
+		},
+		{
+			"id": "mythstack:carpenter/4/emerald_bookshelf_taiga",
+			"required": false
+		},
+		{
+			"id": "mythstack:carpenter/4/emerald_boat_snow",
+			"required": false
+		},
+		{
+			"id": "mythstack:carpenter/4/emerald_bookshelf_snow",
+			"required": false
+		},
+		{
+			"id": "mythstack:carpenter/4/emerald_boat_desert",
+			"required": false
+		},
+		{
+			"id": "mythstack:carpenter/4/emerald_bookshelf_desert",
+			"required": false
+		},
+		{
+			"id": "mythstack:carpenter/4/emerald_boat_jungle",
+			"required": false
+		},
+		{
+			"id": "mythstack:carpenter/4/emerald_bookshelf_jungle",
+			"required": false
+		},
+		{
+			"id": "mythstack:carpenter/4/emerald_boat_savanna",
+			"required": false
+		},
+		{
+			"id": "mythstack:carpenter/4/emerald_bookshelf_savanna",
+			"required": false
+		},
+		{
+			"id": "mythstack:carpenter/4/emerald_boat_swamp",
+			"required": false
+		},
+		{
+			"id": "mythstack:carpenter/4/emerald_bookshelf_swamp",
+			"required": false
+		},
+		{
+			"id": "mythstack:carpenter/4/emerald_cherry_sapling",
+			"required": false
+		}
+	],
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "sawmill"
+		}
 	]
 }

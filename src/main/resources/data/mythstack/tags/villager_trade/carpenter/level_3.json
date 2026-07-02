@@ -1,17 +1,62 @@
 {
 	"values": [
-		"mythstack:carpenter/3/stripped_logs_emerald",
-		"mythstack:carpenter/3/cherry_logs_emerald",
-		"mythstack:carpenter/3/pale_oak_logs_emerald",
-		"mythstack:carpenter/3/emerald_barrel_plains",
-		"mythstack:carpenter/3/emerald_barrel_taiga",
-		"mythstack:carpenter/3/emerald_barrel_snow",
-		"mythstack:carpenter/3/emerald_barrel_desert",
-		"mythstack:carpenter/3/emerald_barrel_jungle",
-		"mythstack:carpenter/3/emerald_barrel_savanna",
-		"mythstack:carpenter/3/emerald_barrel_swamp",
-		"mythstack:carpenter/3/emerald_jungle_sapling",
-		"mythstack:carpenter/3/emerald_acacia_sapling",
-		"mythstack:carpenter/3/emerald_dark_oak_sapling"
+		{
+			"id": "mythstack:carpenter/3/stripped_logs_emerald",
+			"required": false
+		},
+		{
+			"id": "mythstack:carpenter/3/cherry_logs_emerald",
+			"required": false
+		},
+		{
+			"id": "mythstack:carpenter/3/pale_oak_logs_emerald",
+			"required": false
+		},
+		{
+			"id": "mythstack:carpenter/3/emerald_barrel_plains",
+			"required": false
+		},
+		{
+			"id": "mythstack:carpenter/3/emerald_barrel_taiga",
+			"required": false
+		},
+		{
+			"id": "mythstack:carpenter/3/emerald_barrel_snow",
+			"required": false
+		},
+		{
+			"id": "mythstack:carpenter/3/emerald_barrel_desert",
+			"required": false
+		},
+		{
+			"id": "mythstack:carpenter/3/emerald_barrel_jungle",
+			"required": false
+		},
+		{
+			"id": "mythstack:carpenter/3/emerald_barrel_savanna",
+			"required": false
+		},
+		{
+			"id": "mythstack:carpenter/3/emerald_barrel_swamp",
+			"required": false
+		},
+		{
+			"id": "mythstack:carpenter/3/emerald_jungle_sapling",
+			"required": false
+		},
+		{
+			"id": "mythstack:carpenter/3/emerald_acacia_sapling",
+			"required": false
+		},
+		{
+			"id": "mythstack:carpenter/3/emerald_dark_oak_sapling",
+			"required": false
+		}
+	],
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "sawmill"
+		}
 	]
 }

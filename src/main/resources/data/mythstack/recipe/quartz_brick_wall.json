@@ -10,5 +10,11 @@
 	"result": {
 		"id": "mythstack:quartz_brick_wall",
 		"count": 6
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

@@ -1,5 +1,11 @@
 {
 	"amount": 2.0,
 	"trades": "#mythstack:carpenter/level_5",
-	"random_sequence": "mythstack:trade_set/carpenter/level_5"
+	"random_sequence": "mythstack:trade_set/carpenter/level_5",
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "sawmill"
+		}
+	]
 }

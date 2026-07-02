@@ -1,0 +1,7 @@
+{
+	"pack": {
+		"description": "MythStack renames: Shale, Cobbled Shale, Oak Stick, Oak Ladder...",
+		"min_format": 46,
+		"max_format": 200
+	}
+}

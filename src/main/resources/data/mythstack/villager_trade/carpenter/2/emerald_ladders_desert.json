@@ -17,5 +17,15 @@
 				"minecraft:villager/variant": "minecraft:desert"
 			}
 		}
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "sawmill"
+		},
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

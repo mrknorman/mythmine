@@ -11,5 +11,11 @@
 	"result": {
 		"count": 3,
 		"id": "mythstack:jungle_ladder"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

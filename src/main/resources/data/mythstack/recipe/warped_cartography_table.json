@@ -11,5 +11,11 @@
 	],
 	"result": {
 		"id": "mythstack:warped_cartography_table"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

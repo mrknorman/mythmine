@@ -3,5 +3,11 @@
 	"ingredient": "mythstack:mossy_cobbled_diorite",
 	"result": {
 		"id": "mythstack:mossy_cobbled_diorite_stairs"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

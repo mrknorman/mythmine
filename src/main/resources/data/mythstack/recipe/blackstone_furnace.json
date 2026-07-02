@@ -10,5 +10,11 @@
 	],
 	"result": {
 		"id": "mythstack:blackstone_furnace"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

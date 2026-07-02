@@ -3,5 +3,11 @@
 	"ingredient": "mythstack:diorite_bricks",
 	"result": {
 		"id": "mythstack:diorite_brick_stairs"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

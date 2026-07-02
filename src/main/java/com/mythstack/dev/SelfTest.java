@@ -239,16 +239,19 @@ public final class SelfTest {
 		//      vanilla put it (the anchor-following insertion).
 		net.minecraft.world.item.CreativeModeTabs.tryRebuildTabContents(
 				level.enabledFeatures(), false, level.registryAccess());
+		if (com.mythstack.config.ModConfig.TYPED_STICKS)
 		check("creative tabs: typed sticks directly follow the stick",
 				tabAdjacent(Items.STICK, com.mythstack.registry.ModItems.TYPED_STICKS.get(0)), failures);
-		boolean allAdjacent = true;
-		for (var family : com.mythstack.registry.ModBlocks.TYPED_FAMILIES.entrySet()) {
-			if (!tabAdjacent(family.getKey().asItem(), family.getValue().get(0).asItem())) {
-				MythStack.LOGGER.error("[selftest] tab adjacency missing for {}", family.getKey());
-				allAdjacent = false;
+		if (com.mythstack.config.ModConfig.BLOCKS) {
+			boolean allAdjacent = true;
+			for (var family : com.mythstack.registry.ModBlocks.TYPED_FAMILIES.entrySet()) {
+				if (!tabAdjacent(family.getKey().asItem(), family.getValue().get(0).asItem())) {
+					MythStack.LOGGER.error("[selftest] tab adjacency missing for {}", family.getKey());
+					allAdjacent = false;
+				}
 			}
+			check("creative tabs: all 15 typed block families directly follow their canonicals", allAdjacent, failures);
 		}
-		check("creative tabs: all 15 typed block families directly follow their canonicals", allAdjacent, failures);
 
 		// 18e. Piles auto-UNPACK into bundles (QOL): the bundle receives plain per-wood stacks.
 		net.minecraft.world.item.component.BundleContents.Mutable bundle =
@@ -307,6 +310,7 @@ public final class SelfTest {
 				VariantPiles.isPile(inv.get(0))
 						&& VariantPiles.countOf(inv.get(0), cobbledGranite) == curatedGranite, failures);
 
+		if (com.mythstack.config.ModConfig.TERRAIN) {
 		// 18f. Geology: sample far, freshly-generated chunks and assert the regional stone bands
 		//      exist. Widely-spaced columns at y=40 must show several region stones (shale/granite/
 		//      diorite/andesite/calcite) — and nothing outside the expected base-terrain set.
@@ -369,6 +373,8 @@ public final class SelfTest {
 				"minecraft:andesite", "minecraft:calcite")::contains).count();
 		check("geology: several distinct region stones across 24 far chunks (" + regionKinds + ")",
 				regionKinds >= 3 && !unexpected, failures);
+
+		}
 
 		// 19. End-to-end menu path: a fake player driving real crafting-menu clicks (phase 3).
 		failures[0] += MenuSelfTest.run(level);

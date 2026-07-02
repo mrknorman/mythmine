@@ -3,5 +3,11 @@
 	"ingredient": "mythstack:cobbled_red_sandstone",
 	"result": {
 		"id": "mythstack:cobbled_red_sandstone_stairs"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

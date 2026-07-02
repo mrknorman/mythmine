@@ -13,5 +13,11 @@
 	],
 	"result": {
 		"id": "mythstack:red_sandstone_piston"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

@@ -3,5 +3,11 @@
 	"ingredient": "minecraft:smooth_red_sandstone",
 	"result": {
 		"id": "mythstack:smooth_red_sandstone_wall"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

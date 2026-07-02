@@ -5,5 +5,11 @@
 	"ingredient": "mythstack:calcite_lapis_ore",
 	"result": {
 		"id": "minecraft:lapis_lazuli"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "terrain"
+		}
+	]
 }

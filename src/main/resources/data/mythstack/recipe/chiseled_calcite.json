@@ -9,5 +9,11 @@
 	],
 	"result": {
 		"id": "mythstack:chiseled_calcite"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

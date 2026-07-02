@@ -3,5 +3,11 @@
 	"ingredient": "minecraft:sulfur",
 	"result": {
 		"id": "mythstack:sulfur_pillar"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

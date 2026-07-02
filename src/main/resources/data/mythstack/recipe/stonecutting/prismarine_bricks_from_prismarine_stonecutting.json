@@ -3,5 +3,11 @@
 	"ingredient": "minecraft:prismarine",
 	"result": {
 		"id": "minecraft:prismarine_bricks"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

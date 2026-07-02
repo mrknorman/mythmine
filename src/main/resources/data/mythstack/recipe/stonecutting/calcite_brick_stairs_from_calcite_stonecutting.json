@@ -3,5 +3,11 @@
 	"ingredient": "minecraft:calcite",
 	"result": {
 		"id": "mythstack:calcite_brick_stairs"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

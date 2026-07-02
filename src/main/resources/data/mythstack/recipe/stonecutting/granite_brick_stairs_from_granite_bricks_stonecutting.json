@@ -3,5 +3,11 @@
 	"ingredient": "mythstack:granite_bricks",
 	"result": {
 		"id": "mythstack:granite_brick_stairs"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

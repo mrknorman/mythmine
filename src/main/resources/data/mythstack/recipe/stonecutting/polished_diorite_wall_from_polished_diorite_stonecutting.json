@@ -3,5 +3,11 @@
 	"ingredient": "minecraft:polished_diorite",
 	"result": {
 		"id": "mythstack:polished_diorite_wall"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

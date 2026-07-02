@@ -4,5 +4,11 @@
 	"result": {
 		"count": 1,
 		"id": "minecraft:wooden_hoe"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "sawmill"
+		}
+	]
 }

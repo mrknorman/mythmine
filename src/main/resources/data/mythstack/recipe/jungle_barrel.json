@@ -11,5 +11,11 @@
 	],
 	"result": {
 		"id": "mythstack:jungle_barrel"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

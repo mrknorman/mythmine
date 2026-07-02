@@ -12,5 +12,11 @@
 	],
 	"result": {
 		"id": "mythstack:crimson_chiseled_bookshelf"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

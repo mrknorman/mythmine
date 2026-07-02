@@ -3,5 +3,11 @@
 	"ingredient": "minecraft:andesite",
 	"result": {
 		"id": "mythstack:chiseled_andesite"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

@@ -3,5 +3,11 @@
 	"ingredient": "minecraft:basalt",
 	"result": {
 		"id": "mythstack:basalt_brick_wall"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

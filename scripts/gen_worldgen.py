@@ -63,5 +63,5 @@ sr = ns["surface_rule"]["sequence"]
 assert len(sr) == 4, f"vanilla surface rule shape changed: {len(sr)} rules"
 # [bedrock, surface, sulfur] + ours + [deepslate] + regions
 ns["surface_rule"]["sequence"] = sr[:3] + [ice, sand, red_sand, tuff] + [sr[3]] + [regions]
-write("data/minecraft/worldgen/noise_settings/overworld.json", ns)
+write("resourcepacks/geology/data/minecraft/worldgen/noise_settings/overworld.json", ns)
 print("noise settings overridden; region noises registered")

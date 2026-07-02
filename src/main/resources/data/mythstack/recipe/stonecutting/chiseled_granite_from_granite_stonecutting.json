@@ -3,5 +3,11 @@
 	"ingredient": "minecraft:granite",
 	"result": {
 		"id": "mythstack:chiseled_granite"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

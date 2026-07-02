@@ -3,5 +3,11 @@
 	"ingredient": "mythstack:cobbled_calcite",
 	"result": {
 		"id": "mythstack:cobbled_calcite_wall"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

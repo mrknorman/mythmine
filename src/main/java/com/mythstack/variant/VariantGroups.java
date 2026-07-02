@@ -203,6 +203,9 @@ public final class VariantGroups {
 			for (Holder<Item> holder : items.getTagOrEmpty(group.members())) {
 				Item item = holder.value();
 				map.putIfAbsent(item, group);
+				if (!moduleEnabledFor(item)) {
+					continue; // disabled module: unobtainable — keep it out of families entirely
+				}
 				String key = keyFor(group, item);
 				keys.putIfAbsent(item, key);
 				groupByKey.putIfAbsent(key, item); // first-wins on collisions (e.g. bamboo mosaic forms)
@@ -248,6 +251,27 @@ public final class VariantGroups {
 			stoneMaterialNamesCache = names;
 		}
 		return names;
+	}
+
+	/** Module gating: items from switched-off modules never join membership. */
+	private static boolean moduleEnabledFor(Item item) {
+		if (!"mythstack".equals(BuiltInRegistries.ITEM.getKey(item).getNamespace())) {
+			return true;
+		}
+		if (com.mythstack.registry.ModItems.TYPED_STICKS.contains(item)) {
+			return com.mythstack.config.ModConfig.TYPED_STICKS;
+		}
+		for (var ores : com.mythstack.registry.StoneOres.ORE_ANCHORS.values()) {
+			for (var block : ores) {
+				if (block.asItem() == item) {
+					return com.mythstack.config.ModConfig.TERRAIN;
+				}
+			}
+		}
+		if (item == com.mythstack.registry.ModBlocks.SAWMILL.asItem()) {
+			return com.mythstack.config.ModConfig.SAWMILL;
+		}
+		return com.mythstack.config.ModConfig.BLOCKS;
 	}
 
 	public static Item member(VariantGroup group, String variantKey) {

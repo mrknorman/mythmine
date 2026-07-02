@@ -16,5 +16,11 @@
 				"minecraft:villager/variant": "minecraft:savanna"
 			}
 		}
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "sawmill"
+		}
+	]
 }

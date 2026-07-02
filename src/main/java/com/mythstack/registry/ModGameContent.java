@@ -24,12 +24,20 @@ public final class ModGameContent {
 
 	public static void register() {
 		CreativeModeTabEvents.MODIFY_OUTPUT_ALL.register((tab, output) -> {
-			insertFamilyAfter(output, Items.STICK, ModItems.TYPED_STICKS);
+			if (com.mythstack.config.ModConfig.TYPED_STICKS) {
+				insertFamilyAfter(output, Items.STICK, ModItems.TYPED_STICKS);
+			}
+			if (!com.mythstack.config.ModConfig.BLOCKS) {
+				insertOres(output);
+				return;
+			}
 			for (var family : ModBlocks.TYPED_FAMILIES.entrySet()) {
 				insertFamilyAfter(output, family.getKey().asItem(),
 						family.getValue().stream().map(Block::asItem).toList());
 			}
-			insertFamilyAfter(output, Items.STONECUTTER, List.of(ModBlocks.SAWMILL.asItem()));
+			if (com.mythstack.config.ModConfig.SAWMILL) {
+				insertFamilyAfter(output, Items.STONECUTTER, List.of(ModBlocks.SAWMILL.asItem()));
+			}
 			// Stone kit: each material's new forms follow its raw block; functional forms and ore
 			// variants follow their vanilla canonicals (buttons after the stone button, ...).
 			for (var kit : StoneKit.NEW_FORMS.entrySet()) {
@@ -40,10 +48,7 @@ public final class ModGameContent {
 				insertFamilyAfter(output, functional.getKey(),
 						functional.getValue().stream().map(Block::asItem).toList());
 			}
-			for (var ores : StoneOres.ORE_ANCHORS.entrySet()) {
-				insertFamilyAfter(output, ores.getKey(),
-						ores.getValue().stream().map(Block::asItem).toList());
-			}
+			insertOres(output);
 		});
 
 		FuelValueEvents.BUILD.register((builder, context) -> {
@@ -73,6 +78,16 @@ public final class ModGameContent {
 			burn.blocks().stream().filter(block -> !ModBlocks.netherWood(block))
 					.forEach(block -> FlammableBlockRegistry.getDefaultInstance()
 							.add(block, burn.ignite(), burn.spread()));
+		}
+	}
+
+	private static void insertOres(FabricCreativeModeTabOutput output) {
+		if (!com.mythstack.config.ModConfig.TERRAIN) {
+			return;
+		}
+		for (var ores : StoneOres.ORE_ANCHORS.entrySet()) {
+			insertFamilyAfter(output, ores.getKey(),
+					ores.getValue().stream().map(Block::asItem).toList());
 		}
 	}
 

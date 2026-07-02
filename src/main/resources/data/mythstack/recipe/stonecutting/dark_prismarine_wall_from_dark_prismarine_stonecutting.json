@@ -3,5 +3,11 @@
 	"ingredient": "minecraft:dark_prismarine",
 	"result": {
 		"id": "mythstack:dark_prismarine_wall"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

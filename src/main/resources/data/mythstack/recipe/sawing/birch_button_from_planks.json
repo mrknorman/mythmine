@@ -4,5 +4,11 @@
 	"result": {
 		"count": 1,
 		"id": "minecraft:birch_button"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "sawmill"
+		}
+	]
 }

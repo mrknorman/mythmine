@@ -3,5 +3,11 @@
 	"amplitudes": [
 		1.0,
 		0.5
+	],
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "terrain"
+		}
 	]
 }

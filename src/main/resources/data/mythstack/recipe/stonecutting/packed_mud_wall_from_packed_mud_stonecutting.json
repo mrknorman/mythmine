@@ -3,5 +3,11 @@
 	"ingredient": "minecraft:packed_mud",
 	"result": {
 		"id": "mythstack:packed_mud_wall"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

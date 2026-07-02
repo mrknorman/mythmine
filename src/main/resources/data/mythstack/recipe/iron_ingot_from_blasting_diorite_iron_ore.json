@@ -5,5 +5,11 @@
 	"ingredient": "mythstack:diorite_iron_ore",
 	"result": {
 		"id": "minecraft:iron_ingot"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "terrain"
+		}
+	]
 }

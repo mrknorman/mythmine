@@ -4,6 +4,7 @@ set -e
 cd "$(dirname "$0")/.."
 export JAVA_HOME=${JAVA_HOME:-/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home}
 ./gradlew build --console=plain -q
+rm -rf run/world  # fresh world: builtin data packs apply at creation
 LOG=$(mktemp -t mythstack-selftest)
 ./gradlew runServer --console=plain > "$LOG" 2>&1 &
 GPID=$!

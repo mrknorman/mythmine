@@ -3,5 +3,11 @@
 	"ingredient": "minecraft:packed_mud",
 	"result": {
 		"id": "mythstack:chiseled_packed_mud"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

@@ -3,5 +3,11 @@
 	"ingredient": "mythstack:mossy_dripstone_bricks",
 	"result": {
 		"id": "mythstack:mossy_dripstone_brick_wall"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

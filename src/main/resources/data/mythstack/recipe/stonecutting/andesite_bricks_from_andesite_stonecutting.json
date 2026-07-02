@@ -3,5 +3,11 @@
 	"ingredient": "minecraft:andesite",
 	"result": {
 		"id": "mythstack:andesite_bricks"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

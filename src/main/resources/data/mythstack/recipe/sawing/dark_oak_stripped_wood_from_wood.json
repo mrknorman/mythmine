@@ -4,5 +4,11 @@
 	"result": {
 		"count": 1,
 		"id": "minecraft:stripped_dark_oak_wood"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "sawmill"
+		}
+	]
 }

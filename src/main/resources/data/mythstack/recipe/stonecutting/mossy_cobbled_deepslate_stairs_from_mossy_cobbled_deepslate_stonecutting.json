@@ -3,5 +3,11 @@
 	"ingredient": "mythstack:mossy_cobbled_deepslate",
 	"result": {
 		"id": "mythstack:mossy_cobbled_deepslate_stairs"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

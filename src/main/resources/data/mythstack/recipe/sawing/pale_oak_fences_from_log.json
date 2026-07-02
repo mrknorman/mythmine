@@ -4,5 +4,11 @@
 	"result": {
 		"count": 4,
 		"id": "minecraft:pale_oak_fence"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "sawmill"
+		}
+	]
 }

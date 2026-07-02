@@ -3,5 +3,11 @@
 	"ingredient": "minecraft:netherrack",
 	"result": {
 		"id": "mythstack:polished_netherrack_wall"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

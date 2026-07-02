@@ -6,5 +6,11 @@
 	],
 	"result": {
 		"id": "mythstack:mossy_deepslate_bricks"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

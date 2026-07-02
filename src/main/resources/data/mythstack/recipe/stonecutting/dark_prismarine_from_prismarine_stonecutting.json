@@ -3,5 +3,11 @@
 	"ingredient": "minecraft:prismarine",
 	"result": {
 		"id": "minecraft:dark_prismarine"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

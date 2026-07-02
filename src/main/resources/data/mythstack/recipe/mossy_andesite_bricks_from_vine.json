@@ -6,5 +6,11 @@
 	],
 	"result": {
 		"id": "mythstack:mossy_andesite_bricks"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

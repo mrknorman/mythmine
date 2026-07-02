@@ -296,6 +296,9 @@ public final class MenuSelfTest {
 
 	/** Typed sticks (spec §13 phase A): per-wood creation, family-stick acceptance, ratio mass craft. */
 	private static void typedSticks(ServerLevel level, FakePlayer player, int[] failures) {
+		if (!com.mythstack.config.ModConfig.TYPED_STICKS) {
+			return;
+		}
 		// A mixed planks column makes the first-placed wood's typed sticks.
 		CraftingMenu menu = table(level, player);
 		menu.getSlot(1).set(new ItemStack(Items.SPRUCE_PLANKS, 1));
@@ -338,6 +341,9 @@ public final class MenuSelfTest {
 
 	/** D4 reversed: crimson/warped/bamboo are family woods; the crafting layer covers their gaps. */
 	private static void netherAndBamboo(ServerLevel level, FakePlayer player, int[] failures) {
+		if (!com.mythstack.config.ModConfig.TYPED_STICKS) {
+			return;
+		}
 		// A crimson-MAJORITY boat grid: no crimson boat exists, so the runner-up wood's boat crafts.
 		CraftingMenu menu = table(level, player);
 		menu.getSlot(1).set(new ItemStack(Items.CRIMSON_PLANKS, 1));
@@ -464,6 +470,9 @@ public final class MenuSelfTest {
 
 	/** Spec §13 phase B: pure-stick fences, and gates/signs propagating wood across groups. */
 	private static void stickPropagation(ServerLevel level, FakePlayer player, int[] failures) {
+		if (!com.mythstack.config.ModConfig.TYPED_STICKS) {
+			return;
+		}
 		// Fences are pure sticks now (6 -> 3), single-group: mixed sticks give the majority's fence.
 		CraftingMenu fence = table(level, player);
 		for (int slot : new int[]{1, 2, 3}) {
@@ -629,6 +638,9 @@ public final class MenuSelfTest {
 
 	/** Typed ladders + chests: per-wood crafting, propagation, and the climbable tag. */
 	private static void typedBlocks(ServerLevel level, FakePlayer player, int[] failures) {
+		if (!com.mythstack.config.ModConfig.BLOCKS) {
+			return;
+		}
 		Item spruceLadder = ModBlocks.TYPED_LADDERS.get(0).asItem(); // WOODS order: spruce first
 		Item spruceChest = ModBlocks.TYPED_CHESTS.get(0).asItem();
 
@@ -678,6 +690,9 @@ public final class MenuSelfTest {
 						&& gridTotal(sign, 9, Items.IRON_CHAIN) == 0
 						&& gridTotal(sign, 9, Items.STRIPPED_SPRUCE_LOG) == 0, failures);
 
+		if (!com.mythstack.config.ModConfig.TYPED_STICKS) {
+			return;
+		}
 		// A torch from a SCROLLED stick pile + coal consumes the active wood, not canonical-first.
 		CraftingMenu torch = table(level, player);
 		ItemStack sticks = VariantPiles.makeStacks(VariantGroups.STICKS, VariantPiles.pool(VariantGroups.STICKS,
@@ -696,6 +711,9 @@ public final class MenuSelfTest {
 
 	/** Typed bookshelves / chiseled bookshelves / barrels / crafting tables craft per wood. */
 	private static void typedStations(ServerLevel level, FakePlayer player, int[] failures) {
+		if (!com.mythstack.config.ModConfig.BLOCKS) {
+			return;
+		}
 		Item spruceShelf = ModBlocks.TYPED_BOOKSHELVES.get(0).asItem();
 		Item spruceChiseled = ModBlocks.TYPED_CHISELED_BOOKSHELVES.get(0).asItem();
 		Item spruceBarrel = ModBlocks.TYPED_BARRELS.get(0).asItem();
@@ -758,6 +776,9 @@ public final class MenuSelfTest {
 
 	/** The wooden utility stations: relaxed-guard crafts, multi-group lecterns, menu validity. */
 	private static void utilityStations(ServerLevel level, FakePlayer player, int[] failures) {
+		if (!com.mythstack.config.ModConfig.BLOCKS) {
+			return;
+		}
 		// Beehive: planks + honeycomb (a non-family ingredient riding the relaxed guard).
 		CraftingMenu hive = table(level, player);
 		for (int slot : new int[]{1, 2, 3, 7, 8, 9}) {
@@ -802,6 +823,9 @@ public final class MenuSelfTest {
 
 	/** The sawmill: stonecutter mechanics over the sawing recipe set, wood in -> products out. */
 	private static void sawmill(ServerLevel level, FakePlayer player, int[] failures) {
+		if (!com.mythstack.config.ModConfig.SAWMILL) {
+			return;
+		}
 		BlockPos pos = new BlockPos(28, 200, 0);
 		level.setBlock(pos, com.mythstack.registry.ModBlocks.SAWMILL.defaultBlockState(), 3);
 		player.setPos(pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5);
@@ -880,6 +904,9 @@ public final class MenuSelfTest {
 
 	/** S1b: mossing works for normalized materials — cobbled granite + vine = mossy (shapeless). */
 	private static void mossyStone(ServerLevel level, FakePlayer player, int[] failures) {
+		if (!com.mythstack.config.ModConfig.BLOCKS) {
+			return;
+		}
 		var cobbledGranite = net.minecraft.core.registries.BuiltInRegistries.ITEM
 				.getValue(com.mythstack.MythStack.id("cobbled_granite"));
 		var mossy = net.minecraft.core.registries.BuiltInRegistries.ITEM
@@ -894,6 +921,9 @@ public final class MenuSelfTest {
 
 	/** S2: stone families — piles, transmute across materials, and family recipe acceptance. */
 	private static void stoneFamilies(ServerLevel level, FakePlayer player, int[] failures) {
+		if (!com.mythstack.config.ModConfig.BLOCKS) {
+			return;
+		}
 		var reg = net.minecraft.core.registries.BuiltInRegistries.ITEM;
 		var cobbledGranite = reg.getValue(com.mythstack.MythStack.id("cobbled_granite"));
 		var cobbledCalcite = reg.getValue(com.mythstack.MythStack.id("cobbled_calcite"));

@@ -3,5 +3,11 @@
 	"ingredient": "mythstack:cobbled_granite",
 	"result": {
 		"id": "mythstack:cobbled_granite_wall"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

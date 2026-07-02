@@ -3,5 +3,11 @@
 	"ingredient": "mythstack:cobbled_cinnabar",
 	"result": {
 		"id": "mythstack:cobbled_cinnabar_stairs"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

@@ -3,5 +3,11 @@
 	"ingredient": "mythstack:red_sandstone_bricks",
 	"result": {
 		"id": "mythstack:red_sandstone_brick_wall"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

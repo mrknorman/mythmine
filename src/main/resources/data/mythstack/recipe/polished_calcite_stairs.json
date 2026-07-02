@@ -11,5 +11,11 @@
 	"result": {
 		"id": "mythstack:polished_calcite_stairs",
 		"count": 4
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

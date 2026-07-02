@@ -3,5 +3,11 @@
 	"ingredient": "mythstack:cobbled_sandstone",
 	"result": {
 		"id": "mythstack:cobbled_sandstone_wall"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

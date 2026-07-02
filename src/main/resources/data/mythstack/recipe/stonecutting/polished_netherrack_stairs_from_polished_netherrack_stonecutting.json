@@ -3,5 +3,11 @@
 	"ingredient": "mythstack:polished_netherrack",
 	"result": {
 		"id": "mythstack:polished_netherrack_stairs"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

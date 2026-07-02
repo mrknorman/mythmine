@@ -5,5 +5,11 @@
 	"ingredient": "mythstack:diorite_emerald_ore",
 	"result": {
 		"id": "minecraft:emerald"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "terrain"
+		}
+	]
 }

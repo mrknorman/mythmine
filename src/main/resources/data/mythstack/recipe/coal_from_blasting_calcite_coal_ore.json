@@ -5,5 +5,11 @@
 	"ingredient": "mythstack:calcite_coal_ore",
 	"result": {
 		"id": "minecraft:coal"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "terrain"
+		}
+	]
 }

@@ -9,5 +9,11 @@
 	"result": {
 		"id": "mythstack:andesite_brick_slab",
 		"count": 6
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

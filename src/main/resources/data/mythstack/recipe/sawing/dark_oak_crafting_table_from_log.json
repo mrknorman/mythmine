@@ -4,5 +4,15 @@
 	"result": {
 		"count": 1,
 		"id": "mythstack:dark_oak_crafting_table"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "sawmill"
+		},
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

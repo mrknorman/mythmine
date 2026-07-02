@@ -13,5 +13,11 @@
 	],
 	"result": {
 		"id": "mythstack:tuff_piston"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

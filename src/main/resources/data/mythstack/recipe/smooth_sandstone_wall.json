@@ -10,5 +10,11 @@
 	"result": {
 		"id": "mythstack:smooth_sandstone_wall",
 		"count": 6
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

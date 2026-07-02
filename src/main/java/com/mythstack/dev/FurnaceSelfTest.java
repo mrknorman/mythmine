@@ -118,6 +118,7 @@ public final class FurnaceSelfTest {
 		}
 
 		// G. Per-material ores smelt by their own recipes (geology phase).
+		if (com.mythstack.config.ModConfig.TERRAIN) {
 		furnace = freshFurnace(level);
 		furnace.setItem(SLOT_INPUT, new ItemStack(net.minecraft.core.registries.BuiltInRegistries.ITEM
 				.getValue(MythStack.id("granite_iron_ore")), 1));
@@ -125,6 +126,7 @@ public final class FurnaceSelfTest {
 		tick(level, furnace, 205);
 		check("furnace: granite iron ore smelts to an iron ingot",
 				count(furnace, SLOT_RESULT, Items.IRON_INGOT) == 1, failures);
+		}
 
 		level.setBlock(POS, Blocks.AIR.defaultBlockState(), 3);
 		return failures[0];

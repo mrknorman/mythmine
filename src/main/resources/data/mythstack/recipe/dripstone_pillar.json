@@ -10,5 +10,11 @@
 	"result": {
 		"id": "mythstack:dripstone_pillar",
 		"count": 2
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

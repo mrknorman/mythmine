@@ -11,5 +11,11 @@
 	],
 	"result": {
 		"id": "mythstack:dark_oak_beehive"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

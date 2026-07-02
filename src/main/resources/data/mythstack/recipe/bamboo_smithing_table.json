@@ -11,5 +11,11 @@
 	],
 	"result": {
 		"id": "mythstack:bamboo_smithing_table"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

@@ -8,5 +8,11 @@
 	},
 	"max_uses": 16,
 	"xp": 2,
-	"reputation_discount": 0.05
+	"reputation_discount": 0.05,
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "sawmill"
+		}
+	]
 }

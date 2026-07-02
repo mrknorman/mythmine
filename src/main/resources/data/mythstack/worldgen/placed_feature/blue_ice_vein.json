@@ -23,5 +23,11 @@
 		{
 			"type": "minecraft:biome"
 		}
+	],
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "terrain"
+		}
 	]
 }

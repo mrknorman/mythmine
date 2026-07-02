@@ -3,5 +3,11 @@
 	"ingredient": "mythstack:cobbled_sulfur",
 	"result": {
 		"id": "mythstack:cobbled_sulfur_stairs"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

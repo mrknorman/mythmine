@@ -4,5 +4,11 @@
 	"result": {
 		"id": "mythstack:mossy_cobbled_tuff_slab",
 		"count": 2
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

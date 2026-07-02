@@ -4,5 +4,11 @@
 	"result": {
 		"count": 4,
 		"id": "minecraft:cherry_button"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "sawmill"
+		}
+	]
 }

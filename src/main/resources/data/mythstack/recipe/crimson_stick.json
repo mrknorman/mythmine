@@ -11,5 +11,11 @@
 	"result": {
 		"count": 4,
 		"id": "mythstack:crimson_stick"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

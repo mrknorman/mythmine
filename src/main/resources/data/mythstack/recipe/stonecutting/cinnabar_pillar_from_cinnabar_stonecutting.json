@@ -3,5 +3,11 @@
 	"ingredient": "minecraft:cinnabar",
 	"result": {
 		"id": "mythstack:cinnabar_pillar"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

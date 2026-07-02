@@ -215,7 +215,7 @@ for m in MATERIALS:
     # loot normalization: mining raw drops cobbled, silk touch restores raw
     if loot_norm:
         silk = LOOT_SILK.replace("minecraft:cobblestone", item_id(cob)).replace("minecraft:stone", item_id(raw))
-        write(f"data/minecraft/loot_table/blocks/{raw}.json", json.loads(silk))
+        write(f"resourcepacks/geology/data/minecraft/loot_table/blocks/{raw}.json", json.loads(silk))
         counts["loot"] += 1
     # nether stones keep vanilla drops: cobbled comes from a stonecutter cut instead
     if name in ("blackstone", "basalt"):

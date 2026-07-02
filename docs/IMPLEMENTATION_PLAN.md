@@ -600,6 +600,9 @@ Raised during implementation; captured here so they aren't lost.
   wood (not canonical oak) — the world-placement path, not an inventory gesture.
 
 ### Post-MVP (outline only)
+- **Modules (2026-07-02)** — see `MODULES.md`: config-gated content modules (blocks / sawmill /
+  terrain / typed_sticks) + built-in packs for vanilla-file overrides (geology, sticks loot,
+  renames). Three profiles verified headlessly. Phase 2 = physical submod jars.
 - **Curation semantics (refined 2026-07-02, per user):** a MANUAL (drag-merged) pile's curation
   guards ONLY the auto-sorter — autoExpandOverflow never draws a full stack out of it. Pickups
   absorb into manual piles like any other (and the absorb rebuild preserves the manual flag).

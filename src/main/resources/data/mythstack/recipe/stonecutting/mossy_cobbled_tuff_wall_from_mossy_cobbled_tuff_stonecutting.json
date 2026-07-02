@@ -3,5 +3,11 @@
 	"ingredient": "mythstack:mossy_cobbled_tuff",
 	"result": {
 		"id": "mythstack:mossy_cobbled_tuff_wall"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

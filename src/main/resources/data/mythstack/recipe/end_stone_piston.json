@@ -13,5 +13,11 @@
 	],
 	"result": {
 		"id": "mythstack:end_stone_piston"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

@@ -3,5 +3,11 @@
 	"ingredient": "minecraft:end_stone",
 	"result": {
 		"id": "mythstack:polished_end_stone"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

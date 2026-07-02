@@ -10,5 +10,11 @@
 	],
 	"result": {
 		"id": "mythstack:diorite_sticky_piston"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

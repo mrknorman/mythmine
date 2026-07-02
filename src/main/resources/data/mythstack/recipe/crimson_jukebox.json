@@ -11,5 +11,11 @@
 	],
 	"result": {
 		"id": "mythstack:crimson_jukebox"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

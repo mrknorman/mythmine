@@ -4,5 +4,11 @@
 	"result": {
 		"count": 8,
 		"id": "minecraft:dark_oak_slab"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "sawmill"
+		}
+	]
 }

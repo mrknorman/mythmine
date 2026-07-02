@@ -4,5 +4,11 @@
 	"result": {
 		"count": 1,
 		"id": "minecraft:mangrove_fence_gate"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "sawmill"
+		}
+	]
 }

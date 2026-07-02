@@ -8,5 +8,11 @@
 	],
 	"result": {
 		"id": "mythstack:end_stone_pressure_plate"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

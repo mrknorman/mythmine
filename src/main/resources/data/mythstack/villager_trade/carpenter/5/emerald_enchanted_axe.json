@@ -14,5 +14,11 @@
 			"function": "minecraft:enchant_randomly",
 			"only_compatible": true
 		}
+	],
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "sawmill"
+		}
 	]
 }

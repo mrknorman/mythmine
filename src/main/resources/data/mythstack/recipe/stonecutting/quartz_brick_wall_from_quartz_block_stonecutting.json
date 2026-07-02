@@ -3,5 +3,11 @@
 	"ingredient": "minecraft:quartz_block",
 	"result": {
 		"id": "mythstack:quartz_brick_wall"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }

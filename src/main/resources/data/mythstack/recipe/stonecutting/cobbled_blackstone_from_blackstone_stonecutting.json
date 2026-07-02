@@ -3,5 +3,11 @@
 	"ingredient": "minecraft:blackstone",
 	"result": {
 		"id": "mythstack:cobbled_blackstone"
-	}
+	},
+	"fabric:load_conditions": [
+		{
+			"condition": "mythstack:module",
+			"module": "blocks"
+		}
+	]
 }
