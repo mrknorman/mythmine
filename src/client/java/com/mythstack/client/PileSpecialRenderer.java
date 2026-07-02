@@ -1,6 +1,7 @@
 package com.mythstack.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import com.mojang.serialization.MapCodec;
 import com.mythstack.registry.ModComponents;
 import com.mythstack.variant.VariantPile;
@@ -9,6 +10,7 @@ import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -33,6 +35,7 @@ import java.util.function.Consumer;
  * <p>Each log is centred programmatically: its measured bounding-box centre is placed at the slot
  * centre (block-space {@code 0.5,0.5,0.5}), then offset for the fan. Layout (scale + offsets) is chosen
  * by the number of woods so 2-wood piles read as a bigger pair and 3-wood piles as a zig-zag fan.
+ * FLAT items (sticks) get a sheaf instead: the active wood vertical in front, the rest crossed behind.
  */
 public class PileSpecialRenderer implements SpecialModelRenderer<List<ItemStack>> {
 
@@ -59,6 +62,13 @@ public class PileSpecialRenderer implements SpecialModelRenderer<List<ItemStack>
 	private static final float[][] OFFSETS_1 = {
 			{ 0.0f, 0.0f, 0.0f },
 	};
+
+	// --- Flat items (sticks): a sheaf, not a fan. The active wood stands VERTICAL in front; the
+	// others cross at ±45° behind. The sprite is authored diagonal (45°), so vertical = +45° and the
+	// opposite diagonal = 90°. Depth steps keep the front stick on top. ---
+	private static final float FLAT_SCALE = 0.8f;
+	private static final float FLAT_DEPTH = 0.12f;
+	private static final float[] FLAT_ROTATIONS = { 45.0f, 0.0f, 90.0f };
 
 	@Override
 	public List<ItemStack> extractArgument(ItemStack stack) {
@@ -102,17 +112,28 @@ public class PileSpecialRenderer implements SpecialModelRenderer<List<ItemStack>
 		int count = stacks.size();
 		float scale = scaleFor(count);
 		float[][] offsets = offsetsFor(count);
+		boolean flat = !(stacks.get(0).getItem() instanceof BlockItem);
 		// Back-to-front so slot 0 (the first wood) draws last / on top. Each log is raw block geometry
 		// (NONE context); we measure its bounding box and put its centre at the slot centre + fan offset.
 		for (int i = count - 1; i >= 0; i--) {
-			float[] off = offsets[i];
 			ItemStackRenderState layer = new ItemStackRenderState();
 			resolver.updateForTopItem(layer, stacks.get(i), ItemDisplayContext.NONE, minecraft.level, null, 0);
 			AABB box = layer.getModelBoundingBox();
 			Vec3 center = box.getCenter();
 			pose.pushPose();
-			pose.translate(CENTER + off[0], CENTER + off[1], CENTER + off[2]);
-			pose.scale(scale, scale, scale);
+			if (flat) {
+				// Sheaf arrangement (see FLAT_ROTATIONS). NONE context shows a flat quad's BACK face —
+				// the mirrored "reversed stick" look — so a Y half-turn (applied model-side, inside the
+				// screen-space Z rotation) restores the authored orientation.
+				pose.translate(CENTER, CENTER, CENTER + FLAT_DEPTH * (1 - i));
+				pose.scale(FLAT_SCALE, FLAT_SCALE, FLAT_SCALE);
+				pose.mulPose(Axis.ZP.rotationDegrees(FLAT_ROTATIONS[Math.min(i, FLAT_ROTATIONS.length - 1)]));
+				pose.mulPose(Axis.YP.rotationDegrees(180.0f));
+			} else {
+				float[] off = offsets[i];
+				pose.translate(CENTER + off[0], CENTER + off[1], CENTER + off[2]);
+				pose.scale(scale, scale, scale);
+			}
 			pose.translate(-center.x, -center.y, -center.z);
 			layer.submit(pose, collector, light, overlay, outlineColor);
 			pose.popPose();

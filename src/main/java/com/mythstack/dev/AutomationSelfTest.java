@@ -2,6 +2,7 @@ package com.mythstack.dev;
 
 import com.mythstack.MythStack;
 import com.mythstack.mixin.CrafterBlockInvoker;
+import com.mythstack.registry.ModItems;
 import com.mythstack.variant.VariantGroups;
 import com.mythstack.variant.VariantPiles;
 import net.minecraft.core.BlockPos;
@@ -11,6 +12,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.entity.CrafterBlockEntity;
@@ -98,6 +100,24 @@ public final class AutomationSelfTest {
 						&& chest.getItem(1).getCount() == 2, failures);
 		level.setBlock(HOPPER, Blocks.AIR.defaultBlockState(), 3);
 		level.setBlock(HOPPER_CHEST, Blocks.AIR.defaultBlockState(), 3);
+
+		// 4b. Leaves drop TYPED sticks (loot overrides): roll spruce leaves until sticks appear —
+		//     they must all be spruce sticks, never plain (2% per roll; 1200 rolls ≈ certainty).
+		level.setBlock(CHEST_A, Blocks.SPRUCE_LEAVES.defaultBlockState(), 3);
+		int typed = 0;
+		int plain = 0;
+		for (int i = 0; i < 1200; i++) {
+			for (ItemStack drop : Block.getDrops(level.getBlockState(CHEST_A), level, CHEST_A, null)) {
+				if (drop.getItem() == ModItems.SPRUCE_STICK) {
+					typed += drop.getCount();
+				} else if (drop.getItem() == Items.STICK) {
+					plain += drop.getCount();
+				}
+			}
+		}
+		check("loot: spruce leaves drop spruce sticks, never plain (" + typed + " typed)",
+				typed > 0 && plain == 0, failures);
+		level.setBlock(CHEST_A, Blocks.AIR.defaultBlockState(), 3);
 
 		// 5. Comparators read a pile exactly like the plain stack it stands in for.
 		level.setBlock(CHEST_A, Blocks.CHEST.defaultBlockState(), 3);
