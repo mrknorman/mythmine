@@ -1,5 +1,9 @@
 {
+	"block.minecraft.barrel": "Oak Barrel",
+	"block.minecraft.bookshelf": "Oak Bookshelf",
 	"block.minecraft.chest": "Oak Chest",
+	"block.minecraft.chiseled_bookshelf": "Oak Chiseled Bookshelf",
+	"block.minecraft.crafting_table": "Oak Crafting Table",
 	"block.minecraft.ladder": "Oak Ladder",
 	"item.minecraft.stick": "Oak Stick"
 }

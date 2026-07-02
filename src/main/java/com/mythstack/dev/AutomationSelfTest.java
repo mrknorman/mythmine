@@ -132,6 +132,21 @@ public final class AutomationSelfTest {
 				chestDrops.size() == 1 && chestDrops.get(0).getItem() == ModBlocks.TYPED_CHESTS.get(0).asItem()
 						&& ladderDrops.size() == 1
 						&& ladderDrops.get(0).getItem() == ModBlocks.TYPED_LADDERS.get(0).asItem(), failures);
+
+		// 4d. Stations: barrels and chiseled bookshelves host their WIDENED vanilla block entities,
+		//     and a typed bookshelf drops its books like vanilla.
+		level.setBlock(CHEST_A, ModBlocks.TYPED_BARRELS.get(0).defaultBlockState(), 3);
+		boolean barrelOk = level.getBlockEntity(CHEST_A)
+				instanceof net.minecraft.world.level.block.entity.BarrelBlockEntity;
+		level.setBlock(CHEST_A, ModBlocks.TYPED_CHISELED_BOOKSHELVES.get(0).defaultBlockState(), 3);
+		boolean chiseledOk = level.getBlockEntity(CHEST_A)
+				instanceof net.minecraft.world.level.block.entity.ChiseledBookShelfBlockEntity;
+		check("stations: typed barrels and chiseled bookshelves host working block entities",
+				barrelOk && chiseledOk, failures);
+		level.setBlock(CHEST_A, ModBlocks.TYPED_BOOKSHELVES.get(0).defaultBlockState(), 3);
+		java.util.List<ItemStack> shelfDrops = Block.getDrops(level.getBlockState(CHEST_A), level, CHEST_A, null);
+		int books = shelfDrops.stream().filter(d -> d.getItem() == Items.BOOK).mapToInt(ItemStack::getCount).sum();
+		check("stations: a typed bookshelf drops its 3 books", books == 3, failures);
 		level.setBlock(CHEST_A, Blocks.AIR.defaultBlockState(), 3);
 
 		// 5. Comparators read a pile exactly like the plain stack it stands in for.

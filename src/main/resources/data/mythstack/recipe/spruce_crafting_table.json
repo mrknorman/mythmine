@@ -1,0 +1,14 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"#": "minecraft:spruce_planks"
+	},
+	"pattern": [
+		"##",
+		"##"
+	],
+	"result": {
+		"id": "mythstack:spruce_crafting_table"
+	},
+	"show_notification": false
+}

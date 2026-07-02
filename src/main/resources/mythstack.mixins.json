@@ -21,6 +21,7 @@
 		"ItemStackSplitMixin",
 		"ItemTooltipImageMixin",
 		"PickItemFromBlockMixin",
+		"PoiTypesAccessor",
 		"ResultSlotMixin",
 		"ServerPlaceRecipeMixin",
 		"StackedItemContentsMixin"

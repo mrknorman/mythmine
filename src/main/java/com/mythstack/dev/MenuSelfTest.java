@@ -65,6 +65,8 @@ public final class MenuSelfTest {
 		creativeParity(level, player, failures);
 		familyTrades(failures);
 		typedBlocks(level, player, failures);
+		mixedIngredients(level, player, failures);
+		typedStations(level, player, failures);
 
 		player.getInventory().clearContent();
 		player.containerMenu = player.inventoryMenu;
@@ -653,6 +655,101 @@ public final class MenuSelfTest {
 		// Typed ladders are climbable (block tag membership).
 		check("blocks: typed ladders are climbable",
 				ModBlocks.TYPED_LADDERS.get(0).defaultBlockState().is(BlockTags.CLIMBABLE), failures);
+	}
+
+	/** The relaxed guard: non-family ingredients (chains, coal, books) ride along one-per-slot. */
+	private static void mixedIngredients(ServerLevel level, FakePlayer player, int[] failures) {
+		// Hanging signs propagate now — chains blocked the old all-family guard entirely.
+		CraftingMenu sign = table(level, player);
+		sign.getSlot(1).set(new ItemStack(Items.IRON_CHAIN, 1));
+		sign.getSlot(3).set(new ItemStack(Items.IRON_CHAIN, 1));
+		for (int slot : new int[]{4, 5, 6, 7, 8, 9}) {
+			sign.getSlot(slot).set(new ItemStack(Items.STRIPPED_SPRUCE_LOG, 1));
+		}
+		check("guard: a hanging-sign grid (chains + stripped logs) previews the wood's sign",
+				sign.getSlot(0).getItem().getItem() == Items.SPRUCE_HANGING_SIGN, failures);
+		ItemStack taken = take(sign, player);
+		check("guard: the take consumes chains and logs alike, one per slot",
+				taken.getItem() == Items.SPRUCE_HANGING_SIGN && taken.getCount() == 6
+						&& gridTotal(sign, 9, Items.IRON_CHAIN) == 0
+						&& gridTotal(sign, 9, Items.STRIPPED_SPRUCE_LOG) == 0, failures);
+
+		// A torch from a SCROLLED stick pile + coal consumes the active wood, not canonical-first.
+		CraftingMenu torch = table(level, player);
+		ItemStack sticks = VariantPiles.makeStacks(VariantGroups.STICKS, VariantPiles.pool(VariantGroups.STICKS,
+				List.of(new ItemStack(Items.STICK, 4), new ItemStack(ModItems.SPRUCE_STICK, 4)))).get(0);
+		VariantPiles.seed(sticks, ModItems.SPRUCE_STICK);
+		torch.getSlot(1).set(new ItemStack(Items.COAL, 1));
+		torch.getSlot(4).set(sticks);
+		ItemStack torches = take(torch, player);
+		ItemStack pile = torch.getSlot(4).getItem();
+		check("guard: a torch craft eats the pile's ACTIVE stick (spruce), coal alongside",
+				torches.getItem() == Items.TORCH && torches.getCount() == 4
+						&& torch.getSlot(1).getItem().isEmpty()
+						&& VariantPiles.countOf(pile, ModItems.SPRUCE_STICK) == 3
+						&& VariantPiles.countOf(pile, Items.STICK) == 4, failures);
+	}
+
+	/** Typed bookshelves / chiseled bookshelves / barrels / crafting tables craft per wood. */
+	private static void typedStations(ServerLevel level, FakePlayer player, int[] failures) {
+		Item spruceShelf = ModBlocks.TYPED_BOOKSHELVES.get(0).asItem();
+		Item spruceChiseled = ModBlocks.TYPED_CHISELED_BOOKSHELVES.get(0).asItem();
+		Item spruceBarrel = ModBlocks.TYPED_BARRELS.get(0).asItem();
+		Item spruceTable = ModBlocks.TYPED_CRAFTING_TABLES.get(0).asItem();
+
+		// Bookshelf: 4 spruce + 2 birch planks with 3 books -> the majority wood's shelf.
+		CraftingMenu shelf = table(level, player);
+		for (int slot : new int[]{1, 2, 3, 7}) {
+			shelf.getSlot(slot).set(new ItemStack(Items.SPRUCE_PLANKS, 1));
+		}
+		shelf.getSlot(8).set(new ItemStack(Items.BIRCH_PLANKS, 1));
+		shelf.getSlot(9).set(new ItemStack(Items.BIRCH_PLANKS, 1));
+		for (int slot : new int[]{4, 5, 6}) {
+			shelf.getSlot(slot).set(new ItemStack(Items.BOOK, 1));
+		}
+		ItemStack shelfTaken = take(shelf, player);
+		check("stations: a mixed bookshelf grid crafts the majority wood's shelf, books consumed",
+				shelfTaken.getItem() == spruceShelf && gridTotal(shelf, 9, Items.BOOK) == 0
+						&& gridTotal(shelf, 9, Items.SPRUCE_PLANKS) == 0, failures);
+
+		// Chiseled bookshelf: all-wood multi-group (planks + slabs).
+		CraftingMenu chiseled = table(level, player);
+		for (int slot : new int[]{1, 2, 3, 7, 8, 9}) {
+			chiseled.getSlot(slot).set(new ItemStack(Items.SPRUCE_PLANKS, 1));
+		}
+		for (int slot : new int[]{4, 5, 6}) {
+			chiseled.getSlot(slot).set(new ItemStack(Items.SPRUCE_SLAB, 1));
+		}
+		check("stations: spruce planks + slabs preview the spruce chiseled bookshelf",
+				chiseled.getSlot(0).getItem().getItem() == spruceChiseled, failures);
+
+		// Barrel: planks ring + 2 slabs.
+		CraftingMenu barrel = table(level, player);
+		for (int slot : new int[]{1, 3, 4, 6, 7, 9}) {
+			barrel.getSlot(slot).set(new ItemStack(Items.SPRUCE_PLANKS, 1));
+		}
+		barrel.getSlot(2).set(new ItemStack(Items.SPRUCE_SLAB, 1));
+		barrel.getSlot(8).set(new ItemStack(Items.SPRUCE_SLAB, 1));
+		check("stations: spruce planks + slabs preview the spruce barrel",
+				barrel.getSlot(0).getItem().getItem() == spruceBarrel, failures);
+
+		// Crafting table: 4 planks, 2x2.
+		CraftingMenu craft = table(level, player);
+		for (int slot : new int[]{1, 2, 4, 5}) {
+			craft.getSlot(slot).set(new ItemStack(Items.SPRUCE_PLANKS, 1));
+		}
+		ItemStack tableTaken = take(craft, player);
+		check("stations: 4 spruce planks craft the spruce crafting table",
+				tableTaken.getItem() == spruceTable, failures);
+
+		// A typed crafting table KEEPS its menu open (the stillValid redirect).
+		BlockPos pos = new BlockPos(20, 200, 0);
+		level.setBlock(pos, ModBlocks.TYPED_CRAFTING_TABLES.get(0).defaultBlockState(), 3);
+		player.setPos(pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5);
+		CraftingMenu opened = new CraftingMenu(98, player.getInventory(),
+				ContainerLevelAccess.create(level, pos));
+		check("stations: a typed crafting table keeps its menu valid", opened.stillValid(player), failures);
+		level.setBlock(pos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
 	}
 
 	private static ResourceKey<Recipe<?>> recipeKey(String path) {

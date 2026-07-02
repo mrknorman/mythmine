@@ -226,6 +226,15 @@ public final class SelfTest {
 						&& contentsEqual(oreInv.get(0), Items.IRON_ORE, 10, Items.DEEPSLATE_IRON_ORE, 10), failures);
 		check("ore pile name -> 'Iron Ores'", "Iron Ores".equals(oreInv.get(0).getHoverName().getString()), failures);
 
+		// 18c. Saplings family: tree-farm clutter consolidates like any family.
+		List<ItemStack> sapInv = new ArrayList<>(List.of(new ItemStack(Items.OAK_SAPLING, 5)));
+		ItemStack sapIn = new ItemStack(Items.SPRUCE_SAPLING, 5);
+		boolean sapDone = Pickup.consolidate(sapInv, sapIn);
+		check("sapling pickup: spruce onto oak -> one Saplings pile of 10",
+				sapDone && sapIn.isEmpty() && VariantPiles.isPile(sapInv.get(0))
+						&& sapInv.get(0).getCount() == 10
+						&& "Saplings".equals(sapInv.get(0).getHoverName().getString()), failures);
+
 		// 19. End-to-end menu path: a fake player driving real crafting-menu clicks (phase 3).
 		failures[0] += MenuSelfTest.run(level);
 

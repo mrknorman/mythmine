@@ -1,0 +1,12 @@
+{
+	"parent": "minecraft:block/cube",
+	"textures": {
+		"down": "minecraft:block/warped_planks",
+		"east": "mythstack:block/warped_crafting_table_side",
+		"north": "mythstack:block/warped_crafting_table_front",
+		"particle": "mythstack:block/warped_crafting_table_front",
+		"south": "mythstack:block/warped_crafting_table_side",
+		"up": "mythstack:block/warped_crafting_table_top",
+		"west": "mythstack:block/warped_crafting_table_front"
+	}
+}

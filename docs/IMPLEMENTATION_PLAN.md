@@ -600,6 +600,22 @@ Raised during implementation; captured here so they aren't lost.
   wood (not canonical oak) — the world-placement path, not an inventory gesture.
 
 ### Post-MVP (outline only)
+- **Mixed-ingredient crafting (the relaxed guard) — DONE.** `firstCraft` accepts NON-family
+  ingredients (books, chains, coal), consumed one-per-slot as-is with no vote on the wood; items with
+  crafting remainders (buckets) stay fully vanilla. Unlocks: hanging signs propagate (chains ride
+  along), creaking hearts craft from log piles, and every stick+non-wood recipe (tools, torches,
+  rails) consumes a stick PILE by its active wood instead of canonical-first. Pooled mass stays
+  family-only; shift-click on mixed-ingredient grids runs the serial loop.
+- **Saplings family — DONE.** The vanilla #saplings tag (9 saplings + propagule + azaleas) as one
+  family — tree-farm clutter consolidates on pickup. Zero new items.
+- **Typed stations — DONE: bookshelves, chiseled bookshelves, barrels, crafting tables** (44 blocks).
+  Bookshelves: enchanting-power tag, drop books, flammable like vanilla, selective palette-mapped
+  textures (wood pixels remapped, book/tool pixels preserved). Chiseled bookshelves + barrels: real
+  vanilla block entities via the widened-type trick; typed barrels are fisherman job sites (POI map
+  widened — verify a villager claims one in-game). Crafting tables: fully working menus (the
+  hardcoded stillValid check redirected to accept typed tables). All are full families with per-wood
+  recipes (vanilla recipes restricted to oak), majority-wood mixed crafting, piles, fuel (except
+  nether), Functional-tab placement.
 - **Ore families — DONE (the first non-wood groups).** Each ore's stone + deepslate (+ nether, for
   gold) variants pile as one family — 8 groups straight off the vanilla `#minecraft:*_ores` tags,
   canonical = the stone form. Everything inherited: piles/merge/unmix/scroll, pickup consolidation,

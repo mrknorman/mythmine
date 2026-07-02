@@ -112,11 +112,61 @@ def lum(p):
     return 0.299 * p[0] + 0.587 * p[1] + 0.114 * p[2]
 
 
-BASES = [  # (vanilla texture to palette-map, per-wood output path template)
+BASES = [  # (vanilla texture to palette-map fully, per-wood output path template)
     ("assets/minecraft/textures/item/stick.png", "assets/mythstack/textures/item/{}_stick.png"),
     ("assets/minecraft/textures/block/ladder.png", "assets/mythstack/textures/block/{}_ladder.png"),
+    ("assets/minecraft/textures/block/barrel_bottom.png", "assets/mythstack/textures/block/{}_barrel_bottom.png"),
+    ("assets/minecraft/textures/block/barrel_side.png", "assets/mythstack/textures/block/{}_barrel_side.png"),
+    ("assets/minecraft/textures/block/barrel_top.png", "assets/mythstack/textures/block/{}_barrel_top.png"),
+    ("assets/minecraft/textures/block/barrel_top_open.png", "assets/mythstack/textures/block/{}_barrel_top_open.png"),
 ]
+# Textures that mix wood with non-wood detail (books, tools, the crafting grid): only pixels close to
+# the OAK planks palette are remapped; everything else is preserved verbatim.
+SELECTIVE = [
+    ("assets/minecraft/textures/block/bookshelf.png", "assets/mythstack/textures/block/{}_bookshelf.png"),
+    ("assets/minecraft/textures/block/chiseled_bookshelf_top.png", "assets/mythstack/textures/block/{}_chiseled_bookshelf_top.png"),
+    ("assets/minecraft/textures/block/chiseled_bookshelf_side.png", "assets/mythstack/textures/block/{}_chiseled_bookshelf_side.png"),
+    ("assets/minecraft/textures/block/chiseled_bookshelf_empty.png", "assets/mythstack/textures/block/{}_chiseled_bookshelf_empty.png"),
+    ("assets/minecraft/textures/block/chiseled_bookshelf_occupied.png", "assets/mythstack/textures/block/{}_chiseled_bookshelf_occupied.png"),
+    ("assets/minecraft/textures/block/crafting_table_top.png", "assets/mythstack/textures/block/{}_crafting_table_top.png"),
+    ("assets/minecraft/textures/block/crafting_table_side.png", "assets/mythstack/textures/block/{}_crafting_table_side.png"),
+    ("assets/minecraft/textures/block/crafting_table_front.png", "assets/mythstack/textures/block/{}_crafting_table_front.png"),
+]
+WOOD_DISTANCE = 42.0  # max RGB distance to the oak palette for a pixel to count as "wood"
+def nearest_distance(p, palette):
+    best = 1e9
+    for q in palette:
+        d = ((p[0]-q[0])**2 + (p[1]-q[1])**2 + (p[2]-q[2])**2) ** 0.5
+        if d < best:
+            best = d
+    return best
+
+
 with zipfile.ZipFile(JAR) as z:
+    _, _, oak_planks = png_decode(z.read("assets/minecraft/textures/block/oak_planks.png"))
+    oak_palette = sorted({p[:3] for p in oak_planks if p[3] > 0})
+    for base_path, out_template in SELECTIVE:
+        sw, sh, base = png_decode(z.read(base_path))
+        wood_mask = [p[3] > 0 and nearest_distance(p, oak_palette) <= WOOD_DISTANCE for p in base]
+        woody = [p for p, m in zip(base, wood_mask) if m]
+        if not woody:
+            continue
+        lo, hi = min(map(lum, woody)), max(map(lum, woody))
+        for wood in WOODS:
+            pw, ph, planks = png_decode(z.read(f"assets/minecraft/textures/block/{wood}_planks.png"))
+            palette = sorted((p for p in planks if p[3] > 0), key=lum)
+            out = []
+            for p, m in zip(base, wood_mask):
+                if not m:
+                    out.append(p)
+                    continue
+                t = 0.0 if hi == lo else (lum(p) - lo) / (hi - lo)
+                r, g, b, _ = palette[round(t * (len(palette) - 1))]
+                out.append((r, g, b, p[3]))
+            dest = os.path.join(ROOT, out_template.format(wood))
+            os.makedirs(os.path.dirname(dest), exist_ok=True)
+            with open(dest, "wb") as f:
+                f.write(png_encode(sw, sh, out))
     for base_path, out_template in BASES:
         sw, sh, base = png_decode(z.read(base_path))
         opaque = [p for p in base if p[3] > 0]

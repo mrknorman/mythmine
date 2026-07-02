@@ -1,0 +1,16 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"category": "building",
+	"key": {
+		"#": "minecraft:mangrove_planks",
+		"X": "minecraft:mangrove_slab"
+	},
+	"pattern": [
+		"###",
+		"XXX",
+		"###"
+	],
+	"result": {
+		"id": "mythstack:mangrove_chiseled_bookshelf"
+	}
+}

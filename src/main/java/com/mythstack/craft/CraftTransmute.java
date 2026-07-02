@@ -185,11 +185,6 @@ public final class CraftTransmute {
 	 * contributing wood (the first-placed rule). Ratio/pooled crafting is the shift-click mass path.
 	 */
 	public static Single firstCraft(List<ItemStack> grid, int width, int height, ServerLevel level) {
-		for (ItemStack stack : grid) {
-			if (!stack.isEmpty() && !isWood(stack)) {
-				return null;
-			}
-		}
 		VariantGroup group = inputGroup(grid);
 		if (group == null) {
 			return null;
@@ -198,19 +193,32 @@ public final class CraftTransmute {
 		// Contributions tally by cross-group wood IDENTITY (spec §13 phase B): a spruce stick and a
 		// spruce plank both count toward "spruce", so a gate grid propagates its wood as one voice.
 		LinkedHashMap<String, Integer> tally = new LinkedHashMap<>(); // insertion order = first-placed
+		boolean anyWood = false;
 		for (int i = 0; i < grid.size(); i++) {
 			ItemStack stack = grid.get(i);
-			if (!isWood(stack)) {
+			if (stack.isEmpty()) {
 				continue;
 			}
-			Item give = VariantPiles.isPile(stack) ? VariantPiles.activeWood(stack) : stack.getItem();
-			if (give == null) {
-				return null;
+			if (isWood(stack)) {
+				Item give = VariantPiles.isPile(stack) ? VariantPiles.activeWood(stack) : stack.getItem();
+				if (give == null) {
+					return null;
+				}
+				takes.add(new SlotTake(i, give));
+				tally.merge(VariantGroups.woodKey(give), 1, Integer::sum);
+				anyWood = true;
+			} else {
+				// A NON-family ingredient (books, chains, coal) is consumed one-per-slot as-is — it just
+				// doesn't vote on the wood. Substitution passes it through untouched, so per-wood recipes
+				// with mixed ingredients (hanging signs, bookshelves) transmute like everything else.
+				// Items with a crafting remainder (buckets) stay fully vanilla — we don't replicate that.
+				if (stack.getItem().getCraftingRemainder() != null) {
+					return null;
+				}
+				takes.add(new SlotTake(i, stack.getItem()));
 			}
-			takes.add(new SlotTake(i, give));
-			tally.merge(VariantGroups.woodKey(give), 1, Integer::sum);
 		}
-		if (takes.isEmpty()) {
+		if (!anyWood) {
 			return null;
 		}
 		Map<String, Optional<Resolved>> memo = new HashMap<>();

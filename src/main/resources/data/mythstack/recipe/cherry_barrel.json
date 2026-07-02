@@ -1,0 +1,15 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"P": "minecraft:cherry_planks",
+		"S": "minecraft:cherry_slab"
+	},
+	"pattern": [
+		"PSP",
+		"P P",
+		"PSP"
+	],
+	"result": {
+		"id": "mythstack:cherry_barrel"
+	}
+}

@@ -1,0 +1,16 @@
+{
+	"values": [
+		"minecraft:crafting_table",
+		"mythstack:spruce_crafting_table",
+		"mythstack:birch_crafting_table",
+		"mythstack:jungle_crafting_table",
+		"mythstack:acacia_crafting_table",
+		"mythstack:dark_oak_crafting_table",
+		"mythstack:mangrove_crafting_table",
+		"mythstack:cherry_crafting_table",
+		"mythstack:pale_oak_crafting_table",
+		"mythstack:bamboo_crafting_table",
+		"mythstack:crimson_crafting_table",
+		"mythstack:warped_crafting_table"
+	]
+}

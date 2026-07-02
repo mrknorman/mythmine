@@ -10,12 +10,15 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.CommonLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
 import net.fabricmc.fabric.api.registry.FuelValueEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,19 +41,35 @@ public class MythStack implements ModInitializer {
 			ModItems.TYPED_STICKS.stream()
 					.filter(stick -> stick != ModItems.CRIMSON_STICK && stick != ModItems.WARPED_STICK)
 					.forEach(stick -> builder.add(stick, 100));
-			// Typed ladders and chests burn like the vanilla ones (300) — except the nether woods'.
-			ModBlocks.TYPED_LADDERS.stream().filter(block -> !ModBlocks.netherWood(block))
-					.forEach(block -> builder.add(block, 300));
-			ModBlocks.TYPED_CHESTS.stream().filter(block -> !ModBlocks.netherWood(block))
-					.forEach(block -> builder.add(block, 300));
+			// Typed wooden blocks burn like their vanilla canonicals (300) — except the nether woods'.
+			for (var blocks : List.of(ModBlocks.TYPED_LADDERS, ModBlocks.TYPED_CHESTS,
+					ModBlocks.TYPED_BOOKSHELVES, ModBlocks.TYPED_CHISELED_BOOKSHELVES,
+					ModBlocks.TYPED_BARRELS, ModBlocks.TYPED_CRAFTING_TABLES)) {
+				blocks.stream().filter(block -> !ModBlocks.netherWood(block))
+						.forEach(block -> builder.add(block, 300));
+			}
 		});
 
-		// Typed ladders and chests sit next to their vanilla canonicals in Functional Blocks.
+		// Bookshelves catch fire like vanilla's (30/20); nether wood doesn't burn.
+		for (var blocks : List.of(ModBlocks.TYPED_BOOKSHELVES, ModBlocks.TYPED_CHISELED_BOOKSHELVES)) {
+			blocks.stream().filter(block -> !ModBlocks.netherWood(block))
+					.forEach(block -> FlammableBlockRegistry.getDefaultInstance().add(block, 30, 20));
+		}
+
+		// Typed blocks sit next to their vanilla canonicals in Functional Blocks.
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register(output -> {
 			output.insertAfter(Items.LADDER,
 					ModBlocks.TYPED_LADDERS.stream().map(ItemStack::new).toArray(ItemStack[]::new));
 			output.insertAfter(Items.CHEST,
 					ModBlocks.TYPED_CHESTS.stream().map(ItemStack::new).toArray(ItemStack[]::new));
+			output.insertAfter(Items.BOOKSHELF,
+					ModBlocks.TYPED_BOOKSHELVES.stream().map(ItemStack::new).toArray(ItemStack[]::new));
+			output.insertAfter(Items.CHISELED_BOOKSHELF,
+					ModBlocks.TYPED_CHISELED_BOOKSHELVES.stream().map(ItemStack::new).toArray(ItemStack[]::new));
+			output.insertAfter(Items.BARREL,
+					ModBlocks.TYPED_BARRELS.stream().map(ItemStack::new).toArray(ItemStack[]::new));
+			output.insertAfter(Items.CRAFTING_TABLE,
+					ModBlocks.TYPED_CRAFTING_TABLES.stream().map(ItemStack::new).toArray(ItemStack[]::new));
 		});
 
 		// Snapshot variant-group membership whenever tags load/sync (client + server), so resolving an

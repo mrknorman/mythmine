@@ -1,0 +1,16 @@
+{
+	"values": [
+		"minecraft:barrel",
+		"mythstack:spruce_barrel",
+		"mythstack:birch_barrel",
+		"mythstack:jungle_barrel",
+		"mythstack:acacia_barrel",
+		"mythstack:dark_oak_barrel",
+		"mythstack:mangrove_barrel",
+		"mythstack:cherry_barrel",
+		"mythstack:pale_oak_barrel",
+		"mythstack:bamboo_barrel",
+		"mythstack:crimson_barrel",
+		"mythstack:warped_barrel"
+	]
+}

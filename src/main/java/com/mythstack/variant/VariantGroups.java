@@ -60,6 +60,12 @@ public final class VariantGroups {
 	public static final VariantGroup STICKS = group("sticks", custom("wood/sticks"), Items.STICK);
 	public static final VariantGroup LADDERS = group("ladders", custom("wood/ladders"), Items.LADDER);
 	public static final VariantGroup CHESTS = group("chests", custom("wood/chests"), Items.CHEST);
+	public static final VariantGroup BOOKSHELVES = group("bookshelves", custom("wood/bookshelves"), Items.BOOKSHELF);
+	public static final VariantGroup CHISELED_BOOKSHELVES = group("chiseled_bookshelves", custom("wood/chiseled_bookshelves"), Items.CHISELED_BOOKSHELF);
+	public static final VariantGroup BARRELS = group("barrels", custom("wood/barrels"), Items.BARREL);
+	public static final VariantGroup CRAFTING_TABLES = group("crafting_tables", custom("wood/crafting_tables"), Items.CRAFTING_TABLE);
+	// Saplings: #minecraft:saplings also tags azalea/flowering azalea (like leaves — harmless to pile).
+	public static final VariantGroup SAPLINGS = group("saplings", vanillaTag("saplings"), Items.OAK_SAPLING);
 
 	// The ORE families — the first non-wood groups: each ore's stone + deepslate (+ nether, for gold)
 	// variants pile together, canonical = the stone form. Vanilla ships the membership tags. The
@@ -79,7 +85,7 @@ public final class VariantGroups {
 	private static final List<VariantGroup> ALL = List.of(
 			LOGS, WOODS, STRIPPED_LOGS, STRIPPED_WOODS, PLANKS, STAIRS, SLABS, FENCES, FENCE_GATES, DOORS,
 			TRAPDOORS, PRESSURE_PLATES, BUTTONS, SHELVES, SIGNS, HANGING_SIGNS, LEAVES, STICKS,
-			LADDERS, CHESTS,
+			LADDERS, CHESTS, BOOKSHELVES, CHISELED_BOOKSHELVES, BARRELS, CRAFTING_TABLES, SAPLINGS,
 			IRON_ORES, COAL_ORES, COPPER_ORES, GOLD_ORES, REDSTONE_ORES, EMERALD_ORES, LAPIS_ORES, DIAMOND_ORES);
 
 	/** item -> group, snapshotted from the tags when they are loaded/synced (bindings reliable on both sides). */
