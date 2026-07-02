@@ -169,7 +169,7 @@ public final class VariantGroups {
 	// working for them, cross-group propagation simply doesn't apply.
 	private static final List<String> WOOD_KEYS = List.of("dark_oak", "pale_oak", "oak", "spruce", "birch",
 			"jungle", "acacia", "mangrove", "cherry", "bamboo", "crimson", "warped");
-	private static volatile Map<Item, String> woodKeys = Map.of();
+	private static volatile Map<Item, String> variantKeys = Map.of();
 	private static volatile Map<VariantGroup, Map<String, Item>> membersByKey = Map.of();
 
 	/** The group {@code item} belongs to, or {@code null} if none. */
@@ -209,15 +209,15 @@ public final class VariantGroups {
 			}
 		}
 		membership = Map.copyOf(map);
-		woodKeys = Map.copyOf(keys);
+		variantKeys = Map.copyOf(keys);
 		membersByKey = Map.copyOf(byKey);
 		MythStack.LOGGER.info("[variant-group] membership snapshot rebuilt: {} items across {} groups",
 				map.size(), ALL.size());
 	}
 
 	/** The cross-group wood identity of {@code item} — "spruce" for both spruce planks and spruce stick. */
-	public static String woodKey(Item item) {
-		String cached = woodKeys.get(item);
+	public static String variantKey(Item item) {
+		String cached = variantKeys.get(item);
 		if (cached != null) {
 			return cached;
 		}
@@ -225,7 +225,7 @@ public final class VariantGroups {
 		return group == null ? null : keyFor(group, item);
 	}
 
-	/** The member of {@code group} identified by {@code woodKey}, or {@code null} (that wood lacks the form). */
+	/** The member of {@code group} identified by {@code variantKey}, or {@code null} (that wood lacks the form). */
 	/**
 	 * True when {@code key} names a member of {@code group}'s FAMILY (wood vs stone) — the
 	 * transmuter keeps other-family slots as-is instead of failing the substitution (a piston
@@ -250,9 +250,9 @@ public final class VariantGroups {
 		return names;
 	}
 
-	public static Item member(VariantGroup group, String woodKey) {
+	public static Item member(VariantGroup group, String variantKey) {
 		Map<String, Item> byKey = membersByKey.get(group);
-		return byKey == null ? null : byKey.get(woodKey);
+		return byKey == null ? null : byKey.get(variantKey);
 	}
 
 	private static volatile Map<Item, String> stoneMaterialKeys;

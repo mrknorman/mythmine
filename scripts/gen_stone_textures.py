@@ -5,8 +5,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from stone_naming import MATERIALS, lines
 
 # borrow the PNG codec from the stick generator
-_src = open(os.path.join(os.path.dirname(__file__), "gen_stick_textures.py")).read()
-exec(_src.split("BASES = ")[0])
+from pnglib import *  # png codec + shared helpers
 
 JAR2 = os.path.expanduser("~/.gradle/caches/fabric-loom/26.2/minecraft-client.jar")
 OUT = os.path.join(os.path.dirname(__file__), "..", "src/main/resources/assets/mythstack/textures/block")

@@ -71,15 +71,8 @@ public abstract class CraftingMenuMixin extends AbstractContainerMenu {
 	@Redirect(method = "stillValid", at = @At(value = "INVOKE",
 			target = "Lnet/minecraft/world/inventory/CraftingMenu;stillValid(Lnet/minecraft/world/inventory/ContainerLevelAccess;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/level/block/Block;)Z"))
 	private boolean mythstack$typedTableStillValid(ContainerLevelAccess access, Player player, Block block) {
-		if (AbstractContainerMenu.stillValid(access, player, block)) {
-			return true;
-		}
-		for (Block table : ModBlocks.TYPED_CRAFTING_TABLES) {
-			if (AbstractContainerMenu.stillValid(access, player, table)) {
-				return true; // the exact vanilla rule (block match + interaction range), per typed table
-			}
-		}
-		return false;
+		return com.mythstack.interaction.TypedStationValidity.stillValid(
+				access, player, block, ModBlocks.TYPED_CRAFTING_TABLES);
 	}
 
 	/**

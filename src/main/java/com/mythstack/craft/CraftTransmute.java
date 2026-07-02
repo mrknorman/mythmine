@@ -85,7 +85,7 @@ public final class CraftTransmute {
 			// never an output. Counts are PER WOOD: a bamboo block yields 2 planks where a log yields 4.
 			LinkedHashMap<Item, Resolved> byWood = new LinkedHashMap<>();
 			for (Item wood : pool.keySet()) {
-				Resolved resolved = resolve(grid, width, height, VariantGroups.woodKey(wood), level, memo);
+				Resolved resolved = resolve(grid, width, height, VariantGroups.variantKey(wood), level, memo);
 				if (resolved != null && !resolved.product().isEmpty()) {
 					byWood.put(wood, resolved);
 				}
@@ -119,16 +119,16 @@ public final class CraftTransmute {
 	}
 
 	/**
-	 * Resolve the recipe matched (and product assembled) when the wood identified by {@code woodKey}
+	 * Resolve the recipe matched (and product assembled) when the wood identified by {@code variantKey}
 	 * fills every wood slot — per SLOT per GROUP (spec §13 phase B): a planks slot gets the wood's
 	 * planks, a stick slot its stick, so multi-group recipes (gates, signs) transmute per wood. The
 	 * key {@code "oak"} is the canonical normalization (every group's canonical member is its oak
 	 * form). Null when the wood lacks a slot's form or no recipe matches. Memoized per top-level call
 	 * — recipe-manager scans are the expensive part of a grid recompute.
 	 */
-	private static Resolved resolve(List<ItemStack> grid, int width, int height, String woodKey,
+	private static Resolved resolve(List<ItemStack> grid, int width, int height, String variantKey,
 			ServerLevel level, Map<String, Optional<Resolved>> memo) {
-		return memo.computeIfAbsent(woodKey, key -> {
+		return memo.computeIfAbsent(variantKey, key -> {
 			List<ItemStack> stacks = substitute(grid, key);
 			if (stacks == null) {
 				return Optional.empty();
@@ -139,8 +139,8 @@ public final class CraftTransmute {
 		}).orElse(null);
 	}
 
-	/** The grid with every wood slot swapped for {@code woodKey}'s member of that slot's group. */
-	private static List<ItemStack> substitute(List<ItemStack> grid, String woodKey) {
+	/** The grid with every wood slot swapped for {@code variantKey}'s member of that slot's group. */
+	private static List<ItemStack> substitute(List<ItemStack> grid, String variantKey) {
 		List<ItemStack> stacks = new ArrayList<>(grid.size());
 		for (ItemStack stack : grid) {
 			if (!isWood(stack)) {
@@ -148,9 +148,9 @@ public final class CraftTransmute {
 				continue;
 			}
 			VariantGroup slotGroup = VariantGroups.of(stack.getItem());
-			Item member = VariantGroups.member(slotGroup, woodKey);
+			Item member = VariantGroups.member(slotGroup, variantKey);
 			if (member == null) {
-				if (!VariantGroups.sameFamily(slotGroup, woodKey)) {
+				if (!VariantGroups.sameFamily(slotGroup, variantKey)) {
 					stacks.add(stack.copy()); // other family (planks in a piston): the recipe decides
 					continue;
 				}
@@ -210,7 +210,7 @@ public final class CraftTransmute {
 					return null;
 				}
 				takes.add(new SlotTake(i, give));
-				tally.merge(VariantGroups.woodKey(give), 1, Integer::sum);
+				tally.merge(VariantGroups.variantKey(give), 1, Integer::sum);
 				anyWood = true;
 			} else {
 				// A NON-family ingredient (books, chains, coal) is consumed one-per-slot as-is — it just

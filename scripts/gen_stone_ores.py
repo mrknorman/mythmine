@@ -3,12 +3,13 @@ tags (tool tiers + vanilla ore families), ore-feature target overrides, blue ice
 shale rename cascade."""
 import json, os, sys, zipfile
 ROOT = os.path.join(os.path.dirname(__file__), "..", "src/main/resources")
-_src = open(os.path.join(os.path.dirname(__file__), "gen_stick_textures.py")).read()
-exec(_src.split("BASES = ")[0])
+from pnglib import *  # png codec + shared helpers
 CJ = zipfile.ZipFile(os.path.expanduser("~/.gradle/caches/fabric-loom/26.2/minecraft-client.jar"))
 SJ = zipfile.ZipFile(os.path.expanduser("~/.gradle/caches/fabric-loom/26.2/minecraft-extracted_server.jar"))
 
 def write(path, obj):
+    if isinstance(obj, dict) and isinstance(obj.get("values"), list):
+        obj = {**obj, "values": list(dict.fromkeys(obj["values"]))}  # tags stay idempotent
     full = os.path.join(ROOT, path)
     os.makedirs(os.path.dirname(full), exist_ok=True)
     with open(full, "w") as f:
@@ -29,6 +30,7 @@ stone = vtex("stone")
 made_tex = 0
 lang = json.load(open(os.path.join(ROOT, "assets/mythstack/lang/en_us.json")))
 pickaxe = json.load(open(os.path.join(ROOT, "data/minecraft/tags/block/mineable/pickaxe.json")))
+pickaxe["values"] = list(dict.fromkeys(pickaxe["values"]))
 tool_tags = {"needs_stone_tool": [], "needs_iron_tool": []}
 family_appends = {}
 for ore in ORES:

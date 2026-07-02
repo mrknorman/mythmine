@@ -7,8 +7,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from stone_naming import MATERIALS, forms
 
 ROOT = os.path.join(os.path.dirname(__file__), "..", "src/main/resources")
-_src = open(os.path.join(os.path.dirname(__file__), "gen_stick_textures.py")).read()
-exec(_src.split("BASES = ")[0])  # png codec
+from pnglib import *  # png codec + shared helpers  # png codec
 JARP = os.path.expanduser("~/.gradle/caches/fabric-loom/26.2/minecraft-client.jar")
 CJ = zipfile.ZipFile(JARP)
 SJ = zipfile.ZipFile(os.path.expanduser("~/.gradle/caches/fabric-loom/26.2/minecraft-extracted_server.jar"))
@@ -17,6 +16,8 @@ VANILLA = {n.split("/")[-1][:-5] for n in CJ.namelist()
 OUT = os.path.join(ROOT, "assets/mythstack/textures/block")
 
 def write(path, obj):
+    if isinstance(obj, dict) and isinstance(obj.get("values"), list):
+        obj = {**obj, "values": list(dict.fromkeys(obj["values"]))}  # tags stay idempotent
     full = os.path.join(ROOT, path)
     os.makedirs(os.path.dirname(full), exist_ok=True)
     with open(full, "w") as f:
@@ -75,6 +76,7 @@ tex_count = 0
 made = {"blocks": 0, "recipes": 0}
 lang = json.load(open(os.path.join(ROOT, "assets/mythstack/lang/en_us.json")))
 pickaxe = json.load(open(os.path.join(ROOT, "data/minecraft/tags/block/mineable/pickaxe.json")))
+pickaxe["values"] = list(dict.fromkeys(pickaxe["values"]))
 buttons_tag, plates_tag = [], []
 
 BTN_BS = CJ.read("assets/minecraft/blockstates/stone_button.json").decode()

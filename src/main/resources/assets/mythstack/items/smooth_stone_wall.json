@@ -1,18 +1,6 @@
 {
 	"model": {
-		"type": "minecraft:condition",
-		"property": "minecraft:has_component",
-		"component": "mythstack:variant_pile",
-		"on_true": {
-			"type": "minecraft:special",
-			"base": "mythstack:item/pile_base",
-			"model": {
-				"type": "mythstack:pile"
-			}
-		},
-		"on_false": {
-			"type": "minecraft:model",
-			"model": "mythstack:block/smooth_stone_wall_inventory"
-		}
+		"type": "minecraft:model",
+		"model": "mythstack:block/smooth_stone_wall_inventory"
 	}
 }

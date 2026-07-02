@@ -16,6 +16,8 @@ VTEX = {n.split("/")[-1][:-4] for n in CJ.namelist()
         if n.startswith("assets/minecraft/textures/block/") and n.endswith(".png")}
 
 def write(path, obj):
+    if isinstance(obj, dict) and isinstance(obj.get("values"), list):
+        obj = {**obj, "values": list(dict.fromkeys(obj["values"]))}  # tags stay idempotent
     full = os.path.join(ROOT, path)
     os.makedirs(os.path.dirname(full), exist_ok=True)
     with open(full, "w") as f:
