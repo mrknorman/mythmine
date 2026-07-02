@@ -16,6 +16,7 @@ import net.minecraft.world.entity.player.StackedItemContents;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.ContainerLevelAccess;
@@ -57,6 +58,7 @@ public final class MenuSelfTest {
 		recipeBookFill(level, player, failures);
 		stickPropagation(level, player, failures);
 		craftOutputConsolidation(level, player, failures);
+		creativeParity(level, player, failures);
 
 		player.getInventory().clearContent();
 		player.containerMenu = player.inventoryMenu;
@@ -539,6 +541,53 @@ public final class MenuSelfTest {
 				gridTotal(menu, 9, ModItems.SPRUCE_STICK) == 0
 						&& gridTotal(menu, 9, Items.SPRUCE_PLANKS) == 0, failures);
 		player.getInventory().clearContent();
+	}
+
+	/**
+	 * Server-side parity for CREATIVE-mode players: menus a creative player opens (chests, crafting
+	 * tables, their own inventoryMenu server-side) use the same click round-trip as survival, so every
+	 * pile op must behave identically. (The creative SCREEN's client-authoritative paths can't run
+	 * headlessly — those are covered by the inventoryMenu-only gate + the creative slot-edit sync.)
+	 */
+	private static void creativeParity(ServerLevel level, FakePlayer player, int[] failures) {
+		player.setGameMode(GameType.CREATIVE);
+		try {
+			// Unmix by real click, as creative: identical to the survival result.
+			player.containerMenu = player.inventoryMenu;
+			AbstractContainerMenu menu = player.inventoryMenu;
+			player.getInventory().clearContent();
+			menu.getSlot(9).set(VariantPiles.makeStacks(VariantGroups.LOGS, VariantPiles.pool(VariantGroups.LOGS,
+					List.of(new ItemStack(Items.OAK_LOG, 32), new ItemStack(Items.BIRCH_LOG, 32)))).get(0));
+			menu.setCarried(VariantPiles.makeStacks(VariantGroups.LOGS, VariantPiles.pool(VariantGroups.LOGS,
+					List.of(new ItemStack(Items.OAK_LOG, 32), new ItemStack(Items.BIRCH_LOG, 32)))).get(0));
+			menu.clicked(9, 0, ContainerInput.PICKUP, player);
+			check("creative: pile-on-pile unmix behaves exactly as survival",
+					!VariantPiles.isPile(menu.getSlot(9).getItem())
+							&& menu.getSlot(9).getItem().getItem() == Items.OAK_LOG
+							&& menu.getSlot(9).getItem().getCount() == 64
+							&& menu.getCarried().getItem() == Items.BIRCH_LOG
+							&& menu.getCarried().getCount() == 64, failures);
+			menu.setCarried(ItemStack.EMPTY);
+			menu.getSlot(9).set(ItemStack.EMPTY);
+
+			// Transmuted crafting as creative: preview, take, and consumption identical to survival.
+			CraftingMenu table = table(level, player);
+			table.getSlot(1).set(new ItemStack(Items.SPRUCE_PLANKS, 1));
+			table.getSlot(4).set(new ItemStack(Items.SPRUCE_PLANKS, 1));
+			table.getSlot(5).set(new ItemStack(Items.SPRUCE_PLANKS, 1));
+			table.getSlot(7).set(new ItemStack(Items.BIRCH_PLANKS, 1));
+			table.getSlot(8).set(new ItemStack(Items.BIRCH_PLANKS, 1));
+			table.getSlot(9).set(new ItemStack(Items.BIRCH_PLANKS, 1));
+			ItemStack taken = take(table, player);
+			check("creative: a transmuted take crafts and consumes exactly as survival",
+					taken.getItem() == Items.SPRUCE_STAIRS && taken.getCount() == 4
+							&& gridTotal(table, 9, Items.SPRUCE_PLANKS) == 0
+							&& gridTotal(table, 9, Items.BIRCH_PLANKS) == 0, failures);
+		} finally {
+			player.setGameMode(GameType.SURVIVAL);
+			player.containerMenu = player.inventoryMenu;
+			player.getInventory().clearContent();
+		}
 	}
 
 	private static ResourceKey<Recipe<?>> recipeKey(String path) {

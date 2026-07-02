@@ -1,6 +1,6 @@
 {
 	"model": {
 		"type": "minecraft:model",
-		"model": "minecraft:item/stick"
+		"model": "mythstack:item/bamboo_stick"
 	}
 }

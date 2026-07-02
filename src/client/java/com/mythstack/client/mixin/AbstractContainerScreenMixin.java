@@ -10,6 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
+import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
@@ -86,7 +87,18 @@ public abstract class AbstractContainerScreenMixin {
 		VariantPiles.seed(this.hoveredSlot.getItem(), wood);
 		int index = mythstack$selectionSlotIndex();
 		if (index >= 0) {
-			ClientPlayNetworking.send(new SelectVariantPayload(index, wood));
+			if (((Object) this) instanceof CreativeModeInventoryScreen) {
+				// Creative is client-authoritative for the player's own inventory: push the seeded stack
+				// through the canonical creative slot edit — the same mechanism every creative change
+				// uses — which overwrites the server copy wholesale, robust even if it had drifted.
+				MultiPlayerGameMode gameMode = Minecraft.getInstance().gameMode;
+				LocalPlayer player = Minecraft.getInstance().player;
+				if (gameMode != null && player != null && index >= 1 && index <= 45) {
+					gameMode.handleCreativeModeItemAdd(player.inventoryMenu.slots.get(index).getItem(), index);
+				}
+			} else {
+				ClientPlayNetworking.send(new SelectVariantPayload(index, wood));
+			}
 		}
 		cir.setReturnValue(true); // consume the scroll so it doesn't fall through to vanilla
 	}
