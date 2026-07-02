@@ -66,7 +66,7 @@ public class PileSpecialRenderer implements SpecialModelRenderer<List<ItemStack>
 	// --- Flat items (sticks): a sheaf, not a fan. The active wood stands VERTICAL in front; the
 	// others cross at ±45° behind. The sprite is authored diagonal (45°), so vertical = +45° and the
 	// opposite diagonal = 90°. Depth steps keep the front stick on top. ---
-	private static final float FLAT_SCALE = 0.8f;
+	private static final float FLAT_SCALE = 1.0f; // full-size: sticks read too small scaled down
 	private static final float FLAT_DEPTH = 0.12f;
 	private static final float[] FLAT_ROTATIONS = { 45.0f, 0.0f, 90.0f };
 

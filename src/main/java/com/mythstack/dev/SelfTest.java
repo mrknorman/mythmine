@@ -250,6 +250,35 @@ public final class SelfTest {
 		}
 		check("creative tabs: all 15 typed block families directly follow their canonicals", allAdjacent, failures);
 
+		// 18e. Piles auto-UNPACK into bundles (QOL): the bundle receives plain per-wood stacks.
+		net.minecraft.world.item.component.BundleContents.Mutable bundle =
+				new net.minecraft.world.item.component.BundleContents.Mutable(
+						net.minecraft.world.item.component.BundleContents.EMPTY);
+		ItemStack bundlePile = VariantPiles.makeStacks(logs, VariantPiles.pool(logs,
+				List.of(new ItemStack(Items.OAK_LOG, 10), new ItemStack(Items.BIRCH_LOG, 10)))).get(0);
+		int insertedAll = bundle.tryInsert(bundlePile);
+		boolean noPilesInside = true;
+		int plainInside = 0;
+		for (net.minecraft.world.item.ItemStackTemplate template : bundle.toImmutable().items()) {
+			ItemStack inside = template.create();
+			noPilesInside &= !VariantPiles.isPile(inside);
+			plainInside += inside.getCount();
+		}
+		check("bundle: a pile unpacks into plain stacks (20 in, no piles inside, source drained)",
+				insertedAll == 20 && noPilesInside && plainInside == 20 && bundlePile.isEmpty(), failures);
+
+		// A nearly-full bundle takes a partial unpack and leaves the rest in the pile.
+		net.minecraft.world.item.component.BundleContents.Mutable nearlyFull =
+				new net.minecraft.world.item.component.BundleContents.Mutable(
+						net.minecraft.world.item.component.BundleContents.EMPTY);
+		nearlyFull.tryInsert(new ItemStack(Items.COBBLESTONE, 60));
+		ItemStack partialPile = VariantPiles.makeStacks(logs, VariantPiles.pool(logs,
+				List.of(new ItemStack(Items.OAK_LOG, 10), new ItemStack(Items.BIRCH_LOG, 10)))).get(0);
+		int insertedPart = nearlyFull.tryInsert(partialPile);
+		VariantPiles.reconcile(partialPile);
+		check("bundle: a partial unpack drains exactly what fit (4 in, 16 left)",
+				insertedPart == 4 && partialPile.getCount() == 16, failures);
+
 		// 19. End-to-end menu path: a fake player driving real crafting-menu clicks (phase 3).
 		failures[0] += MenuSelfTest.run(level);
 

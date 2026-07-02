@@ -600,6 +600,18 @@ Raised during implementation; captured here so they aren't lost.
   wood (not canonical oak) — the world-placement path, not an inventory gesture.
 
 ### Post-MVP (outline only)
+- **Sawmill — DONE.** The stonecutter for wood (`mythstack:sawmill`, stonecutter visuals for now).
+  Architecture: `SawmillRecipe extends StonecutterRecipe` with its OWN `mythstack:sawing` type (so
+  sawing never appears in real stonecutters and vice versa); `SawmillMenu extends StonecutterMenu`
+  with a redirect swapping in the sawing set wherever the menu reads the stonecutter's; the client
+  gets a display-only copy of the set via `SawmillRecipesPayload` on join/reload (vanilla's
+  stonecutter sync channel is hardcoded and unextendable). Reuses `StonecutterScreen` under our menu
+  type. 96 sawing recipes: per wood, log-family tags → planks/stairs/slabs/sticks (bamboo halved),
+  planks → stairs/slab/sticks/button. Crafted from iron + planks. Piles in the input behave as their
+  host for now (per-element sawing is a possible follow-up).
+- **Bundles auto-unpack piles — DONE (QOL).** Inserting a pile into a bundle inserts its constituent
+  plain stacks instead (no slot saving inside a bundle, and a pile there obfuscates the contents);
+  partial fits drain the pile by exactly what fit.
 - **Wooden utility stations — DONE (9 more families, 99 blocks).** Fletching/cartography/smithing
   tables, looms, lecterns, composters, note blocks, jukeboxes, beehives — all typed per wood with
   selective palette-mapped textures (string/paper/iron/honey details preserved). Menu validity

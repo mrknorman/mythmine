@@ -128,6 +128,10 @@ public final class ModBlocks {
 		return java.util.Collections.unmodifiableMap(families);
 	}
 
+	/** The sawmill: the stonecutter for wood (one block; the woodwork is in the recipes). */
+	public static final Block SAWMILL = register("sawmill", com.mythstack.block.SawmillBlock::new,
+			BlockBehaviour.Properties.ofFullCopy(Blocks.STONECUTTER), true);
+
 	private static List<Block> station(String name, Function<BlockBehaviour.Properties, Block> factory, Block canonical) {
 		return WOODS.stream()
 				.map(wood -> register(wood + "_" + name, factory,

@@ -68,6 +68,7 @@ public final class MenuSelfTest {
 		mixedIngredients(level, player, failures);
 		typedStations(level, player, failures);
 		utilityStations(level, player, failures);
+		sawmill(level, player, failures);
 
 		player.getInventory().clearContent();
 		player.containerMenu = player.inventoryMenu;
@@ -794,6 +795,40 @@ public final class MenuSelfTest {
 		net.minecraft.world.inventory.LoomMenu loom = new net.minecraft.world.inventory.LoomMenu(
 				97, player.getInventory(), ContainerLevelAccess.create(level, pos));
 		check("utility: a typed loom keeps its menu valid", loom.stillValid(player), failures);
+		level.setBlock(pos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
+	}
+
+	/** The sawmill: stonecutter mechanics over the sawing recipe set, wood in -> products out. */
+	private static void sawmill(ServerLevel level, FakePlayer player, int[] failures) {
+		BlockPos pos = new BlockPos(28, 200, 0);
+		level.setBlock(pos, com.mythstack.registry.ModBlocks.SAWMILL.defaultBlockState(), 3);
+		player.setPos(pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5);
+		player.getInventory().clearContent();
+		com.mythstack.menu.SawmillMenu menu = new com.mythstack.menu.SawmillMenu(
+				96, player.getInventory(), ContainerLevelAccess.create(level, pos));
+		player.containerMenu = menu;
+		check("sawmill: the menu stays valid over the sawmill block", menu.stillValid(player), failures);
+
+		menu.getSlot(0).set(new ItemStack(Items.SPRUCE_PLANKS, 4));
+		check("sawmill: spruce planks offer the four plank cuts",
+				menu.getNumberOfVisibleRecipes() == 4, failures);
+		// Recipes sort by id: button, slabs, stairs, sticks — pick the stairs cut.
+		menu.clickMenuButton(player, 2);
+		check("sawmill: selecting the stairs cut previews spruce stairs",
+				menu.getSlot(1).getItem().getItem() == Items.SPRUCE_STAIRS, failures);
+		menu.clicked(1, 0, ContainerInput.PICKUP, player);
+		check("sawmill: taking the cut crafts and consumes one plank",
+				menu.getCarried().getItem() == Items.SPRUCE_STAIRS
+						&& menu.getSlot(0).getItem().getCount() == 3, failures);
+		menu.setCarried(ItemStack.EMPTY);
+		menu.getSlot(0).set(ItemStack.EMPTY);
+
+		// A log-family input (stripped spruce wood counts via the tag) offers the log cuts.
+		menu.getSlot(0).set(new ItemStack(Items.STRIPPED_SPRUCE_LOG, 1));
+		check("sawmill: stripped logs count as the wood's log input",
+				menu.getNumberOfVisibleRecipes() == 4, failures);
+		menu.getSlot(0).set(ItemStack.EMPTY);
+		player.containerMenu = player.inventoryMenu;
 		level.setBlock(pos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
 	}
 

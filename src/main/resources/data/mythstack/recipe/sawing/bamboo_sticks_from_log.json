@@ -1,0 +1,8 @@
+{
+	"type": "mythstack:sawing",
+	"ingredient": "#minecraft:bamboo_blocks",
+	"result": {
+		"count": 4,
+		"id": "mythstack:bamboo_stick"
+	}
+}

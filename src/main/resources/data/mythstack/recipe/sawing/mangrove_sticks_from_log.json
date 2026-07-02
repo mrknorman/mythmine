@@ -1,0 +1,8 @@
+{
+	"type": "mythstack:sawing",
+	"ingredient": "#minecraft:mangrove_logs",
+	"result": {
+		"count": 8,
+		"id": "mythstack:mangrove_stick"
+	}
+}

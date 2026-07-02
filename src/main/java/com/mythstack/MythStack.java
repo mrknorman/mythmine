@@ -5,6 +5,8 @@ import com.mythstack.net.PileNetworking;
 import com.mythstack.registry.ModBlocks;
 import com.mythstack.registry.ModComponents;
 import com.mythstack.registry.ModItems;
+import com.mythstack.registry.ModMenus;
+import com.mythstack.registry.ModRecipes;
 import com.mythstack.variant.VariantGroups;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
@@ -33,6 +35,8 @@ public class MythStack implements ModInitializer {
 		ModComponents.initialize();
 		ModBlocks.initialize();
 		ModItems.initialize();
+		ModRecipes.initialize();
+		ModMenus.initialize();
 		PileNetworking.register();
 
 		// Every typed family sits DIRECTLY AFTER its canonical, in whichever tab vanilla put it —
@@ -43,6 +47,7 @@ public class MythStack implements ModInitializer {
 				insertFamilyAfter(output, family.getKey().asItem(),
 						family.getValue().stream().map(Block::asItem).toList());
 			}
+			insertFamilyAfter(output, Items.STONECUTTER, List.of(ModBlocks.SAWMILL.asItem()));
 		});
 
 		FuelValueEvents.BUILD.register((builder, context) -> {

@@ -20,6 +20,23 @@ public final class PileNetworking {
 
 	public static void register() {
 		PayloadTypeRegistry.serverboundPlay().register(SelectVariantPayload.TYPE, SelectVariantPayload.STREAM_CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(SawmillRecipesPayload.TYPE, SawmillRecipesPayload.STREAM_CODEC);
+
+		// The sawmill's selectable recipes reach clients on join and after datapack reloads —
+		// mirroring vanilla's dedicated stonecutter sync, which mods can't extend.
+		net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents.JOIN.register((handler, sender, server) ->
+				sender.sendPacket(new SawmillRecipesPayload(
+						com.mythstack.craft.SawmillRecipes.build(server.getRecipeManager()))));
+		net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.END_DATA_PACK_RELOAD.register(
+				(server, resources, success) -> {
+					if (success) {
+						SawmillRecipesPayload payload = new SawmillRecipesPayload(
+								com.mythstack.craft.SawmillRecipes.build(server.getRecipeManager()));
+						for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+							ServerPlayNetworking.send(player, payload);
+						}
+					}
+				});
 		ServerPlayNetworking.registerGlobalReceiver(SelectVariantPayload.TYPE, (payload, context) -> {
 			ServerPlayer player = context.player();
 			context.server().execute(() -> apply(player, payload));

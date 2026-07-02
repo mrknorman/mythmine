@@ -9,6 +9,7 @@
 		"AbstractFurnaceBlockEntityMixin",
 		"BlockEntityTypeAccessor",
 		"BlockItemPlaceMixin",
+		"BundleContentsMutableMixin",
 		"CartographyTableMenuMixin",
 		"CrafterBlockInvoker",
 		"CrafterBlockMixin",
@@ -24,10 +25,12 @@
 		"ItemTooltipImageMixin",
 		"PickItemFromBlockMixin",
 		"PoiTypesAccessor",
+		"RecipeManagerAccessor",
 		"ResultSlotMixin",
 		"ServerPlaceRecipeMixin",
 		"SmithingMenuMixin",
-		"StackedItemContentsMixin"
+		"StackedItemContentsMixin",
+		"StonecutterMenuMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
