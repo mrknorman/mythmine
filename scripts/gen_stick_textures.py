@@ -1,6 +1,6 @@
-"""Generate per-wood stick textures by palette-mapping the vanilla stick through each wood's planks
-palette (luminance-ranked), plus the model/item-definition JSON to use them. Pure-python PNG codec
-(bit depth 8; color types 0/2/3/4/6) since Pillow isn't available."""
+"""Generate per-wood stick AND ladder textures by palette-mapping the vanilla art through each wood's
+planks palette (luminance-ranked), plus the stick model/item-definition JSON. Pure-python PNG codec
+since Pillow isn't available."""
 import json
 import os
 import struct
@@ -112,25 +112,30 @@ def lum(p):
     return 0.299 * p[0] + 0.587 * p[1] + 0.114 * p[2]
 
 
+BASES = [  # (vanilla texture to palette-map, per-wood output path template)
+    ("assets/minecraft/textures/item/stick.png", "assets/mythstack/textures/item/{}_stick.png"),
+    ("assets/minecraft/textures/block/ladder.png", "assets/mythstack/textures/block/{}_ladder.png"),
+]
 with zipfile.ZipFile(JAR) as z:
-    sw, sh, stick = png_decode(z.read("assets/minecraft/textures/item/stick.png"))
-    opaque = [p for p in stick if p[3] > 0]
-    lo, hi = min(map(lum, opaque)), max(map(lum, opaque))
-    for wood in WOODS:
-        pw, ph, planks = png_decode(z.read(f"assets/minecraft/textures/block/{wood}_planks.png"))
-        palette = sorted((p for p in planks if p[3] > 0), key=lum)
-        out = []
-        for p in stick:
-            if p[3] == 0:
-                out.append((0, 0, 0, 0))
-                continue
-            t = 0.0 if hi == lo else (lum(p) - lo) / (hi - lo)
-            r, g, b, _ = palette[round(t * (len(palette) - 1))]
-            out.append((r, g, b, p[3]))
-        dest = os.path.join(ROOT, f"assets/mythstack/textures/item/{wood}_stick.png")
-        os.makedirs(os.path.dirname(dest), exist_ok=True)
-        with open(dest, "wb") as f:
-            f.write(png_encode(sw, sh, out))
+    for base_path, out_template in BASES:
+        sw, sh, base = png_decode(z.read(base_path))
+        opaque = [p for p in base if p[3] > 0]
+        lo, hi = min(map(lum, opaque)), max(map(lum, opaque))
+        for wood in WOODS:
+            pw, ph, planks = png_decode(z.read(f"assets/minecraft/textures/block/{wood}_planks.png"))
+            palette = sorted((p for p in planks if p[3] > 0), key=lum)
+            out = []
+            for p in base:
+                if p[3] == 0:
+                    out.append((0, 0, 0, 0))
+                    continue
+                t = 0.0 if hi == lo else (lum(p) - lo) / (hi - lo)
+                r, g, b, _ = palette[round(t * (len(palette) - 1))]
+                out.append((r, g, b, p[3]))
+            dest = os.path.join(ROOT, out_template.format(wood))
+            os.makedirs(os.path.dirname(dest), exist_ok=True)
+            with open(dest, "wb") as f:
+                f.write(png_encode(sw, sh, out))
 
 for wood in WOODS:
     model = os.path.join(ROOT, f"assets/mythstack/models/item/{wood}_stick.json")

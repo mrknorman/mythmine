@@ -1,0 +1,26 @@
+{
+	"values": [
+		"mythstack:spruce_ladder",
+		"mythstack:birch_ladder",
+		"mythstack:jungle_ladder",
+		"mythstack:acacia_ladder",
+		"mythstack:dark_oak_ladder",
+		"mythstack:mangrove_ladder",
+		"mythstack:cherry_ladder",
+		"mythstack:pale_oak_ladder",
+		"mythstack:bamboo_ladder",
+		"mythstack:crimson_ladder",
+		"mythstack:warped_ladder",
+		"mythstack:spruce_chest",
+		"mythstack:birch_chest",
+		"mythstack:jungle_chest",
+		"mythstack:acacia_chest",
+		"mythstack:dark_oak_chest",
+		"mythstack:mangrove_chest",
+		"mythstack:cherry_chest",
+		"mythstack:pale_oak_chest",
+		"mythstack:bamboo_chest",
+		"mythstack:crimson_chest",
+		"mythstack:warped_chest"
+	]
+}

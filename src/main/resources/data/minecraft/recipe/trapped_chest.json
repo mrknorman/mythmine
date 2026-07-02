@@ -1,0 +1,11 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"category": "redstone",
+	"ingredients": [
+		"#mythstack:wood/chests",
+		"minecraft:tripwire_hook"
+	],
+	"result": {
+		"id": "minecraft:trapped_chest"
+	}
+}

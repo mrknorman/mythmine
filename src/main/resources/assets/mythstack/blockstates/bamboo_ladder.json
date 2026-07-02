@@ -1,0 +1,19 @@
+{
+	"variants": {
+		"facing=east": {
+			"model": "mythstack:block/bamboo_ladder",
+			"y": 90
+		},
+		"facing=north": {
+			"model": "mythstack:block/bamboo_ladder"
+		},
+		"facing=south": {
+			"model": "mythstack:block/bamboo_ladder",
+			"y": 180
+		},
+		"facing=west": {
+			"model": "mythstack:block/bamboo_ladder",
+			"y": 270
+		}
+	}
+}

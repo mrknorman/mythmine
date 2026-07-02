@@ -2,3 +2,7 @@ accessWidener v2 official
 
 # (No widenings currently needed: the pile icon's SpecialModelRenderers.ID_MAPPER is
 #  already access-widened transitively by Fabric.)
+
+# Typed ladders / chests (spec §13 fan-out): the vanilla block ctors are protected.
+accessible method net/minecraft/world/level/block/LadderBlock <init> (Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)V
+accessible method net/minecraft/world/level/block/ChestBlock <init> (Ljava/util/function/Supplier;Lnet/minecraft/sounds/SoundEvent;Lnet/minecraft/sounds/SoundEvent;Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)V

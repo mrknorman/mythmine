@@ -600,7 +600,18 @@ Raised during implementation; captured here so they aren't lost.
   wood (not canonical oak) — the world-placement path, not an inventory gesture.
 
 ### Post-MVP (outline only)
-- **Fan-out:** declare the remaining forms from §7 as data; smoke-test each.
+- **Fan-out — typed ladders & chests DONE.** 11 `mythstack:<wood>_ladder` + 11 `<wood>_chest` blocks
+  (vanilla ladder/chest = the oak/canonical members, renamed Oak Ladder / Oak Chest). Ladders:
+  real `LadderBlock`s (AW'd ctor), climbable + axe-mineable tags, palette-mapped textures (same
+  generator as sticks), per-wood recipes from 7 typed sticks, self-drop loot. Chests: real
+  `ChestBlock`s SHARING `BlockEntityType.CHEST` (valid-blocks set widened via accessor) — the whole
+  vanilla chest stack for free: renderer (classic look = default texture for now), double-chest
+  merging (same wood only), hoppers, comparators; per-wood recipes from 8 same planks; the vanilla
+  chest recipe is oak-planks-only and 15 chest-consuming recipes (chest boats, hopper, trapped chest,
+  minecart, shulker, copper chest) accept `#mythstack:wood/chests`. Both are full variant families
+  (piles, transmute propagation, crafter, recipe book, fuel except nether) — and chests/ladders being
+  wood-typed outputs means mixed grids now craft the majority wood's block. Per-wood chest ENTITY
+  textures are the remaining polish (needs a renderer material hook; classic look until then).
 - **Typed sticks (§13) — phase A DONE.** 8 `mythstack:<wood>_stick` items (vanilla stick = the
   oak/canonical member — no duplicate; vanilla stick texture for now), STICKS variant group
   (`#mythstack:wood/sticks`), per-wood planks→stick recipes with `minecraft:stick` restricted to

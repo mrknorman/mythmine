@@ -55,15 +55,19 @@ public final class VariantGroups {
 	public static final VariantGroup HANGING_SIGNS = group("hanging_signs", vanillaTag("hanging_signs"), Items.OAK_HANGING_SIGN);
 	// Leaves: #minecraft:leaves also tags azalea / flowering-azalea (not a wood, but harmless to pile in).
 	public static final VariantGroup LEAVES = group("leaves", vanillaTag("leaves"), Items.OAK_LEAVES);
-	// Typed sticks (spec §13): vanilla stick is the oak/canonical member; the others are ours.
+	// Typed sticks / ladders / chests (spec §13): the vanilla item is the oak/canonical member; the
+	// other family woods' variants are ours.
 	public static final VariantGroup STICKS = group("sticks", custom("wood/sticks"), Items.STICK);
+	public static final VariantGroup LADDERS = group("ladders", custom("wood/ladders"), Items.LADDER);
+	public static final VariantGroup CHESTS = group("chests", custom("wood/chests"), Items.CHEST);
 
 	// The pile cap is per-group ({@link VariantGroup#cap} = the canonical's max stack size), so signs
 	// (cap 16) pile fine. Boats are intentionally absent: they stack to 1, so a pile (which needs >= 2 of
 	// an item in one stack) can never form — there's nothing to pile.
 	private static final List<VariantGroup> ALL = List.of(
 			LOGS, WOODS, STRIPPED_LOGS, STRIPPED_WOODS, PLANKS, STAIRS, SLABS, FENCES, FENCE_GATES, DOORS,
-			TRAPDOORS, PRESSURE_PLATES, BUTTONS, SHELVES, SIGNS, HANGING_SIGNS, LEAVES, STICKS);
+			TRAPDOORS, PRESSURE_PLATES, BUTTONS, SHELVES, SIGNS, HANGING_SIGNS, LEAVES, STICKS,
+			LADDERS, CHESTS);
 
 	/** item -> group, snapshotted from the tags when they are loaded/synced (bindings reliable on both sides). */
 	private static volatile Map<Item, VariantGroup> membership = Map.of();

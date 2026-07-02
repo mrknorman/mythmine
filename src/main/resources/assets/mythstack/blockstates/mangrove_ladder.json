@@ -1,0 +1,19 @@
+{
+	"variants": {
+		"facing=east": {
+			"model": "mythstack:block/mangrove_ladder",
+			"y": 90
+		},
+		"facing=north": {
+			"model": "mythstack:block/mangrove_ladder"
+		},
+		"facing=south": {
+			"model": "mythstack:block/mangrove_ladder",
+			"y": 180
+		},
+		"facing=west": {
+			"model": "mythstack:block/mangrove_ladder",
+			"y": 270
+		}
+	}
+}

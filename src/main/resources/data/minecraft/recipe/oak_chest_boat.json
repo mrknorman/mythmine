@@ -1,0 +1,11 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"group": "chest_boat",
+	"ingredients": [
+		"#mythstack:wood/chests",
+		"minecraft:oak_boat"
+	],
+	"result": {
+		"id": "minecraft:oak_chest_boat"
+	}
+}

@@ -34,9 +34,24 @@ public class MythStack implements ModInitializer {
 		// except the nether ones: crimson/warped wood is not furnace fuel, so neither are its sticks.
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(output ->
 				output.insertAfter(Items.STICK, ModItems.TYPED_STICKS.stream().map(ItemStack::new).toArray(ItemStack[]::new)));
-		FuelValueEvents.BUILD.register((builder, context) -> ModItems.TYPED_STICKS.stream()
-				.filter(stick -> stick != ModItems.CRIMSON_STICK && stick != ModItems.WARPED_STICK)
-				.forEach(stick -> builder.add(stick, 100)));
+		FuelValueEvents.BUILD.register((builder, context) -> {
+			ModItems.TYPED_STICKS.stream()
+					.filter(stick -> stick != ModItems.CRIMSON_STICK && stick != ModItems.WARPED_STICK)
+					.forEach(stick -> builder.add(stick, 100));
+			// Typed ladders and chests burn like the vanilla ones (300) — except the nether woods'.
+			ModBlocks.TYPED_LADDERS.stream().filter(block -> !ModBlocks.netherWood(block))
+					.forEach(block -> builder.add(block, 300));
+			ModBlocks.TYPED_CHESTS.stream().filter(block -> !ModBlocks.netherWood(block))
+					.forEach(block -> builder.add(block, 300));
+		});
+
+		// Typed ladders and chests sit next to their vanilla canonicals in Functional Blocks.
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register(output -> {
+			output.insertAfter(Items.LADDER,
+					ModBlocks.TYPED_LADDERS.stream().map(ItemStack::new).toArray(ItemStack[]::new));
+			output.insertAfter(Items.CHEST,
+					ModBlocks.TYPED_CHESTS.stream().map(ItemStack::new).toArray(ItemStack[]::new));
+		});
 
 		// Snapshot variant-group membership whenever tags load/sync (client + server), so resolving an
 		// item to its group never depends on a flaky per-call tag binding during container prediction.

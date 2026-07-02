@@ -1,0 +1,16 @@
+{
+	"values": [
+		"minecraft:ladder",
+		"mythstack:spruce_ladder",
+		"mythstack:birch_ladder",
+		"mythstack:jungle_ladder",
+		"mythstack:acacia_ladder",
+		"mythstack:dark_oak_ladder",
+		"mythstack:mangrove_ladder",
+		"mythstack:cherry_ladder",
+		"mythstack:pale_oak_ladder",
+		"mythstack:bamboo_ladder",
+		"mythstack:crimson_ladder",
+		"mythstack:warped_ladder"
+	]
+}

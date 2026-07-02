@@ -2,6 +2,7 @@ package com.mythstack.dev;
 
 import com.mythstack.MythStack;
 import com.mythstack.registry.ModComponents;
+import com.mythstack.registry.ModBlocks;
 import com.mythstack.registry.ModItems;
 import com.mythstack.variant.VariantGroups;
 import com.mythstack.variant.VariantPile;
@@ -12,6 +13,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.player.StackedItemContents;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -62,6 +64,7 @@ public final class MenuSelfTest {
 		craftOutputConsolidation(level, player, failures);
 		creativeParity(level, player, failures);
 		familyTrades(failures);
+		typedBlocks(level, player, failures);
 
 		player.getInventory().clearContent();
 		player.containerMenu = player.inventoryMenu;
@@ -230,20 +233,17 @@ public final class MenuSelfTest {
 						&& gridTotal(menu, 9, Items.SPRUCE_PLANKS) == 0
 						&& gridTotal(menu, 9, Items.BIRCH_PLANKS) == 0, failures);
 
-		// Chest ring, 4+4 mixed: output is wood-agnostic, must still preview and craft.
-		CraftingMenu chestMenu = table(level, player);
-		for (int slot : new int[]{1, 2, 3, 4}) {
-			chestMenu.getSlot(slot).set(new ItemStack(Items.SPRUCE_PLANKS, 1));
-		}
-		for (int slot : new int[]{6, 7, 8, 9}) {
-			chestMenu.getSlot(slot).set(new ItemStack(Items.BIRCH_PLANKS, 1));
-		}
-		check("menu: mixed chest ring previews a chest",
-				chestMenu.getSlot(0).getItem().getItem() == Items.CHEST, failures);
-		ItemStack chest = take(chestMenu, player);
-		check("menu: chest take consumes the ring",
-				chest.getItem() == Items.CHEST && gridTotal(chestMenu, 9, Items.SPRUCE_PLANKS) == 0
-						&& gridTotal(chestMenu, 9, Items.BIRCH_PLANKS) == 0, failures);
+		// Bowls, mixed planks: output is wood-agnostic, must still preview and craft.
+		CraftingMenu bowlMenu = table(level, player);
+		bowlMenu.getSlot(1).set(new ItemStack(Items.SPRUCE_PLANKS, 1));
+		bowlMenu.getSlot(3).set(new ItemStack(Items.BIRCH_PLANKS, 1));
+		bowlMenu.getSlot(5).set(new ItemStack(Items.BIRCH_PLANKS, 1));
+		check("menu: mixed planks bowl grid previews bowls",
+				bowlMenu.getSlot(0).getItem().getItem() == Items.BOWL, failures);
+		ItemStack bowls = take(bowlMenu, player);
+		check("menu: bowl take consumes the planks",
+				bowls.getItem() == Items.BOWL && gridTotal(bowlMenu, 9, Items.SPRUCE_PLANKS) == 0
+						&& gridTotal(bowlMenu, 9, Items.BIRCH_PLANKS) == 0, failures);
 	}
 
 	/** Dropping a pile on a same-group pile unmixes: purest stack stays in the slot, rest on the cursor. */
@@ -307,11 +307,12 @@ public final class MenuSelfTest {
 		for (int slot : new int[]{1, 3, 4, 5, 6, 7, 9}) {
 			ladder.getSlot(slot).set(new ItemStack(slot <= 4 ? ModItems.SPRUCE_STICK : ModItems.BIRCH_STICK, 1));
 		}
-		check("sticks: a ladder crafts from mixed typed sticks",
-				ladder.getSlot(0).getItem().getItem() == Items.LADDER, failures);
+		Item birchLadder = ModBlocks.TYPED_LADDERS.get(1).asItem(); // WOODS order: spruce, birch, ...
+		check("sticks: mixed typed sticks craft the majority wood's ladder (birch)",
+				ladder.getSlot(0).getItem().getItem() == birchLadder, failures);
 		ItemStack lad = take(ladder, player);
 		check("sticks: ladder take consumes a stick from every slot",
-				lad.getItem() == Items.LADDER && gridTotal(ladder, 9, ModItems.SPRUCE_STICK) == 0
+				lad.getItem() == birchLadder && gridTotal(ladder, 9, ModItems.SPRUCE_STICK) == 0
 						&& gridTotal(ladder, 9, ModItems.BIRCH_STICK) == 0, failures);
 
 		// Mass craft two mixed plank piles into the stick ratio (plain sticks ARE oak's).
@@ -618,6 +619,40 @@ public final class MenuSelfTest {
 		check("trades: a spruce-planks cost is NOT satisfied by birch planks",
 				!exact.satisfiedBy(new ItemStack(Items.BIRCH_PLANKS, 4), ItemStack.EMPTY)
 						&& exact.satisfiedBy(new ItemStack(Items.SPRUCE_PLANKS, 4), ItemStack.EMPTY), failures);
+	}
+
+	/** Typed ladders + chests: per-wood crafting, propagation, and the climbable tag. */
+	private static void typedBlocks(ServerLevel level, FakePlayer player, int[] failures) {
+		Item spruceLadder = ModBlocks.TYPED_LADDERS.get(0).asItem(); // WOODS order: spruce first
+		Item spruceChest = ModBlocks.TYPED_CHESTS.get(0).asItem();
+
+		// Pure spruce sticks -> the spruce ladder (per-wood recipe via the transmuter).
+		CraftingMenu ladder = table(level, player);
+		for (int slot : new int[]{1, 3, 4, 5, 6, 7, 9}) {
+			ladder.getSlot(slot).set(new ItemStack(ModItems.SPRUCE_STICK, 1));
+		}
+		ItemStack taken = take(ladder, player);
+		check("blocks: spruce sticks craft the spruce ladder x3",
+				taken.getItem() == spruceLadder && taken.getCount() == 3, failures);
+
+		// A mixed plank ring crafts the majority (tie -> first placed) wood's chest.
+		CraftingMenu chest = table(level, player);
+		for (int slot : new int[]{1, 2, 3, 4}) {
+			chest.getSlot(slot).set(new ItemStack(Items.SPRUCE_PLANKS, 1));
+		}
+		for (int slot : new int[]{6, 7, 8, 9}) {
+			chest.getSlot(slot).set(new ItemStack(Items.BIRCH_PLANKS, 1));
+		}
+		check("blocks: a mixed plank ring previews the first-placed wood's chest (spruce)",
+				chest.getSlot(0).getItem().getItem() == spruceChest, failures);
+		ItemStack chestTaken = take(chest, player);
+		check("blocks: the chest take consumes the ring",
+				chestTaken.getItem() == spruceChest && gridTotal(chest, 9, Items.SPRUCE_PLANKS) == 0
+						&& gridTotal(chest, 9, Items.BIRCH_PLANKS) == 0, failures);
+
+		// Typed ladders are climbable (block tag membership).
+		check("blocks: typed ladders are climbable",
+				ModBlocks.TYPED_LADDERS.get(0).defaultBlockState().is(BlockTags.CLIMBABLE), failures);
 	}
 
 	private static ResourceKey<Recipe<?>> recipeKey(String path) {

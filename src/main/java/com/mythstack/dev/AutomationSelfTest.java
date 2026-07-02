@@ -2,6 +2,7 @@ package com.mythstack.dev;
 
 import com.mythstack.MythStack;
 import com.mythstack.mixin.CrafterBlockInvoker;
+import com.mythstack.registry.ModBlocks;
 import com.mythstack.registry.ModItems;
 import com.mythstack.variant.VariantGroups;
 import com.mythstack.variant.VariantPiles;
@@ -117,6 +118,20 @@ public final class AutomationSelfTest {
 		}
 		check("loot: spruce leaves drop spruce sticks, never plain (" + typed + " typed)",
 				typed > 0 && plain == 0, failures);
+
+		// 4c. Typed blocks: a placed typed chest gets a REAL working chest block entity (the widened
+		//     vanilla type), and typed ladders/chests drop themselves.
+		level.setBlock(CHEST_A, ModBlocks.TYPED_CHESTS.get(0).defaultBlockState(), 3);
+		check("blocks: a typed chest hosts a working vanilla ChestBlockEntity",
+				level.getBlockEntity(CHEST_A) instanceof net.minecraft.world.level.block.entity.ChestBlockEntity,
+				failures);
+		java.util.List<ItemStack> chestDrops = Block.getDrops(level.getBlockState(CHEST_A), level, CHEST_A, null);
+		level.setBlock(CHEST_A, ModBlocks.TYPED_LADDERS.get(0).defaultBlockState(), 3);
+		java.util.List<ItemStack> ladderDrops = Block.getDrops(level.getBlockState(CHEST_A), level, CHEST_A, null);
+		check("blocks: typed chests and ladders drop themselves",
+				chestDrops.size() == 1 && chestDrops.get(0).getItem() == ModBlocks.TYPED_CHESTS.get(0).asItem()
+						&& ladderDrops.size() == 1
+						&& ladderDrops.get(0).getItem() == ModBlocks.TYPED_LADDERS.get(0).asItem(), failures);
 		level.setBlock(CHEST_A, Blocks.AIR.defaultBlockState(), 3);
 
 		// 5. Comparators read a pile exactly like the plain stack it stands in for.

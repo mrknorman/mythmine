@@ -1,0 +1,15 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"#": "mythstack:cherry_stick"
+	},
+	"pattern": [
+		"# #",
+		"###",
+		"# #"
+	],
+	"result": {
+		"count": 3,
+		"id": "mythstack:cherry_ladder"
+	}
+}
