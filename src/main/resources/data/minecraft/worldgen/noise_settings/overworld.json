@@ -2885,7 +2885,7 @@
 							"type": "minecraft:noise_threshold",
 							"noise": "mythstack:stone_regions",
 							"min_threshold": -1.7976931348623157e+308,
-							"max_threshold": -0.35
+							"max_threshold": -0.3
 						},
 						"then_run": {
 							"type": "minecraft:block",
@@ -2899,8 +2899,8 @@
 						"if_true": {
 							"type": "minecraft:noise_threshold",
 							"noise": "mythstack:stone_regions",
-							"min_threshold": -0.35,
-							"max_threshold": -0.12
+							"min_threshold": -0.3,
+							"max_threshold": -0.1
 						},
 						"then_run": {
 							"type": "minecraft:block",
@@ -2914,8 +2914,8 @@
 						"if_true": {
 							"type": "minecraft:noise_threshold",
 							"noise": "mythstack:stone_regions",
-							"min_threshold": 0.12,
-							"max_threshold": 0.35
+							"min_threshold": 0.1,
+							"max_threshold": 0.3
 						},
 						"then_run": {
 							"type": "minecraft:block",
@@ -2929,7 +2929,7 @@
 						"if_true": {
 							"type": "minecraft:noise_threshold",
 							"noise": "mythstack:stone_regions",
-							"min_threshold": 0.35,
+							"min_threshold": 0.3,
 							"max_threshold": 1.7976931348623157e+308
 						},
 						"then_run": {

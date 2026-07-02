@@ -1,0 +1,9 @@
+{
+	"values": [
+		"mythstack:granite_redstone_ore",
+		"mythstack:diorite_redstone_ore",
+		"mythstack:andesite_redstone_ore",
+		"mythstack:calcite_redstone_ore",
+		"mythstack:tuff_redstone_ore"
+	]
+}

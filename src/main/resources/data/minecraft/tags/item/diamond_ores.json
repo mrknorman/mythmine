@@ -1,0 +1,9 @@
+{
+	"values": [
+		"mythstack:granite_diamond_ore",
+		"mythstack:diorite_diamond_ore",
+		"mythstack:andesite_diamond_ore",
+		"mythstack:calcite_diamond_ore",
+		"mythstack:tuff_diamond_ore"
+	]
+}

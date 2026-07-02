@@ -169,6 +169,7 @@ public final class ModBlocks {
 	/** Called from {@link MythStack#onInitialize()} to force class-load so the static fields register. */
 	public static void initialize() {
 		StoneKit.initialize();
+		StoneOres.initialize();
 		widen(net.minecraft.world.level.block.entity.BlockEntityTypes.FURNACE,
 				StoneKit.FUNCTIONAL_ANCHORS.getOrDefault(net.minecraft.world.item.Items.FURNACE, List.of()));
 		// Typed block-entity blocks join their vanilla types: without this a placed block's entity is

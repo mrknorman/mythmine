@@ -1,0 +1,24 @@
+{
+	"values": [
+		"mythstack:granite_gold_ore",
+		"mythstack:diorite_gold_ore",
+		"mythstack:andesite_gold_ore",
+		"mythstack:calcite_gold_ore",
+		"mythstack:tuff_gold_ore",
+		"mythstack:granite_redstone_ore",
+		"mythstack:diorite_redstone_ore",
+		"mythstack:andesite_redstone_ore",
+		"mythstack:calcite_redstone_ore",
+		"mythstack:tuff_redstone_ore",
+		"mythstack:granite_emerald_ore",
+		"mythstack:diorite_emerald_ore",
+		"mythstack:andesite_emerald_ore",
+		"mythstack:calcite_emerald_ore",
+		"mythstack:tuff_emerald_ore",
+		"mythstack:granite_diamond_ore",
+		"mythstack:diorite_diamond_ore",
+		"mythstack:andesite_diamond_ore",
+		"mythstack:calcite_diamond_ore",
+		"mythstack:tuff_diamond_ore"
+	]
+}

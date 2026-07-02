@@ -1,0 +1,19 @@
+{
+	"values": [
+		"mythstack:granite_iron_ore",
+		"mythstack:diorite_iron_ore",
+		"mythstack:andesite_iron_ore",
+		"mythstack:calcite_iron_ore",
+		"mythstack:tuff_iron_ore",
+		"mythstack:granite_copper_ore",
+		"mythstack:diorite_copper_ore",
+		"mythstack:andesite_copper_ore",
+		"mythstack:calcite_copper_ore",
+		"mythstack:tuff_copper_ore",
+		"mythstack:granite_lapis_ore",
+		"mythstack:diorite_lapis_ore",
+		"mythstack:andesite_lapis_ore",
+		"mythstack:calcite_lapis_ore",
+		"mythstack:tuff_lapis_ore"
+	]
+}

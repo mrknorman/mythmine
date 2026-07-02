@@ -1,0 +1,9 @@
+{
+	"type": "minecraft:blasting",
+	"experience": 0.2,
+	"group": "lapis_lazuli",
+	"ingredient": "mythstack:diorite_lapis_ore",
+	"result": {
+		"id": "minecraft:lapis_lazuli"
+	}
+}

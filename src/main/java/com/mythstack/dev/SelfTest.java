@@ -279,6 +279,27 @@ public final class SelfTest {
 		check("bundle: a partial unpack drains exactly what fit (4 in, 16 left)",
 				insertedPart == 4 && partialPile.getCount() == 16, failures);
 
+		// 18g. Field report (cobbled pickup): stone families use the SAME pickup consolidation as
+		//      wood — an AUTO pile absorbs family pickups; a MANUAL (drag-merged, curated) pile is
+		//      deliberately left alone and the pickup starts a new stack.
+		var cobbledGranite = net.minecraft.core.registries.BuiltInRegistries.ITEM
+				.getValue(MythStack.id("cobbled_granite"));
+		var cobbledCalcite = net.minecraft.core.registries.BuiltInRegistries.ITEM
+				.getValue(MythStack.id("cobbled_calcite"));
+		List<ItemStack> inv = new java.util.ArrayList<>(java.util.Collections.nCopies(36, ItemStack.EMPTY));
+		inv.set(0, new ItemStack(Items.COBBLESTONE, 5));
+		com.mythstack.interaction.Pickup.consolidate(inv, new ItemStack(cobbledGranite, 3));
+		check("pickup: cobbled granite + cobblestone auto-form a pile (8 deep)",
+				VariantPiles.isPile(inv.get(0)) && inv.get(0).getCount() == 8, failures);
+		boolean absorbedMore = com.mythstack.interaction.Pickup.consolidate(inv, new ItemStack(cobbledCalcite, 4));
+		check("pickup: a third cobbled variant merges into the existing AUTO pile (12 deep)",
+				absorbedMore && inv.get(0).getCount() == 12
+						&& VariantPiles.countOf(inv.get(0), cobbledCalcite) == 4, failures);
+		VariantPiles.markManual(inv.get(0), true);
+		boolean intoManual = com.mythstack.interaction.Pickup.consolidate(inv, new ItemStack(cobbledGranite, 2));
+		check("pickup: a MANUAL (curated) pile is never disturbed — pickup falls to a new stack",
+				!intoManual && inv.get(0).getCount() == 12, failures);
+
 		// 18f. Geology: sample far, freshly-generated chunks and assert the regional stone bands
 		//      exist. Widely-spaced columns at y=40 must show several region stones (shale/granite/
 		//      diorite/andesite/calcite) — and nothing outside the expected base-terrain set.
@@ -293,14 +314,14 @@ public final class SelfTest {
 				"minecraft:diamond_ore", "minecraft:sulfur", "minecraft:cinnabar", "minecraft:tuff");
 		boolean unexpected = false;
 		for (int i = 0; i < 24; i++) {
-			int chunkX = 700 + i * 24; // ~380 blocks apart: crosses several regions
+			int chunkX = 1400 + i * 24; // ~380 blocks apart: crosses several regions
 			var chunk = level.getChunk(chunkX, 700,
 					net.minecraft.world.level.chunk.status.ChunkStatus.SURFACE, true);
 			var state = chunk.getBlockState(new net.minecraft.core.BlockPos(chunkX * 16 + 8, 40, 700 * 16 + 8));
 			String id = net.minecraft.core.registries.BuiltInRegistries.BLOCK
 					.getKey(state.getBlock()).toString();
 			geology.merge(id, 1, Integer::sum);
-			if (!allowedBase.contains(id)) {
+			if (!allowedBase.contains(id) && !(id.startsWith("mythstack:") && id.endsWith("_ore"))) {
 				MythStack.LOGGER.error("[selftest] unexpected base terrain at chunk {}: {}", chunkX, id);
 				unexpected = true;
 			}

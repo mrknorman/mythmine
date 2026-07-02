@@ -53,10 +53,10 @@ tuff = cond(noise("mythstack:deep_regions", 0.25, HUGE),
             cond(gradient("mythstack:tuff", 0, 8), block("minecraft:tuff")))
 # STONE regions: equal-ish noise bands; shale (stone) is the fallthrough default_block.
 regions = seq(
-    cond(noise("mythstack:stone_regions", -HUGE, -0.35), block("minecraft:granite")),
-    cond(noise("mythstack:stone_regions", -0.35, -0.12), block("minecraft:diorite")),
-    cond(noise("mythstack:stone_regions", 0.12, 0.35), block("minecraft:andesite")),
-    cond(noise("mythstack:stone_regions", 0.35, HUGE), block("minecraft:calcite")))
+    cond(noise("mythstack:stone_regions", -HUGE, -0.30), block("minecraft:granite")),
+    cond(noise("mythstack:stone_regions", -0.30, -0.10), block("minecraft:diorite")),
+    cond(noise("mythstack:stone_regions", 0.10, 0.30), block("minecraft:andesite")),
+    cond(noise("mythstack:stone_regions", 0.30, HUGE), block("minecraft:calcite")))
 
 ns = json.loads(SJ.read("data/minecraft/worldgen/noise_settings/overworld.json"))
 sr = ns["surface_rule"]["sequence"]

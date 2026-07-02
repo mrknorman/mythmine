@@ -1,0 +1,9 @@
+{
+	"values": [
+		"mythstack:granite_coal_ore",
+		"mythstack:diorite_coal_ore",
+		"mythstack:andesite_coal_ore",
+		"mythstack:calcite_coal_ore",
+		"mythstack:tuff_coal_ore"
+	]
+}

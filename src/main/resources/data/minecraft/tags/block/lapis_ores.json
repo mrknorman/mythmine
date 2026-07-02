@@ -1,0 +1,9 @@
+{
+	"values": [
+		"mythstack:granite_lapis_ore",
+		"mythstack:diorite_lapis_ore",
+		"mythstack:andesite_lapis_ore",
+		"mythstack:calcite_lapis_ore",
+		"mythstack:tuff_lapis_ore"
+	]
+}

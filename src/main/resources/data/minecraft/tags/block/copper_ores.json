@@ -1,0 +1,9 @@
+{
+	"values": [
+		"mythstack:granite_copper_ore",
+		"mythstack:diorite_copper_ore",
+		"mythstack:andesite_copper_ore",
+		"mythstack:calcite_copper_ore",
+		"mythstack:tuff_copper_ore"
+	]
+}

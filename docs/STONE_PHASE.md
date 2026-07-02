@@ -11,8 +11,15 @@ granite/diorite/andesite/calcite with shale (stone) as the fallthrough default. 
 andesite/tuff blob features removed (BiomeModifications). New block: PERMAFROST (frozen ground,
 shovel, dirt/ice blend texture). Verified headlessly: 24 far chunks sampled at y=40 show all five
 region stones and nothing outside the expected base-terrain set.
-REMAINING for the phase: shale rename cascade, ~48 per-material ore variants + ore-feature target
-overrides, blue ice veins, region-threshold tuning (shale currently a touch over-weighted).
+PHASE COMPLETE (2026-07-02): 40 per-material ore variants (granite/diorite/andesite/calcite/tuff
+x 8 ores) with ore-overlay textures, per-variant loot/smelting/blasting, tool-tier tags, and
+block-match targets prepended to all 16 vanilla ore features — veins in a region place the
+region's ore, and families grow via the vanilla ore tags (piles/smelting inherit). Blue ice veins
+seed the tundra ice band. The SHALE rename cascade is in (31 vanilla blocks incl. infested
+variants + our four stone-material blocks; ids untouched; generic items like Stone Pickaxe and
+Stonecutter keep their names). Region thresholds tuned (shale band narrowed to [-0.10, 0.10]).
+Pickup-merge design note: AUTO piles absorb family pickups; MANUAL (drag-merged) piles are
+curated and deliberately untouched — covered by tests now.
 
 **Functional forms (2026-07-02, post-S2): +78 blocks — buttons + pressure plates for every
 material (vanilla placements kept: stone's and blackstone's polished pair stay canonical members),
