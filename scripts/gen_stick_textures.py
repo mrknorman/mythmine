@@ -158,6 +158,13 @@ with zipfile.ZipFile(JAR) as z:
         wood_mask = [p[3] > 0 and nearest_distance(p, oak_palette) <= WOOD_DISTANCE for p in base]
         woody = [p for p, m in zip(base, wood_mask) if m]
         if not woody:
+            # nothing wood-toned (e.g. the smithing table's iron top): the models still reference a
+            # per-wood texture, so write vanilla verbatim rather than leaving a missing-texture hole
+            for wood in WOODS:
+                dest = os.path.join(ROOT, out_template.format(wood))
+                os.makedirs(os.path.dirname(dest), exist_ok=True)
+                with open(dest, "wb") as f:
+                    f.write(png_encode(sw, sh, base))
             continue
         lo, hi = min(map(lum, woody)), max(map(lum, woody))
         for wood in WOODS:
