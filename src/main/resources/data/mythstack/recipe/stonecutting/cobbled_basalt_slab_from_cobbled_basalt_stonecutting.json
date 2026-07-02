@@ -1,0 +1,8 @@
+{
+	"type": "minecraft:stonecutting",
+	"ingredient": "mythstack:cobbled_basalt",
+	"result": {
+		"id": "mythstack:cobbled_basalt_slab",
+		"count": 2
+	}
+}

@@ -1,0 +1,14 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"#": "minecraft:polished_andesite"
+	},
+	"pattern": [
+		"##",
+		"##"
+	],
+	"result": {
+		"id": "mythstack:andesite_bricks",
+		"count": 4
+	}
+}

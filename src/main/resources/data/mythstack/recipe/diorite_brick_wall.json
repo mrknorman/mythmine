@@ -1,0 +1,14 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"#": "mythstack:diorite_bricks"
+	},
+	"pattern": [
+		"###",
+		"###"
+	],
+	"result": {
+		"id": "mythstack:diorite_brick_wall",
+		"count": 6
+	}
+}

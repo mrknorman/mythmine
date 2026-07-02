@@ -50,6 +50,11 @@ public class MythStack implements ModInitializer {
 						family.getValue().stream().map(Block::asItem).toList());
 			}
 			insertFamilyAfter(output, Items.STONECUTTER, List.of(ModBlocks.SAWMILL.asItem()));
+			// Stone kit: each material's new forms sit directly after its raw block.
+			for (var kit : com.mythstack.registry.StoneKit.NEW_FORMS.entrySet()) {
+				insertFamilyAfter(output, kit.getKey().asItem(),
+						kit.getValue().stream().map(Block::asItem).toList());
+			}
 		});
 
 		FuelValueEvents.BUILD.register((builder, context) -> {

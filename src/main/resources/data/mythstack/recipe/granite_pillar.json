@@ -1,0 +1,14 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"#": "minecraft:granite"
+	},
+	"pattern": [
+		"#",
+		"#"
+	],
+	"result": {
+		"id": "mythstack:granite_pillar",
+		"count": 2
+	}
+}

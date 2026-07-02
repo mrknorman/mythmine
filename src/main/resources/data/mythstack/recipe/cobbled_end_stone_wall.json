@@ -1,0 +1,14 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"#": "mythstack:cobbled_end_stone"
+	},
+	"pattern": [
+		"###",
+		"###"
+	],
+	"result": {
+		"id": "mythstack:cobbled_end_stone_wall",
+		"count": 6
+	}
+}

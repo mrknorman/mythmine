@@ -1,0 +1,13 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"#": "mythstack:calcite_slab"
+	},
+	"pattern": [
+		"#",
+		"#"
+	],
+	"result": {
+		"id": "mythstack:chiseled_calcite"
+	}
+}

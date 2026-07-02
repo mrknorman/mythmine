@@ -185,6 +185,34 @@ public final class AutomationSelfTest {
 		check("carpenter: all 5 trade sets + 53 trades loaded (" + tradeCount + ")",
 				setsOk && tradeCount == 53, failures);
 
+		// 4f. Stone kit S1a: 143 blocks registered (the count is enforced at init); loot
+		//     normalization (granite drops cobbled, silk touch restores); walls joined the wall
+		//     tag; the stonecutter gained full parity cuts.
+		int kitCount = com.mythstack.registry.StoneKit.NEW_FORMS.values().stream()
+				.mapToInt(java.util.List::size).sum();
+		check("stone kit: all 143 gap blocks registered", kitCount == 143, failures);
+		Block cobbledGranite = net.minecraft.core.registries.BuiltInRegistries.BLOCK
+				.getValue(MythStack.id("cobbled_granite"));
+		BlockPos stonePos = new BlockPos(32, 200, 0);
+		level.setBlock(stonePos, net.minecraft.world.level.block.Blocks.GRANITE.defaultBlockState(), 3);
+		var plainDrops = net.minecraft.world.level.block.Block.getDrops(
+				level.getBlockState(stonePos), level, stonePos, null, null,
+				new ItemStack(Items.IRON_PICKAXE));
+		ItemStack silkPick = new ItemStack(Items.IRON_PICKAXE);
+		silkPick.enchant(level.registryAccess()
+				.lookupOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT)
+				.getOrThrow(net.minecraft.world.item.enchantment.Enchantments.SILK_TOUCH), 1);
+		var silkDrops = net.minecraft.world.level.block.Block.getDrops(
+				level.getBlockState(stonePos), level, stonePos, null, null, silkPick);
+		check("stone kit: granite drops cobbled granite; silk touch restores granite",
+				plainDrops.size() == 1 && plainDrops.get(0).getItem() == cobbledGranite.asItem()
+						&& silkDrops.size() == 1 && silkDrops.get(0).getItem() == Items.GRANITE, failures);
+		level.setBlock(stonePos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
+		Block calciteWall = net.minecraft.core.registries.BuiltInRegistries.BLOCK
+				.getValue(MythStack.id("calcite_wall"));
+		check("stone kit: new walls join #minecraft:walls (calcite wall connects)",
+				calciteWall.defaultBlockState().is(net.minecraft.tags.BlockTags.WALLS), failures);
+
 		// 5. Comparators read a pile exactly like the plain stack it stands in for.
 		level.setBlock(CHEST_A, Blocks.CHEST.defaultBlockState(), 3);
 		level.setBlock(CHEST_B, Blocks.CHEST.defaultBlockState(), 3);

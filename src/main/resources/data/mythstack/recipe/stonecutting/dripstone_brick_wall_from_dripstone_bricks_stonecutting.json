@@ -1,0 +1,7 @@
+{
+	"type": "minecraft:stonecutting",
+	"ingredient": "mythstack:dripstone_bricks",
+	"result": {
+		"id": "mythstack:dripstone_brick_wall"
+	}
+}

@@ -1,0 +1,14 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"#": "minecraft:polished_basalt"
+	},
+	"pattern": [
+		"###",
+		"###"
+	],
+	"result": {
+		"id": "mythstack:polished_basalt_wall",
+		"count": 6
+	}
+}

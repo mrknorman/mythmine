@@ -1,0 +1,13 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"#": "minecraft:diorite_slab"
+	},
+	"pattern": [
+		"#",
+		"#"
+	],
+	"result": {
+		"id": "mythstack:chiseled_diorite"
+	}
+}

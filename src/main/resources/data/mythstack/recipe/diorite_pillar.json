@@ -1,0 +1,14 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"#": "minecraft:diorite"
+	},
+	"pattern": [
+		"#",
+		"#"
+	],
+	"result": {
+		"id": "mythstack:diorite_pillar",
+		"count": 2
+	}
+}

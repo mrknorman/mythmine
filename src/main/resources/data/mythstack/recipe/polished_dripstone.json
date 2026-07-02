@@ -1,0 +1,14 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"#": "minecraft:dripstone_block"
+	},
+	"pattern": [
+		"##",
+		"##"
+	],
+	"result": {
+		"id": "mythstack:polished_dripstone",
+		"count": 4
+	}
+}

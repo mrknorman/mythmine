@@ -1,0 +1,6 @@
+{
+	"model": {
+		"type": "minecraft:model",
+		"model": "mythstack:block/smooth_stone_stairs"
+	}
+}

@@ -1,0 +1,13 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"#": "mythstack:end_stone_slab"
+	},
+	"pattern": [
+		"#",
+		"#"
+	],
+	"result": {
+		"id": "mythstack:chiseled_end_stone"
+	}
+}

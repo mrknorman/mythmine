@@ -1,0 +1,13 @@
+{
+	"variants": {
+		"type=bottom": {
+			"model": "mythstack:block/andesite_brick_slab"
+		},
+		"type=double": {
+			"model": "mythstack:block/andesite_bricks"
+		},
+		"type=top": {
+			"model": "mythstack:block/andesite_brick_slab_top"
+		}
+	}
+}

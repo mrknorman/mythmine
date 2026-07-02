@@ -1,0 +1,33 @@
+{
+	"values": [
+		"mythstack:smooth_stone_stairs",
+		"mythstack:deepslate_stairs",
+		"mythstack:cobbled_granite_stairs",
+		"mythstack:granite_brick_stairs",
+		"mythstack:cobbled_diorite_stairs",
+		"mythstack:diorite_brick_stairs",
+		"mythstack:cobbled_andesite_stairs",
+		"mythstack:andesite_brick_stairs",
+		"mythstack:cobbled_tuff_stairs",
+		"mythstack:calcite_stairs",
+		"mythstack:cobbled_calcite_stairs",
+		"mythstack:polished_calcite_stairs",
+		"mythstack:calcite_brick_stairs",
+		"mythstack:cobbled_blackstone_stairs",
+		"mythstack:basalt_stairs",
+		"mythstack:cobbled_basalt_stairs",
+		"mythstack:polished_basalt_stairs",
+		"mythstack:basalt_brick_stairs",
+		"mythstack:end_stone_stairs",
+		"mythstack:cobbled_end_stone_stairs",
+		"mythstack:polished_end_stone_stairs",
+		"mythstack:dripstone_stairs",
+		"mythstack:cobbled_dripstone_stairs",
+		"mythstack:polished_dripstone_stairs",
+		"mythstack:dripstone_brick_stairs",
+		"mythstack:cobbled_sandstone_stairs",
+		"mythstack:sandstone_brick_stairs",
+		"mythstack:cobbled_red_sandstone_stairs",
+		"mythstack:red_sandstone_brick_stairs"
+	]
+}

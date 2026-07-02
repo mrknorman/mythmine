@@ -1,0 +1,13 @@
+{
+	"variants": {
+		"type=bottom": {
+			"model": "mythstack:block/cobbled_basalt_slab"
+		},
+		"type=double": {
+			"model": "mythstack:block/cobbled_basalt"
+		},
+		"type=top": {
+			"model": "mythstack:block/cobbled_basalt_slab_top"
+		}
+	}
+}

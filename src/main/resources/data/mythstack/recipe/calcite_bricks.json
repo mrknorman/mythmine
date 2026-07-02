@@ -1,0 +1,14 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"#": "mythstack:polished_calcite"
+	},
+	"pattern": [
+		"##",
+		"##"
+	],
+	"result": {
+		"id": "mythstack:calcite_bricks",
+		"count": 4
+	}
+}

@@ -1,0 +1,8 @@
+{
+	"type": "minecraft:stonecutting",
+	"ingredient": "minecraft:deepslate",
+	"result": {
+		"id": "mythstack:deepslate_slab",
+		"count": 2
+	}
+}

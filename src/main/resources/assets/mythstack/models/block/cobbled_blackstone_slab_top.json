@@ -1,0 +1,8 @@
+{
+	"parent": "minecraft:block/slab_top",
+	"textures": {
+		"bottom": "mythstack:block/cobbled_blackstone",
+		"top": "mythstack:block/cobbled_blackstone",
+		"side": "mythstack:block/cobbled_blackstone"
+	}
+}

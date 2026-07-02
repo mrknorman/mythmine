@@ -1,0 +1,7 @@
+{
+	"type": "minecraft:stonecutting",
+	"ingredient": "mythstack:cobbled_andesite",
+	"result": {
+		"id": "mythstack:cobbled_andesite_stairs"
+	}
+}

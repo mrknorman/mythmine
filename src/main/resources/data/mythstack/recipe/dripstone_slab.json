@@ -1,0 +1,13 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"#": "minecraft:dripstone_block"
+	},
+	"pattern": [
+		"###"
+	],
+	"result": {
+		"id": "mythstack:dripstone_slab",
+		"count": 6
+	}
+}

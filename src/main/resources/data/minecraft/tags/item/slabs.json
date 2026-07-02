@@ -1,0 +1,32 @@
+{
+	"values": [
+		"mythstack:deepslate_slab",
+		"mythstack:cobbled_granite_slab",
+		"mythstack:granite_brick_slab",
+		"mythstack:cobbled_diorite_slab",
+		"mythstack:diorite_brick_slab",
+		"mythstack:cobbled_andesite_slab",
+		"mythstack:andesite_brick_slab",
+		"mythstack:cobbled_tuff_slab",
+		"mythstack:calcite_slab",
+		"mythstack:cobbled_calcite_slab",
+		"mythstack:polished_calcite_slab",
+		"mythstack:calcite_brick_slab",
+		"mythstack:cobbled_blackstone_slab",
+		"mythstack:basalt_slab",
+		"mythstack:cobbled_basalt_slab",
+		"mythstack:polished_basalt_slab",
+		"mythstack:basalt_brick_slab",
+		"mythstack:end_stone_slab",
+		"mythstack:cobbled_end_stone_slab",
+		"mythstack:polished_end_stone_slab",
+		"mythstack:dripstone_slab",
+		"mythstack:cobbled_dripstone_slab",
+		"mythstack:polished_dripstone_slab",
+		"mythstack:dripstone_brick_slab",
+		"mythstack:cobbled_sandstone_slab",
+		"mythstack:sandstone_brick_slab",
+		"mythstack:cobbled_red_sandstone_slab",
+		"mythstack:red_sandstone_brick_slab"
+	]
+}

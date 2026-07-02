@@ -1,0 +1,8 @@
+{
+	"type": "minecraft:stonecutting",
+	"ingredient": "mythstack:cobbled_end_stone",
+	"result": {
+		"id": "mythstack:cobbled_end_stone_slab",
+		"count": 2
+	}
+}

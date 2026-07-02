@@ -1,0 +1,7 @@
+{
+	"type": "minecraft:stonecutting",
+	"ingredient": "mythstack:basalt_bricks",
+	"result": {
+		"id": "mythstack:basalt_brick_wall"
+	}
+}

@@ -1,0 +1,14 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"#": "minecraft:smooth_red_sandstone"
+	},
+	"pattern": [
+		"##",
+		"##"
+	],
+	"result": {
+		"id": "mythstack:red_sandstone_bricks",
+		"count": 4
+	}
+}

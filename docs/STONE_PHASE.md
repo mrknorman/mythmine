@@ -1,6 +1,14 @@
 # Stone Phase — Normalization + Families
 
-**Status: design locked (2026-07-02). Not yet implemented.**
+**Status: S1a SHIPPED (2026-07-02) — tier-1 core kit live (143 blocks, 63 generated base
+textures, 318 recipes, loot normalization on). Next: S1b mossy, S1c tier-2, S2 families.**
+
+Implementation notes (S1a): gap set is DERIVED, not hardcoded — `StoneKit.java` registers a form
+only when vanilla lacks it (guarded to exactly 143) and `scripts/stone_naming.py` mirrors the
+naming for the generators (`gen_stone_textures.py`, `gen_stone_kit.py`). Recipe chains follow the
+deepslate/tuff convention: cobbled →(smelt)→ raw →(2×2)→ polished →(2×2)→ bricks →(smelt)→
+cracked; chiseled = 2 raw slabs; pillar = 2 raw. Blackstone/basalt keep vanilla drops and get a
+raw→cobbled stonecutter cut instead (documented quirk).
 
 Goal: bring the pile/family system to stone — and unlike wood, **normalize vanilla first**.
 Vanilla stone coverage is gap-ridden and inconsistent (granite has polished but no bricks; calcite

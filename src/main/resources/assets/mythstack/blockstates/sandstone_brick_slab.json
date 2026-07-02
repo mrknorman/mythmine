@@ -1,0 +1,13 @@
+{
+	"variants": {
+		"type=bottom": {
+			"model": "mythstack:block/sandstone_brick_slab"
+		},
+		"type=double": {
+			"model": "mythstack:block/sandstone_bricks"
+		},
+		"type=top": {
+			"model": "mythstack:block/sandstone_brick_slab_top"
+		}
+	}
+}

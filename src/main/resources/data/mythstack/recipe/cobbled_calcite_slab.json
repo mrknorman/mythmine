@@ -1,0 +1,13 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"#": "mythstack:cobbled_calcite"
+	},
+	"pattern": [
+		"###"
+	],
+	"result": {
+		"id": "mythstack:cobbled_calcite_slab",
+		"count": 6
+	}
+}

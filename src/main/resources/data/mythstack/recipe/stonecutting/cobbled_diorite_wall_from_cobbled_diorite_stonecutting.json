@@ -1,0 +1,7 @@
+{
+	"type": "minecraft:stonecutting",
+	"ingredient": "mythstack:cobbled_diorite",
+	"result": {
+		"id": "mythstack:cobbled_diorite_wall"
+	}
+}

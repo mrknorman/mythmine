@@ -139,7 +139,7 @@ public final class ModBlocks {
 				.toList();
 	}
 
-	private static Block register(String name,
+	static Block register(String name,
 			Function<BlockBehaviour.Properties, Block> factory,
 			BlockBehaviour.Properties properties,
 			boolean registerItem) {
@@ -164,6 +164,7 @@ public final class ModBlocks {
 
 	/** Called from {@link MythStack#onInitialize()} to force class-load so the static fields register. */
 	public static void initialize() {
+		StoneKit.initialize();
 		// Typed block-entity blocks join their vanilla types: without this a placed block's entity is
 		// rejected as invalid and the block simply doesn't function.
 		widen(BlockEntityTypes.CHEST, TYPED_CHESTS);

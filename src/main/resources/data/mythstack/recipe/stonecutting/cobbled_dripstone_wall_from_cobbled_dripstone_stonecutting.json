@@ -1,0 +1,7 @@
+{
+	"type": "minecraft:stonecutting",
+	"ingredient": "mythstack:cobbled_dripstone",
+	"result": {
+		"id": "mythstack:cobbled_dripstone_wall"
+	}
+}

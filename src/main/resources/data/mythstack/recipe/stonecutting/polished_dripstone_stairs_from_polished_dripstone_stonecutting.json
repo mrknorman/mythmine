@@ -1,0 +1,7 @@
+{
+	"type": "minecraft:stonecutting",
+	"ingredient": "mythstack:polished_dripstone",
+	"result": {
+		"id": "mythstack:polished_dripstone_stairs"
+	}
+}

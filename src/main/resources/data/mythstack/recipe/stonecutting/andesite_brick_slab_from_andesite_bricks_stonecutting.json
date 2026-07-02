@@ -1,0 +1,8 @@
+{
+	"type": "minecraft:stonecutting",
+	"ingredient": "mythstack:andesite_bricks",
+	"result": {
+		"id": "mythstack:andesite_brick_slab",
+		"count": 2
+	}
+}

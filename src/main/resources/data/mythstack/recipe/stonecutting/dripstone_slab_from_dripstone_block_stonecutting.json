@@ -1,0 +1,8 @@
+{
+	"type": "minecraft:stonecutting",
+	"ingredient": "minecraft:dripstone_block",
+	"result": {
+		"id": "mythstack:dripstone_slab",
+		"count": 2
+	}
+}

@@ -1,0 +1,13 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"#": "mythstack:cobbled_diorite"
+	},
+	"pattern": [
+		"###"
+	],
+	"result": {
+		"id": "mythstack:cobbled_diorite_slab",
+		"count": 6
+	}
+}
