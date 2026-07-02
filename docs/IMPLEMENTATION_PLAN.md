@@ -48,9 +48,9 @@ so comparators, hoppers, furnaces, and crafting tables all "just work" with zero
 code. Our mod only intervenes at the **boundaries** — when a pile is split, combined,
 displayed, or picked up.
 
-MVP is **wood only** and ends at phase 9. Nether wood (crimson/warped) and bamboo are
-**in** (D4 reversed — see §2); their irregularities are handled at the crafting layer. Typed sticks (§13 of the spec) and stone (§12)
-are post-MVP.
+MVP is **wood only** and ends at phase 9 — **all phases complete**. Nether wood (crimson/warped)
+and bamboo are **in** (D4 reversed — see §2); typed sticks are in (phase A — creation + acceptance;
+propagation into fence/gate/sign outputs is the remaining §13 work). Stone (§12) is post-MVP.
 
 ### The guiding tenet — inventory tends toward order through use
 
@@ -79,7 +79,7 @@ a pile records (§6.2).
 | D1 | Carrier representation | **Hosted-on-canonical** — a pile is a real stack of the canonical member + a `VariantPile` overlay component. No new item types. | "Behaves identically to a stack except at the boundary." Vanilla does comparator/craft/smelt/transport for free. |
 | D2 | VariantGroup granularity | **One variant group per wood *form*** (logs, planks, stairs, slabs, fences, …), each keyed by wood type, canonical = the `oak` member. | Matches the natural product line; the engine is written once and forms are declared as data. |
 | D3 | Crafting a mix | **REVERSED by the §7 crafting redesign.** Ratio-preserving transmute: pile-in → pile-out in the input woods' ratio (shift-click mass); single takes are per-slot, output = majority/first-placed *productive* wood. No mixed *items* ever — outputs are definite per-wood items. | The invariant in §3 (mixedness is stack-level only) still holds; only the "first craft canonicalizes" cost was removed. |
-| D4 | Nether & bamboo | **REVERSED — they're in.** All 12 vanilla woods are family members; `bamboo_block` takes the log slot. | The gaps are handled per-layer: a wood with no product for a recipe (no crimson/warped boat) is *unproductive* — consumable in mixed crafts but never the output (attribution falls to the runner-up wood); bamboo-only forms (mosaic) stay pure-bamboo because no canonical/oak recipe exists to transmute against; nether sticks aren't furnace fuel. **Open (phase 8): furnaces** — a pile hosted on `oak_log` containing crimson stems must not smelt/burn as oak; needs pile-aware furnace handling. |
+| D4 | Nether & bamboo | **REVERSED — they're in.** All 12 vanilla woods are family members; `bamboo_block` takes the log slot. | The gaps are handled per-layer: a wood with no product for a recipe (no crimson/warped boat) is *unproductive* — consumable in mixed crafts but never the output (attribution falls to the runner-up wood); bamboo-only forms (mosaic) stay pure-bamboo because no canonical/oak recipe exists to transmute against; nether sticks aren't furnace fuel; and furnaces are pile-aware per element (phase 8 — piles burn/smelt down to their ineligible remainders). |
 
 **Rejected alternative (don't do this, but know why):** a *distinct* carrier item
 (`mythstack:wood_pile`). It avoids mixing into vanilla `Item`, but then you must
