@@ -1,0 +1,8 @@
+{
+	"type": "mythstack:sawing",
+	"ingredient": "#minecraft:warped_stems",
+	"result": {
+		"count": 4,
+		"id": "minecraft:warped_fence"
+	}
+}

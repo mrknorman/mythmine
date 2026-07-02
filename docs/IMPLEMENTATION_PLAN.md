@@ -607,8 +607,15 @@ Raised during implementation; captured here so they aren't lost.
   gets a display-only copy of the set via `SawmillRecipesPayload` on join/reload (vanilla's
   stonecutter sync channel is hardcoded and unextendable). Reuses `StonecutterScreen` under our menu
   type. 96 sawing recipes: per wood, log-family tags → planks/stairs/slabs/sticks (bamboo halved),
-  planks → stairs/slab/sticks/button. Crafted from iron + planks. Piles in the input behave as their
-  host for now (per-element sawing is a possible follow-up).
+  planks → stairs/slab/sticks/button. Crafted from iron + planks. Piles in the input saw by their ACTIVE wood
+  (scroll the pile in the slot to steer the cut; taking eats that wood), mirroring the crafting
+  grid's player-steered semantics — done generically at the stonecutter level, so stone piles will
+  inherit it. 323 cuts: per wood, one PLANK -> stairs/slab/sticks/button/fence/bowl; one LOG-family
+  item (tag: log, wood, stripped forms all count) -> planks/stairs/slabs/sticks/buttons/fences/bowls/
+  door/trapdoor/gate/sign/plates/crafting table/ladders + the five wooden tools (bamboo halved); and
+  stripping cuts (log -> stripped log, wood -> stripped wood). Book/honey-bearing blocks (bookshelf,
+  beehive, lectern) are excluded on the wood-only rule; chests/barrels exceed one log's worth so a
+  single-input cut would underprice them.
 - **Bundles auto-unpack piles — DONE (QOL).** Inserting a pile into a bundle inserts its constituent
   plain stacks instead (no slot saving inside a bundle, and a pile there obfuscates the contents);
   partial fits drain the pile by exactly what fit.

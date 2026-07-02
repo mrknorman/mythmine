@@ -1,0 +1,8 @@
+{
+	"type": "mythstack:sawing",
+	"ingredient": "#minecraft:oak_logs",
+	"result": {
+		"count": 1,
+		"id": "minecraft:oak_fence_gate"
+	}
+}

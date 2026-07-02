@@ -1,0 +1,8 @@
+{
+	"type": "mythstack:sawing",
+	"ingredient": "#minecraft:cherry_logs",
+	"result": {
+		"count": 4,
+		"id": "minecraft:bowl"
+	}
+}

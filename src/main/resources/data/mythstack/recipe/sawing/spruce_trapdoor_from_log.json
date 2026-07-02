@@ -1,0 +1,8 @@
+{
+	"type": "mythstack:sawing",
+	"ingredient": "#minecraft:spruce_logs",
+	"result": {
+		"count": 1,
+		"id": "minecraft:spruce_trapdoor"
+	}
+}

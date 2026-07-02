@@ -810,10 +810,10 @@ public final class MenuSelfTest {
 		check("sawmill: the menu stays valid over the sawmill block", menu.stillValid(player), failures);
 
 		menu.getSlot(0).set(new ItemStack(Items.SPRUCE_PLANKS, 4));
-		check("sawmill: spruce planks offer the four plank cuts",
-				menu.getNumberOfVisibleRecipes() == 4, failures);
-		// Recipes sort by id: button, slabs, stairs, sticks — pick the stairs cut.
-		menu.clickMenuButton(player, 2);
+		check("sawmill: spruce planks offer the six plank cuts",
+				menu.getNumberOfVisibleRecipes() == 6, failures);
+		// Recipes sort by id: bowl, button, fence, slabs, stairs, sticks — pick the stairs cut.
+		menu.clickMenuButton(player, 4);
 		check("sawmill: selecting the stairs cut previews spruce stairs",
 				menu.getSlot(1).getItem().getItem() == Items.SPRUCE_STAIRS, failures);
 		menu.clicked(1, 0, ContainerInput.PICKUP, player);
@@ -823,10 +823,34 @@ public final class MenuSelfTest {
 		menu.setCarried(ItemStack.EMPTY);
 		menu.getSlot(0).set(ItemStack.EMPTY);
 
-		// A log-family input (stripped spruce wood counts via the tag) offers the log cuts.
+		// A log-family input (stripped logs/wood count via the tag) offers all 19 log cuts —
+		// step-jumping straight from the raw log (doors, fences, tools, a crafting table...).
 		menu.getSlot(0).set(new ItemStack(Items.STRIPPED_SPRUCE_LOG, 1));
-		check("sawmill: stripped logs count as the wood's log input",
-				menu.getNumberOfVisibleRecipes() == 4, failures);
+		check("sawmill: stripped logs offer all 19 log cuts",
+				menu.getNumberOfVisibleRecipes() == 19, failures);
+		// A raw log also offers its stripping cut (20th).
+		menu.getSlot(0).set(new ItemStack(Items.SPRUCE_LOG, 1));
+		check("sawmill: a raw log adds the stripping cut (20)",
+				menu.getNumberOfVisibleRecipes() == 20, failures);
+		menu.getSlot(0).set(ItemStack.EMPTY);
+
+		// A PILE saws by its ACTIVE wood — like the furnace smelts per element, but player-steered.
+		ItemStack sawPile = VariantPiles.makeStacks(VariantGroups.LOGS, VariantPiles.pool(VariantGroups.LOGS,
+				List.of(new ItemStack(Items.BIRCH_LOG, 5), new ItemStack(Items.SPRUCE_LOG, 3)))).get(0);
+		VariantPiles.seed(sawPile, Items.SPRUCE_LOG); // scrolled to spruce
+		menu.getSlot(0).set(sawPile);
+		check("sawmill: a scrolled pile offers the ACTIVE wood's cuts",
+				menu.getNumberOfVisibleRecipes() == 20, failures);
+		menu.clickMenuButton(player, 7); // sorted ids: planks_from_log
+		check("sawmill: the pile previews spruce planks (not the oak host's)",
+				menu.getSlot(1).getItem().getItem() == Items.SPRUCE_PLANKS, failures);
+		menu.clicked(1, 0, ContainerInput.PICKUP, player);
+		ItemStack sawRemaining = menu.getSlot(0).getItem();
+		check("sawmill: taking the cut eats one ACTIVE spruce from the pile ({birch5,spruce2})",
+				menu.getCarried().getItem() == Items.SPRUCE_PLANKS
+						&& VariantPiles.countOf(sawRemaining, Items.SPRUCE_LOG) == 2
+						&& VariantPiles.countOf(sawRemaining, Items.BIRCH_LOG) == 5, failures);
+		menu.setCarried(ItemStack.EMPTY);
 		menu.getSlot(0).set(ItemStack.EMPTY);
 		player.containerMenu = player.inventoryMenu;
 		level.setBlock(pos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);

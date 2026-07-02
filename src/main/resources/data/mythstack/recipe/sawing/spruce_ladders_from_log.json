@@ -1,0 +1,8 @@
+{
+	"type": "mythstack:sawing",
+	"ingredient": "#minecraft:spruce_logs",
+	"result": {
+		"count": 3,
+		"id": "mythstack:spruce_ladder"
+	}
+}

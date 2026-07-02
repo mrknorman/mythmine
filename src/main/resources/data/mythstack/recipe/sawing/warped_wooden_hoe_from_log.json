@@ -1,0 +1,8 @@
+{
+	"type": "mythstack:sawing",
+	"ingredient": "#minecraft:warped_stems",
+	"result": {
+		"count": 1,
+		"id": "minecraft:wooden_hoe"
+	}
+}

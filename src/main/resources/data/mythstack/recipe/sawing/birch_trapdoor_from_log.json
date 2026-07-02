@@ -1,0 +1,8 @@
+{
+	"type": "mythstack:sawing",
+	"ingredient": "#minecraft:birch_logs",
+	"result": {
+		"count": 1,
+		"id": "minecraft:birch_trapdoor"
+	}
+}

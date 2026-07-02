@@ -30,7 +30,8 @@
 		"ServerPlaceRecipeMixin",
 		"SmithingMenuMixin",
 		"StackedItemContentsMixin",
-		"StonecutterMenuMixin"
+		"StonecutterMenuMixin",
+		"StonecutterResultSlotMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
