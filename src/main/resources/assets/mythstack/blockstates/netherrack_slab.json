@@ -1,0 +1,13 @@
+{
+	"variants": {
+		"type=bottom": {
+			"model": "mythstack:block/netherrack_slab"
+		},
+		"type=double": {
+			"model": "minecraft:block/netherrack"
+		},
+		"type=top": {
+			"model": "mythstack:block/netherrack_slab_top"
+		}
+	}
+}

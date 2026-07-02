@@ -5,7 +5,7 @@ Recipe chains follow vanilla's deepslate/tuff convention: cobbled -> raw (smelt)
 Stonecutting gets full parity minus cuts vanilla already has."""
 import json, os, sys, zipfile
 sys.path.insert(0, os.path.dirname(__file__))
-from stone_naming import MATERIALS, lines, stem, is_mossy
+from stone_naming import MATERIALS, lines, stem, is_mossy, is_tier2, raw_line_of
 
 ROOT = os.path.join(os.path.dirname(__file__), "..", "src/main/resources")
 CJ = zipfile.ZipFile(os.path.expanduser("~/.gradle/caches/fabric-loom/26.2/minecraft-client.jar"))
@@ -27,7 +27,8 @@ def vjson(path):
 # vanilla full-cube base -> its representative texture, where the name differs
 TEXMAP = {"basalt": "basalt_side", "polished_basalt": "polished_basalt_side",
           "smooth_sandstone": "sandstone_top", "smooth_red_sandstone": "red_sandstone_top",
-          "smooth_stone": "smooth_stone", "sandstone": "sandstone", "red_sandstone": "red_sandstone"}
+          "smooth_stone": "smooth_stone", "sandstone": "sandstone", "red_sandstone": "red_sandstone",
+          "quartz_block": "quartz_block_side", "smooth_quartz": "quartz_block_bottom"}
 
 def tex_ref(base):
     if base not in VANILLA:  # ours — generated texture shares the block name
@@ -150,7 +151,8 @@ def cut(name, inp, result, count=1):
 total_new = 0
 for m in MATERIALS:
     name, raw, cob, pol, br, chis, pillar, raw_is_pillar, loot_norm = m
-    raw_line = "dripstone" if name == "dripstone" else raw
+    raw_line = raw_line_of(name, raw)
+    tier2 = is_tier2(name)
 
     # (block name, kind, base full-cube) in kit order — mirrors StoneKit.lines()
     entries = []
@@ -164,7 +166,7 @@ for m in MATERIALS:
     entries.append((f"{raw_line}_stairs", "stairs", raw))
     entries.append((f"{raw_line}_slab", "slab", raw))
     entries.append((f"{raw_line}_wall", "wall", raw))
-    for base in (cob, pol, br):
+    for base in ((pol, br) if tier2 else (cob, pol, br)):
         add_line(base)
     entries.append((f"cracked_{br}", "cube", None))
     entries.append((chis, "cube", None))
@@ -197,7 +199,7 @@ for m in MATERIALS:
             shaped(n, ["#", "#"], {"#": item_id(f"{raw_line}_slab")}, f"mythstack:{n}", 1)
         elif n == f"cracked_{br}":
             smelt(n, item_id(br), f"mythstack:{n}")
-        elif n == cob:
+        elif cob and n == cob:
             smelt(f"{raw}_from_smelting_{cob}", f"mythstack:{cob}", item_id(raw))
         elif n.startswith("mossy_"):
             plain = n.removeprefix("mossy_")
@@ -218,7 +220,9 @@ for m in MATERIALS:
         cut(f"{cob}_from_{raw}_stonecutting", item_id(raw), item_id(cob))
 
     # stonecutting parity: raw reaches everything; each line base reaches its own shapes
-    line_stems = {raw: raw_line, cob: stem(cob, br), pol: stem(pol, br), br: stem(br, br)}
+    line_stems = {raw: raw_line, pol: stem(pol, br), br: stem(br, br)}
+    if not tier2:
+        line_stems[cob] = stem(cob, br)
     raw_targets = []
     for b in (pol, br):
         raw_targets.append(b)
@@ -229,7 +233,8 @@ for m in MATERIALS:
     for t in raw_targets:
         cut(f"{t}_from_{raw}_stonecutting", item_id(raw), item_id(t), 2 if t.endswith("_slab") else 1)
     mossy_bases = [f"mossy_{cob}", f"mossy_{br}"] if is_mossy(name) else []
-    for b in (cob, pol, br, *mossy_bases):
+    cut_bases = ([pol, br] if tier2 else [cob, pol, br]) + mossy_bases
+    for b in cut_bases:
         s2 = line_stems.get(b) or (b[:-1] if b.endswith("s") else b)
         for t in (f"{s2}_stairs", f"{s2}_slab", f"{s2}_wall"):
             cut(f"{t}_from_{b}_stonecutting", item_id(b), item_id(t), 2 if t.endswith("_slab") else 1)

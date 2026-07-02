@@ -1,0 +1,13 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"#": "mythstack:polished_netherrack"
+	},
+	"pattern": [
+		"###"
+	],
+	"result": {
+		"id": "mythstack:polished_netherrack_slab",
+		"count": 6
+	}
+}

@@ -1,0 +1,8 @@
+{
+	"type": "minecraft:stonecutting",
+	"ingredient": "mythstack:polished_purpur",
+	"result": {
+		"id": "mythstack:polished_purpur_slab",
+		"count": 2
+	}
+}

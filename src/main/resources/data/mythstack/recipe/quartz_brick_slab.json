@@ -1,0 +1,13 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"#": "minecraft:quartz_bricks"
+	},
+	"pattern": [
+		"###"
+	],
+	"result": {
+		"id": "mythstack:quartz_brick_slab",
+		"count": 6
+	}
+}

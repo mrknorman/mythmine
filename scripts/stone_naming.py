@@ -14,7 +14,19 @@ MATERIALS = [
     ("dripstone", "dripstone_block", "cobbled_dripstone", "polished_dripstone", "dripstone_bricks", "chiseled_dripstone", "dripstone_pillar", False, True),
     ("sandstone", "sandstone", "cobbled_sandstone", "smooth_sandstone", "sandstone_bricks", "chiseled_sandstone", "sandstone_pillar", False, True),
     ("red_sandstone", "red_sandstone", "cobbled_red_sandstone", "smooth_red_sandstone", "red_sandstone_bricks", "chiseled_red_sandstone", "red_sandstone_pillar", False, True),
+    # tier 2 (reduced kit: no cobbled line, no mossy, vanilla drops)
+    ("netherrack", "netherrack", "", "polished_netherrack", "nether_bricks", "chiseled_nether_bricks", "netherrack_pillar", False, False),
+    ("quartz", "quartz_block", "", "smooth_quartz", "quartz_bricks", "chiseled_quartz_block", "quartz_pillar", False, False),
+    ("prismarine", "prismarine", "", "dark_prismarine", "prismarine_bricks", "chiseled_prismarine", "prismarine_pillar", False, False),
+    ("purpur", "purpur_block", "", "polished_purpur", "purpur_bricks", "chiseled_purpur", "purpur_pillar", False, False),
+    ("packed_mud", "packed_mud", "", "polished_packed_mud", "mud_bricks", "chiseled_packed_mud", "packed_mud_pillar", False, False),
 ]
+
+def raw_line_of(name, raw):
+    return {"dripstone": "dripstone", "quartz": "quartz", "purpur": "purpur"}.get(name, raw)
+
+def is_tier2(name):
+    return name in ("netherrack", "quartz", "prismarine", "purpur", "packed_mud")
 
 def stem(base, bricks):
     return base[:-1] if base == bricks and base.endswith("s") else base
@@ -22,9 +34,9 @@ def stem(base, bricks):
 def lines(m):
     """Kit-order names for one material tuple; same as StoneKit.lines()."""
     name, raw, cob, pol, br, chis, pillar, raw_is_pillar, _ = m
-    raw_line = "dripstone" if name == "dripstone" else raw
+    raw_line = raw_line_of(name, raw)
     names = [raw, f"{raw_line}_stairs", f"{raw_line}_slab", f"{raw_line}_wall"]
-    for base in (cob, pol, br):
+    for base in ((pol, br) if is_tier2(name) else (cob, pol, br)):
         s = stem(base, br)
         names += [base, f"{s}_stairs", f"{s}_slab", f"{s}_wall"]
     names += [f"cracked_{br}", chis]

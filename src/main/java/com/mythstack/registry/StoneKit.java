@@ -29,7 +29,13 @@ public final class StoneKit {
 	 * base names of each line (stairs/slab/wall names derive from them; "bricks" singularizes).
 	 */
 	public record Material(String name, String raw, String cobbled, String polished, String bricks,
-			String chiseled, String pillar, boolean rawIsPillar, boolean lootNormalized) {
+			String chiseled, String pillar, boolean rawIsPillar, boolean lootNormalized,
+			boolean reducedKit) {
+
+		Material(String name, String raw, String cobbled, String polished, String bricks,
+				String chiseled, String pillar, boolean rawIsPillar, boolean lootNormalized) {
+			this(name, raw, cobbled, polished, bricks, chiseled, pillar, rawIsPillar, lootNormalized, false);
+		}
 
 		public String cracked() {
 			return "cracked_" + bricks;
@@ -73,7 +79,19 @@ public final class StoneKit {
 					"sandstone_bricks", "chiseled_sandstone", "sandstone_pillar", false, true),
 			new Material("red_sandstone", "red_sandstone", "cobbled_red_sandstone",
 					"smooth_red_sandstone", "red_sandstone_bricks", "chiseled_red_sandstone",
-					"red_sandstone_pillar", false, true));
+					"red_sandstone_pillar", false, true),
+			// Tier 2 (S1c): crafted/dimensional masonry whose raw drops itself — reduced kit
+			// (no cobbled line, no mossy, vanilla drops kept).
+			new Material("netherrack", "netherrack", "", "polished_netherrack", "nether_bricks",
+					"chiseled_nether_bricks", "netherrack_pillar", false, false, true),
+			new Material("quartz", "quartz_block", "", "smooth_quartz", "quartz_bricks",
+					"chiseled_quartz_block", "quartz_pillar", false, false, true),
+			new Material("prismarine", "prismarine", "", "dark_prismarine", "prismarine_bricks",
+					"chiseled_prismarine", "prismarine_pillar", false, false, true),
+			new Material("purpur", "purpur_block", "", "polished_purpur", "purpur_bricks",
+					"chiseled_purpur", "purpur_pillar", false, false, true),
+			new Material("packed_mud", "packed_mud", "", "polished_packed_mud", "mud_bricks",
+					"chiseled_packed_mud", "packed_mud_pillar", false, false, true));
 
 	/** material -> its newly-registered kit blocks, kit order (for creative tabs + tests). */
 	public static final Map<Block, List<Block>> NEW_FORMS = new LinkedHashMap<>();
@@ -81,12 +99,18 @@ public final class StoneKit {
 	/** All shaped names in kit order for one material: [line, line_stairs, line_slab, line_wall]. */
 	private static List<String> lines(Material m) {
 		List<String> names = new ArrayList<>();
-		String rawLine = m.name().equals("dripstone") ? "dripstone" : m.raw();
+		String rawLine = switch (m.name()) {
+			case "dripstone" -> "dripstone";
+			case "quartz" -> "quartz";
+			case "purpur" -> "purpur";
+			default -> m.raw();
+		};
 		names.add(m.raw());
 		names.add(rawLine + "_stairs");
 		names.add(rawLine + "_slab");
 		names.add(rawLine + "_wall");
-		for (String base : List.of(m.cobbled(), m.polished(), m.bricks())) {
+		for (String base : m.reducedKit() ? List.of(m.polished(), m.bricks())
+				: List.of(m.cobbled(), m.polished(), m.bricks())) {
 			String stem = base.endsWith("s") && base.equals(m.bricks()) ? base.substring(0, base.length() - 1) : base;
 			names.add(base);
 			names.add(stem + "_stairs");
@@ -146,8 +170,8 @@ public final class StoneKit {
 				NEW_FORMS.put(raw, List.copyOf(added));
 			}
 		}
-		if (NEW_FORMS.values().stream().mapToInt(List::size).sum() != 199) {
-			throw new IllegalStateException("stone kit expected 199 new blocks, got "
+		if (NEW_FORMS.values().stream().mapToInt(List::size).sum() != 239) {
+			throw new IllegalStateException("stone kit expected 239 new blocks, got "
 					+ NEW_FORMS.values().stream().mapToInt(List::size).sum());
 		}
 	}

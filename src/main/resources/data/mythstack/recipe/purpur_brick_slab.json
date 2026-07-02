@@ -1,0 +1,13 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"#": "mythstack:purpur_bricks"
+	},
+	"pattern": [
+		"###"
+	],
+	"result": {
+		"id": "mythstack:purpur_brick_slab",
+		"count": 6
+	}
+}

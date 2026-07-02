@@ -1,0 +1,13 @@
+{
+	"variants": {
+		"type=bottom": {
+			"model": "mythstack:block/polished_purpur_slab"
+		},
+		"type=double": {
+			"model": "mythstack:block/polished_purpur"
+		},
+		"type=top": {
+			"model": "mythstack:block/polished_purpur_slab_top"
+		}
+	}
+}

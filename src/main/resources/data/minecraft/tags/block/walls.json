@@ -48,6 +48,18 @@
 		"mythstack:sandstone_brick_wall",
 		"mythstack:cobbled_red_sandstone_wall",
 		"mythstack:smooth_red_sandstone_wall",
-		"mythstack:red_sandstone_brick_wall"
+		"mythstack:red_sandstone_brick_wall",
+		"mythstack:netherrack_wall",
+		"mythstack:polished_netherrack_wall",
+		"mythstack:quartz_wall",
+		"mythstack:smooth_quartz_wall",
+		"mythstack:quartz_brick_wall",
+		"mythstack:dark_prismarine_wall",
+		"mythstack:prismarine_brick_wall",
+		"mythstack:purpur_wall",
+		"mythstack:polished_purpur_wall",
+		"mythstack:purpur_brick_wall",
+		"mythstack:packed_mud_wall",
+		"mythstack:polished_packed_mud_wall"
 	]
 }

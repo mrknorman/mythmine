@@ -1,10 +1,16 @@
 # Stone Phase — Normalization + Families
 
-**Status: S1a SHIPPED (2026-07-02) — tier-1 core kit live (143 blocks, 63 generated base
-textures, 318 recipes, loot normalization on). Next: S1b mossy, S1c tier-2, S2 families.**
+**Status: S1 COMPLETE (2026-07-02) — all normalization shipped: S1a core kit (143) + S1b mossy
+(56) + S1c tier-2 (40) = 239 blocks, 94 generated base textures, 542 recipes, loot normalization
+on. Next: S2 families (27 form-groups + stoneKey).**
 
-Implementation notes (S1a): gap set is DERIVED, not hardcoded — `StoneKit.java` registers a form
-only when vanilla lacks it (guarded to exactly 143) and `scripts/stone_naming.py` mirrors the
+S2 design caution: `stoneKey` name-matching must handle materials that are substrings of others —
+"stone" is a suffix of sandstone/end_stone/cobblestone/blackstone/dripstone; match longest-first
+on the material list like `woodKey` does, and treat cobbled/mossy/polished prefixes before the
+material match.
+
+Implementation notes: gap set is DERIVED, not hardcoded — `StoneKit.java` registers a form
+only when vanilla lacks it (guarded to exactly 239) and `scripts/stone_naming.py` mirrors the
 naming for the generators (`gen_stone_textures.py`, `gen_stone_kit.py`). Recipe chains follow the
 deepslate/tuff convention: cobbled →(smelt)→ raw →(2×2)→ polished →(2×2)→ bricks →(smelt)→
 cracked; chiseled = 2 raw slabs; pillar = 2 raw. Blackstone/basalt keep vanilla drops and get a

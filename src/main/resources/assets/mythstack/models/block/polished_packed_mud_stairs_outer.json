@@ -1,0 +1,8 @@
+{
+	"parent": "minecraft:block/outer_stairs",
+	"textures": {
+		"bottom": "mythstack:block/polished_packed_mud",
+		"top": "mythstack:block/polished_packed_mud",
+		"side": "mythstack:block/polished_packed_mud"
+	}
+}

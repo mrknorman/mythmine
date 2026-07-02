@@ -1,0 +1,9 @@
+{
+	"type": "minecraft:smelting",
+	"ingredient": "mythstack:purpur_bricks",
+	"result": {
+		"id": "mythstack:cracked_purpur_bricks"
+	},
+	"experience": 0.1,
+	"cookingtime": 200
+}

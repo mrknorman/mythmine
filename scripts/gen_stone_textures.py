@@ -33,7 +33,9 @@ def structure_transfer(donor, palette):
     return out
 
 # raw-texture name per material (palette source)
-PALETTE_TEX = {"basalt": "basalt_side", "dripstone": "dripstone_block"}
+PALETTE_TEX = {"basalt": "basalt_side", "dripstone": "dripstone_block",
+               "quartz": "quartz_block_side", "purpur": "purpur_block",
+               "prismarine": "prismarine", "netherrack": "netherrack", "packed_mud": "packed_mud"}
 
 DONORS = {  # form -> pattern donor texture
     "cobbled": "cobblestone", "polished": "polished_andesite", "bricks": "stone_bricks",
@@ -54,7 +56,7 @@ with zipfile.ZipFile(JAR2) as z:
         name, raw, cob, pol, br, chis, pillar, raw_is_pillar, _ = m
         palette = vtex(PALETTE_TEX.get(name, raw))
         jobs = []
-        if cob not in states:
+        if cob and cob not in states:
             jobs.append((cob, "cobbled"))
         if pol not in states:
             jobs.append((pol, "polished"))

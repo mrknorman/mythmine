@@ -1,0 +1,7 @@
+{
+	"type": "minecraft:stonecutting",
+	"ingredient": "mythstack:polished_netherrack",
+	"result": {
+		"id": "mythstack:polished_netherrack_wall"
+	}
+}

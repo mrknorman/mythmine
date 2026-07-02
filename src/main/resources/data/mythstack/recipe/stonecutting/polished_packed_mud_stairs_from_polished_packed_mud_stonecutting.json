@@ -1,0 +1,7 @@
+{
+	"type": "minecraft:stonecutting",
+	"ingredient": "mythstack:polished_packed_mud",
+	"result": {
+		"id": "mythstack:polished_packed_mud_stairs"
+	}
+}

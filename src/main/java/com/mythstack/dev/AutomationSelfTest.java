@@ -187,11 +187,11 @@ public final class AutomationSelfTest {
 
 		// 4f. Stone kit S1a: 143 blocks registered (the count is enforced at init); loot
 		//     normalization (granite drops cobbled, silk touch restores); walls joined the wall
-		//     tag. 199 = 143 core kit (S1a) + 56 mossy (S1b).
+		//     tag. 239 = 143 core kit (S1a) + 56 mossy (S1b) + 40 tier-2 (S1c).
 		//     tag; the stonecutter gained full parity cuts.
 		int kitCount = com.mythstack.registry.StoneKit.NEW_FORMS.values().stream()
 				.mapToInt(java.util.List::size).sum();
-		check("stone kit: all 199 gap blocks registered (core + mossy)", kitCount == 199, failures);
+		check("stone kit: all 239 gap blocks registered (core + mossy + tier-2)", kitCount == 239, failures);
 		Block cobbledGranite = net.minecraft.core.registries.BuiltInRegistries.BLOCK
 				.getValue(MythStack.id("cobbled_granite"));
 		BlockPos stonePos = new BlockPos(32, 200, 0);

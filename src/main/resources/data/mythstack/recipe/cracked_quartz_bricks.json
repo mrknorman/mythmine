@@ -1,0 +1,9 @@
+{
+	"type": "minecraft:smelting",
+	"ingredient": "minecraft:quartz_bricks",
+	"result": {
+		"id": "mythstack:cracked_quartz_bricks"
+	},
+	"experience": 0.1,
+	"cookingtime": 200
+}
