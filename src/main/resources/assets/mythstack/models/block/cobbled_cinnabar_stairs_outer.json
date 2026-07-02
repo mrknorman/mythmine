@@ -1,0 +1,8 @@
+{
+	"parent": "minecraft:block/outer_stairs",
+	"textures": {
+		"bottom": "mythstack:block/cobbled_cinnabar",
+		"top": "mythstack:block/cobbled_cinnabar",
+		"side": "mythstack:block/cobbled_cinnabar"
+	}
+}

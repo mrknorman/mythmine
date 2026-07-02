@@ -1,0 +1,7 @@
+{
+	"type": "minecraft:stonecutting",
+	"ingredient": "mythstack:cobbled_cinnabar",
+	"result": {
+		"id": "mythstack:cobbled_cinnabar_wall"
+	}
+}

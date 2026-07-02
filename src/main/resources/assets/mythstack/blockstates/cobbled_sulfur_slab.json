@@ -1,0 +1,13 @@
+{
+	"variants": {
+		"type=bottom": {
+			"model": "mythstack:block/cobbled_sulfur_slab"
+		},
+		"type=double": {
+			"model": "mythstack:block/cobbled_sulfur"
+		},
+		"type=top": {
+			"model": "mythstack:block/cobbled_sulfur_slab_top"
+		}
+	}
+}

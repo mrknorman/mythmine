@@ -14,6 +14,9 @@ MATERIALS = [
     ("dripstone", "dripstone_block", "cobbled_dripstone", "polished_dripstone", "dripstone_bricks", "chiseled_dripstone", "dripstone_pillar", False, True),
     ("sandstone", "sandstone", "cobbled_sandstone", "smooth_sandstone", "sandstone_bricks", "chiseled_sandstone", "sandstone_pillar", False, True),
     ("red_sandstone", "red_sandstone", "cobbled_red_sandstone", "smooth_red_sandstone", "red_sandstone_bricks", "chiseled_red_sandstone", "red_sandstone_pillar", False, True),
+    # 26.2's newest stones — near-complete vanilla kits; volcanic-dry, so no mossy
+    ("cinnabar", "cinnabar", "cobbled_cinnabar", "polished_cinnabar", "cinnabar_bricks", "chiseled_cinnabar", "cinnabar_pillar", False, True),
+    ("sulfur", "sulfur", "cobbled_sulfur", "polished_sulfur", "sulfur_bricks", "chiseled_sulfur", "sulfur_pillar", False, True),
     # tier 2 (reduced kit: no cobbled line, no mossy, vanilla drops)
     ("netherrack", "netherrack", "", "polished_netherrack", "nether_bricks", "chiseled_nether_bricks", "netherrack_pillar", False, False),
     ("quartz", "quartz_block", "", "smooth_quartz", "quartz_bricks", "chiseled_quartz_block", "quartz_pillar", False, False),

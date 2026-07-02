@@ -80,6 +80,11 @@ public final class StoneKit {
 			new Material("red_sandstone", "red_sandstone", "cobbled_red_sandstone",
 					"smooth_red_sandstone", "red_sandstone_bricks", "chiseled_red_sandstone",
 					"red_sandstone_pillar", false, true),
+			// 26.2's newest stones — near-complete vanilla kits already; volcanic-dry, so no mossy.
+			new Material("cinnabar", "cinnabar", "cobbled_cinnabar", "polished_cinnabar",
+					"cinnabar_bricks", "chiseled_cinnabar", "cinnabar_pillar", false, true),
+			new Material("sulfur", "sulfur", "cobbled_sulfur", "polished_sulfur", "sulfur_bricks",
+					"chiseled_sulfur", "sulfur_pillar", false, true),
 			// Tier 2 (S1c): crafted/dimensional masonry whose raw drops itself — reduced kit
 			// (no cobbled line, no mossy, vanilla drops kept).
 			new Material("netherrack", "netherrack", "", "polished_netherrack", "nether_bricks",
@@ -170,8 +175,8 @@ public final class StoneKit {
 				NEW_FORMS.put(raw, List.copyOf(added));
 			}
 		}
-		if (NEW_FORMS.values().stream().mapToInt(List::size).sum() != 239) {
-			throw new IllegalStateException("stone kit expected 239 new blocks, got "
+		if (NEW_FORMS.values().stream().mapToInt(List::size).sum() != 251) {
+			throw new IllegalStateException("stone kit expected 251 new blocks, got "
 					+ NEW_FORMS.values().stream().mapToInt(List::size).sum());
 		}
 	}

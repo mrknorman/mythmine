@@ -1,0 +1,7 @@
+{
+	"parent": "minecraft:block/cube_column_horizontal",
+	"textures": {
+		"side": "mythstack:block/cinnabar_pillar",
+		"end": "mythstack:block/cinnabar_pillar_top"
+	}
+}

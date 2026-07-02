@@ -1,0 +1,13 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"#": "mythstack:cobbled_sulfur"
+	},
+	"pattern": [
+		"###"
+	],
+	"result": {
+		"id": "mythstack:cobbled_sulfur_slab",
+		"count": 6
+	}
+}
