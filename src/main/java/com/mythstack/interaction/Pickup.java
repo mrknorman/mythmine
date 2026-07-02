@@ -46,10 +46,12 @@ public final class Pickup {
 				}
 			}
 		}
-		// Pass 2: existing AUTO piles of the group — a manual (curated) pile is never disturbed by pickup.
+		// Pass 2: existing piles of the group — manual (curated) piles absorb pickups too; curation
+		// only protects a pile's composition from the auto-sorter (autoExpandOverflow), which never
+		// pulls stacks OUT of a manual pile.
 		for (int i = 0; i < slots.size() && !incoming.isEmpty(); i++) {
 			ItemStack slot = slots.get(i);
-			if (VariantPiles.isPile(slot) && !VariantPiles.isManual(slot) && VariantGroups.of(slot.getItem()) == group) {
+			if (VariantPiles.isPile(slot) && VariantGroups.of(slot.getItem()) == group) {
 				absorb(slots, i, incoming, group);
 			}
 		}
@@ -163,10 +165,13 @@ public final class Pickup {
 		if (space <= 0) {
 			return;
 		}
+		boolean curated = VariantPiles.isManual(target); // curation survives the absorb rebuild
 		ItemStack peeled = incoming.split(Math.min(space, incoming.getCount()));
 		List<ItemStack> result = VariantPiles.makeStacks(group, VariantPiles.pool(group, List.of(target, peeled)));
 		if (!result.isEmpty()) {
-			slots.set(index, result.get(0));
+			ItemStack merged = result.get(0);
+			VariantPiles.markManual(merged, curated);
+			slots.set(index, merged);
 		}
 	}
 }

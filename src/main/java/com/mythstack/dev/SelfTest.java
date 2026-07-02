@@ -297,8 +297,15 @@ public final class SelfTest {
 						&& VariantPiles.countOf(inv.get(0), cobbledCalcite) == 4, failures);
 		VariantPiles.markManual(inv.get(0), true);
 		boolean intoManual = com.mythstack.interaction.Pickup.consolidate(inv, new ItemStack(cobbledGranite, 2));
-		check("pickup: a MANUAL (curated) pile is never disturbed — pickup falls to a new stack",
-				!intoManual && inv.get(0).getCount() == 12, failures);
+		check("pickup: a MANUAL (curated) pile still absorbs pickups (curation only guards auto-sort)",
+				intoManual && inv.get(0).getCount() == 14 && VariantPiles.isManual(inv.get(0)), failures);
+		// ...but the auto-sorter never pulls stacks OUT of it (composition stays curated).
+		int curatedGranite = VariantPiles.countOf(inv.get(0), cobbledGranite);
+		com.mythstack.interaction.Pickup.autoExpandOverflow(inv,
+				VariantGroups.of(Items.COBBLESTONE));
+		check("pickup: auto-expand leaves the curated pile's composition alone",
+				VariantPiles.isPile(inv.get(0))
+						&& VariantPiles.countOf(inv.get(0), cobbledGranite) == curatedGranite, failures);
 
 		// 18f. Geology: sample far, freshly-generated chunks and assert the regional stone bands
 		//      exist. Widely-spaced columns at y=40 must show several region stones (shale/granite/

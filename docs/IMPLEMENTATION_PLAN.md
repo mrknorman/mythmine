@@ -600,6 +600,9 @@ Raised during implementation; captured here so they aren't lost.
   wood (not canonical oak) — the world-placement path, not an inventory gesture.
 
 ### Post-MVP (outline only)
+- **Curation semantics (refined 2026-07-02, per user):** a MANUAL (drag-merged) pile's curation
+  guards ONLY the auto-sorter — autoExpandOverflow never draws a full stack out of it. Pickups
+  absorb into manual piles like any other (and the absorb rebuild preserves the manual flag).
 - **Stone phase — COMPLETE + functional forms (329 blocks, 74 groups, 929 items: buttons/plates/furnaces/pistons per material, soul-fire nether furnaces, cross-family transmute).** See `STONE_PHASE.md`: material × form grid —
   19-form core kit (single chiseled; chiseled tuff bricks stays a tuff quirk; pillar included)
   across 13 tier-1 materials (sandstones promoted, with cobbled), + 8 mossy forms (wet overworld),
