@@ -1,0 +1,12 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"#": "minecraft:deepslate"
+	},
+	"pattern": [
+		"#"
+	],
+	"result": {
+		"id": "mythstack:deepslate_button"
+	}
+}

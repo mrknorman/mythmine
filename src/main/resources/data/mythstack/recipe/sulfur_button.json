@@ -1,0 +1,12 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"#": "minecraft:sulfur"
+	},
+	"pattern": [
+		"#"
+	],
+	"result": {
+		"id": "mythstack:sulfur_button"
+	}
+}

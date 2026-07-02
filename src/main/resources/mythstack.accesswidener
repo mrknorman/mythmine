@@ -13,3 +13,6 @@ accessible method net/minecraft/world/level/block/LoomBlock <init> (Lnet/minecra
 accessible method net/minecraft/world/level/block/LecternBlock <init> (Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)V
 accessible method net/minecraft/world/level/block/JukeboxBlock <init> (Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)V
 accessible method net/minecraft/world/level/block/StairBlock <init> (Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)V
+accessible method net/minecraft/world/level/block/ButtonBlock <init> (Lnet/minecraft/world/level/block/state/properties/BlockSetType;ILnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)V
+accessible method net/minecraft/world/level/block/PressurePlateBlock <init> (Lnet/minecraft/world/level/block/state/properties/BlockSetType;Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)V
+accessible method net/minecraft/world/level/block/FurnaceBlock <init> (Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)V

@@ -1,0 +1,14 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"S": "minecraft:slime_ball",
+		"P": "mythstack:calcite_piston"
+	},
+	"pattern": [
+		"S",
+		"P"
+	],
+	"result": {
+		"id": "mythstack:calcite_sticky_piston"
+	}
+}

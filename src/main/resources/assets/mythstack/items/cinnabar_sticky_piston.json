@@ -1,0 +1,6 @@
+{
+	"model": {
+		"type": "minecraft:model",
+		"model": "mythstack:block/cinnabar_sticky_piston_inventory"
+	}
+}

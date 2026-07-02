@@ -1,0 +1,8 @@
+{
+	"parent": "minecraft:block/template_piston",
+	"textures": {
+		"platform": "minecraft:block/piston_top",
+		"bottom": "mythstack:block/deepslate_piston_bottom",
+		"side": "mythstack:block/deepslate_piston_side"
+	}
+}

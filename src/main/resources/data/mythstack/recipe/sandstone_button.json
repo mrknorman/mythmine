@@ -1,0 +1,12 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"#": "minecraft:sandstone"
+	},
+	"pattern": [
+		"#"
+	],
+	"result": {
+		"id": "mythstack:sandstone_button"
+	}
+}

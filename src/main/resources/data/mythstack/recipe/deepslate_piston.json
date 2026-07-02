@@ -1,0 +1,17 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"T": "#minecraft:planks",
+		"#": "minecraft:cobbled_deepslate",
+		"X": "minecraft:iron_ingot",
+		"R": "minecraft:redstone"
+	},
+	"pattern": [
+		"TTT",
+		"#X#",
+		"#R#"
+	],
+	"result": {
+		"id": "mythstack:deepslate_piston"
+	}
+}

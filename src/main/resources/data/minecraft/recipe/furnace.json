@@ -1,0 +1,14 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"#": "minecraft:cobblestone"
+	},
+	"pattern": [
+		"###",
+		"# #",
+		"###"
+	],
+	"result": {
+		"id": "minecraft:furnace"
+	}
+}

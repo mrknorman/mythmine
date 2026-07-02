@@ -1,0 +1,14 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"#": "mythstack:cobbled_granite"
+	},
+	"pattern": [
+		"###",
+		"# #",
+		"###"
+	],
+	"result": {
+		"id": "mythstack:granite_furnace"
+	}
+}

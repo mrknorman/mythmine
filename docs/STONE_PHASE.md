@@ -1,5 +1,17 @@
 # Stone Phase — Normalization + Families
 
+**Functional forms (2026-07-02, post-S2): +78 blocks — buttons + pressure plates for every
+material (vanilla placements kept: stone's and blackstone's polished pair stay canonical members),
+and furnaces / pistons / sticky pistons for every cobbled-bearing material (their bodies are
+cobbled). Nether furnaces (blackstone, basalt) burn SOUL-BLUE. Typed furnaces share the vanilla
+furnace block entity (widened validBlocks; BE-backed menus have no block trap). The S2
+button/plate/piston acceptance overrides reverted — those outputs are per-material families now,
+so the transmuter owns mixed grids (a mixed-cobbled piston grid crafts the majority material's
+piston); the furnace recipe pins to exact cobblestone so per-material recipes don't double-match.
+Cross-family transmute fix: substitution keeps other-family slots as-is (planks in a piston grid)
+instead of failing — same-family gaps still fail (bamboo can't fake hyphae). 329 stone blocks,
+74 groups, 929 items.**
+
 **Status: PHASE COMPLETE (2026-07-02) — S1 normalization (251 blocks) AND S2 families shipped.
 844 items across 69 groups; all interactions live for stone: piles on pickup, transmute crafting
 (mixed polished 2x2 -> majority-material bricks), per-element furnaces, the pile-aware

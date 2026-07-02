@@ -67,6 +67,26 @@ def forms(m):
         out[f"{shaped_key}_stairs"] = f"{s}_stairs"
         out[f"{shaped_key}_slab"] = f"{s}_slab"
         out[f"{shaped_key}_wall"] = f"{s}_wall"
+    # functional forms: buttons/plates for every material (vanilla placements kept);
+    # furnaces/pistons only where cobbled exists (their bodies are cobbled)
+    if name == "stone":
+        out["button"] = "stone_button"
+        out["pressure_plate"] = "stone_pressure_plate"
+        out["furnace"] = "furnace"
+        out["piston"] = "piston"
+        out["sticky_piston"] = "sticky_piston"
+    elif name == "blackstone":
+        out["button"] = "polished_blackstone_button"
+        out["pressure_plate"] = "polished_blackstone_pressure_plate"
+        out["furnace"] = f"{name}_furnace"
+        out["piston"] = f"{name}_piston"
+        out["sticky_piston"] = f"{name}_sticky_piston"
+    else:
+        out["button"] = f"{name}_button"
+        out["pressure_plate"] = f"{name}_pressure_plate"
+        out["furnace"] = None if tier2 else f"{name}_furnace"
+        out["piston"] = None if tier2 else f"{name}_piston"
+        out["sticky_piston"] = None if tier2 else f"{name}_sticky_piston"
     return out
 
 def lines(m):

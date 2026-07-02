@@ -1,0 +1,12 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"#": "minecraft:cinnabar"
+	},
+	"pattern": [
+		"##"
+	],
+	"result": {
+		"id": "mythstack:cinnabar_pressure_plate"
+	}
+}

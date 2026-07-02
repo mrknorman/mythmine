@@ -55,6 +55,10 @@ public class MythStack implements ModInitializer {
 				insertFamilyAfter(output, kit.getKey().asItem(),
 						kit.getValue().stream().map(Block::asItem).toList());
 			}
+			for (var functional : com.mythstack.registry.StoneKit.FUNCTIONAL_ANCHORS.entrySet()) {
+				insertFamilyAfter(output, functional.getKey(),
+						functional.getValue().stream().map(Block::asItem).toList());
+			}
 		});
 
 		FuelValueEvents.BUILD.register((builder, context) -> {

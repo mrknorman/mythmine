@@ -1,0 +1,14 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"S": "minecraft:slime_ball",
+		"P": "mythstack:basalt_piston"
+	},
+	"pattern": [
+		"S",
+		"P"
+	],
+	"result": {
+		"id": "mythstack:basalt_sticky_piston"
+	}
+}

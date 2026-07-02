@@ -1,0 +1,19 @@
+{
+	"values": [
+		"minecraft:furnace",
+		"mythstack:deepslate_furnace",
+		"mythstack:granite_furnace",
+		"mythstack:diorite_furnace",
+		"mythstack:andesite_furnace",
+		"mythstack:tuff_furnace",
+		"mythstack:calcite_furnace",
+		"mythstack:blackstone_furnace",
+		"mythstack:basalt_furnace",
+		"mythstack:end_stone_furnace",
+		"mythstack:dripstone_furnace",
+		"mythstack:sandstone_furnace",
+		"mythstack:red_sandstone_furnace",
+		"mythstack:cinnabar_furnace",
+		"mythstack:sulfur_furnace"
+	]
+}

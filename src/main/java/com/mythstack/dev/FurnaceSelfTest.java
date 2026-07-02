@@ -100,6 +100,23 @@ public final class FurnaceSelfTest {
 								logPile(new ItemStack(Items.OAK_LOG, 1), new ItemStack(Items.CRIMSON_STEM, 1)), Direction.DOWN),
 				failures);
 
+		// F. A typed furnace is a REAL furnace: the granite furnace shares the vanilla block entity
+		//    (widened validBlocks) and smelts through the same tick path.
+		level.setBlock(POS, Blocks.AIR.defaultBlockState(), 3);
+		net.minecraft.world.level.block.Block graniteFurnace =
+				net.minecraft.core.registries.BuiltInRegistries.BLOCK
+						.getValue(MythStack.id("granite_furnace"));
+		level.setBlock(POS, graniteFurnace.defaultBlockState(), 3);
+		AbstractFurnaceBlockEntity typed = (AbstractFurnaceBlockEntity) level.getBlockEntity(POS);
+		check("furnace: the granite furnace hosts the vanilla furnace block entity", typed != null, failures);
+		if (typed != null) {
+			typed.setItem(SLOT_INPUT, new ItemStack(Items.COBBLESTONE, 1));
+			typed.setItem(SLOT_FUEL, new ItemStack(Items.COAL, 1));
+			tick(level, typed, 205);
+			check("furnace: the granite furnace smelts cobblestone to stone",
+					count(typed, SLOT_RESULT, Items.STONE) == 1, failures);
+		}
+
 		level.setBlock(POS, Blocks.AIR.defaultBlockState(), 3);
 		return failures[0];
 	}

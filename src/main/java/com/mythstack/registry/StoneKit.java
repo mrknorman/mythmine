@@ -2,7 +2,9 @@ package com.mythstack.registry;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
@@ -102,6 +104,13 @@ public final class StoneKit {
 	/** material -> its newly-registered kit blocks, kit order (for creative tabs + tests). */
 	public static final Map<Block, List<Block>> NEW_FORMS = new LinkedHashMap<>();
 
+	/**
+	 * Functional forms anchor in their vanilla canonical's tab (buttons after the stone button,
+	 * furnaces after the furnace, ...) rather than after the material's raw block.
+	 */
+	public static final Map<net.minecraft.world.item.Item, List<Block>> FUNCTIONAL_ANCHORS =
+			new LinkedHashMap<>();
+
 	/** All shaped names in kit order for one material: [line, line_stairs, line_slab, line_wall]. */
 	private static List<String> lines(Material m) {
 		List<String> names = new ArrayList<>();
@@ -135,6 +144,23 @@ public final class StoneKit {
 				names.add(stem + "_stairs");
 				names.add(stem + "_slab");
 				names.add(stem + "_wall");
+			}
+		}
+		// Functional forms (mirrors stone_naming.py): buttons/plates everywhere, furnaces/pistons
+		// where cobbled exists. Vanilla placements (stone's, blackstone's polished pair) are kept —
+		// the registration loop skips existing names anyway; these entries feed the key map.
+		if (m.name().equals("stone")) {
+			names.addAll(List.of("stone_button", "stone_pressure_plate", "furnace", "piston", "sticky_piston"));
+		} else if (m.name().equals("blackstone")) {
+			names.addAll(List.of("polished_blackstone_button", "polished_blackstone_pressure_plate",
+					"blackstone_furnace", "blackstone_piston", "blackstone_sticky_piston"));
+		} else {
+			names.add(m.name() + "_button");
+			names.add(m.name() + "_pressure_plate");
+			if (!m.reducedKit()) {
+				names.add(m.name() + "_furnace");
+				names.add(m.name() + "_piston");
+				names.add(m.name() + "_sticky_piston");
 			}
 		}
 		return names;
@@ -177,6 +203,36 @@ public final class StoneKit {
 				}
 				BlockBehaviour.Properties props = BlockBehaviour.Properties.ofFullCopy(lineBase);
 				Block block;
+				if (name.endsWith("_button")) {
+					block = ModBlocks.register(name, p -> new net.minecraft.world.level.block.ButtonBlock(
+							net.minecraft.world.level.block.state.properties.BlockSetType.STONE, 20, p),
+							BlockBehaviour.Properties.ofFullCopy(Blocks.STONE_BUTTON), true);
+					anchor(Items.STONE_BUTTON, block);
+					continue;
+				} else if (name.endsWith("_pressure_plate")) {
+					block = ModBlocks.register(name, p -> new net.minecraft.world.level.block.PressurePlateBlock(
+							net.minecraft.world.level.block.state.properties.BlockSetType.STONE, p),
+							BlockBehaviour.Properties.ofFullCopy(Blocks.STONE_PRESSURE_PLATE), true);
+					anchor(Items.STONE_PRESSURE_PLATE, block);
+					continue;
+				} else if (name.endsWith("_furnace")) {
+					block = ModBlocks.register(name, net.minecraft.world.level.block.FurnaceBlock::new,
+							BlockBehaviour.Properties.ofFullCopy(Blocks.FURNACE), true);
+					anchor(Items.FURNACE, block);
+					continue;
+				} else if (name.endsWith("_sticky_piston")) {
+					block = ModBlocks.register(name,
+							p -> new net.minecraft.world.level.block.piston.PistonBaseBlock(true, p),
+							BlockBehaviour.Properties.ofFullCopy(Blocks.STICKY_PISTON), true);
+					anchor(Items.STICKY_PISTON, block);
+					continue;
+				} else if (name.endsWith("_piston")) {
+					block = ModBlocks.register(name,
+							p -> new net.minecraft.world.level.block.piston.PistonBaseBlock(false, p),
+							BlockBehaviour.Properties.ofFullCopy(Blocks.PISTON), true);
+					anchor(Items.PISTON, block);
+					continue;
+				}
 				if (name.endsWith("_stairs")) {
 					Block base = lineBase;
 					block = ModBlocks.register(name, p -> new StairBlock(base.defaultBlockState(), p), props, true);
@@ -197,9 +253,14 @@ public final class StoneKit {
 				NEW_FORMS.put(raw, List.copyOf(added));
 			}
 		}
-		if (NEW_FORMS.values().stream().mapToInt(List::size).sum() != 251) {
-			throw new IllegalStateException("stone kit expected 251 new blocks, got "
-					+ NEW_FORMS.values().stream().mapToInt(List::size).sum());
+		int total = NEW_FORMS.values().stream().mapToInt(List::size).sum()
+				+ FUNCTIONAL_ANCHORS.values().stream().mapToInt(List::size).sum();
+		if (total != 329) {
+			throw new IllegalStateException("stone kit expected 329 new blocks, got " + total);
 		}
+	}
+
+	private static void anchor(net.minecraft.world.item.Item anchorItem, Block block) {
+		FUNCTIONAL_ANCHORS.computeIfAbsent(anchorItem, key -> new ArrayList<>()).add(block);
 	}
 }

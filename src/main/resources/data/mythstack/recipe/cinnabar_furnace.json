@@ -1,0 +1,14 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"#": "mythstack:cobbled_cinnabar"
+	},
+	"pattern": [
+		"###",
+		"# #",
+		"###"
+	],
+	"result": {
+		"id": "mythstack:cinnabar_furnace"
+	}
+}

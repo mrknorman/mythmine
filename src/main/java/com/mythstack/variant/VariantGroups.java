@@ -126,6 +126,11 @@ public final class VariantGroups {
 		canonicals.put("mossy_brick_stairs", "mossy_stone_brick_stairs");
 		canonicals.put("mossy_brick_slab", "mossy_stone_brick_slab");
 		canonicals.put("mossy_brick_wall", "mossy_stone_brick_wall");
+		canonicals.put("button", "stone_button");
+		canonicals.put("pressure_plate", "stone_pressure_plate");
+		canonicals.put("furnace", "furnace");
+		canonicals.put("piston", "piston");
+		canonicals.put("sticky_piston", "sticky_piston");
 		List<VariantGroup> groups = new java.util.ArrayList<>();
 		for (var entry : canonicals.entrySet()) {
 			groups.add(new VariantGroup(MythStack.id("stone/" + entry.getKey()),
@@ -221,6 +226,30 @@ public final class VariantGroups {
 	}
 
 	/** The member of {@code group} identified by {@code woodKey}, or {@code null} (that wood lacks the form). */
+	/**
+	 * True when {@code key} names a member of {@code group}'s FAMILY (wood vs stone) — the
+	 * transmuter keeps other-family slots as-is instead of failing the substitution (a piston
+	 * mixes planks with cobbled stone; "granite" can never fill a planks slot, and shouldn't try).
+	 */
+	public static boolean sameFamily(VariantGroup group, String key) {
+		String groupFamily = group.id().getPath().split("/")[0];
+		String keyFamily = stoneMaterialNames().contains(key) ? "stone" : "wood";
+		return groupFamily.equals(keyFamily);
+	}
+
+	private static volatile java.util.Set<String> stoneMaterialNamesCache;
+
+	private static java.util.Set<String> stoneMaterialNames() {
+		java.util.Set<String> names = stoneMaterialNamesCache;
+		if (names == null) {
+			names = com.mythstack.registry.StoneKit.MATERIALS.stream()
+					.map(com.mythstack.registry.StoneKit.Material::name)
+					.collect(java.util.stream.Collectors.toUnmodifiableSet());
+			stoneMaterialNamesCache = names;
+		}
+		return names;
+	}
+
 	public static Item member(VariantGroup group, String woodKey) {
 		Map<String, Item> byKey = membersByKey.get(group);
 		return byKey == null ? null : byKey.get(woodKey);

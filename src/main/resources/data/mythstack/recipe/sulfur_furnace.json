@@ -1,0 +1,14 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"#": "mythstack:cobbled_sulfur"
+	},
+	"pattern": [
+		"###",
+		"# #",
+		"###"
+	],
+	"result": {
+		"id": "mythstack:sulfur_furnace"
+	}
+}

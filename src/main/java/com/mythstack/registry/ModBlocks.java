@@ -165,6 +165,8 @@ public final class ModBlocks {
 	/** Called from {@link MythStack#onInitialize()} to force class-load so the static fields register. */
 	public static void initialize() {
 		StoneKit.initialize();
+		widen(net.minecraft.world.level.block.entity.BlockEntityTypes.FURNACE,
+				StoneKit.FUNCTIONAL_ANCHORS.getOrDefault(net.minecraft.world.item.Items.FURNACE, List.of()));
 		// Typed block-entity blocks join their vanilla types: without this a placed block's entity is
 		// rejected as invalid and the block simply doesn't function.
 		widen(BlockEntityTypes.CHEST, TYPED_CHESTS);

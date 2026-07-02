@@ -1,0 +1,8 @@
+{
+	"parent": "minecraft:block/orientable",
+	"textures": {
+		"front": "mythstack:block/dripstone_furnace_front",
+		"side": "mythstack:block/dripstone_furnace_side",
+		"top": "mythstack:block/dripstone_furnace_top"
+	}
+}

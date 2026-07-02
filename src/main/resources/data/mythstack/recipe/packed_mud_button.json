@@ -1,0 +1,12 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"#": "minecraft:packed_mud"
+	},
+	"pattern": [
+		"#"
+	],
+	"result": {
+		"id": "mythstack:packed_mud_button"
+	}
+}

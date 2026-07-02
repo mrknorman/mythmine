@@ -1,0 +1,8 @@
+{
+	"parent": "minecraft:block/piston_extended",
+	"textures": {
+		"bottom": "mythstack:block/sulfur_piston_bottom",
+		"side": "mythstack:block/sulfur_piston_side",
+		"inside": "mythstack:block/sulfur_piston_inner"
+	}
+}

@@ -1,0 +1,8 @@
+{
+	"parent": "minecraft:block/cube_bottom_top",
+	"textures": {
+		"top": "minecraft:block/piston_top",
+		"bottom": "mythstack:block/tuff_piston_bottom",
+		"side": "mythstack:block/tuff_piston_side"
+	}
+}

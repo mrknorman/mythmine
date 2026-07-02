@@ -1,0 +1,8 @@
+{
+	"parent": "minecraft:block/orientable",
+	"textures": {
+		"front": "mythstack:block/red_sandstone_furnace_front_on",
+		"side": "mythstack:block/red_sandstone_furnace_side",
+		"top": "mythstack:block/red_sandstone_furnace_top"
+	}
+}

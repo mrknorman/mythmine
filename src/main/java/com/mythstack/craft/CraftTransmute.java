@@ -147,8 +147,13 @@ public final class CraftTransmute {
 				stacks.add(stack.copy());
 				continue;
 			}
-			Item member = VariantGroups.member(VariantGroups.of(stack.getItem()), woodKey);
+			VariantGroup slotGroup = VariantGroups.of(stack.getItem());
+			Item member = VariantGroups.member(slotGroup, woodKey);
 			if (member == null) {
+				if (!VariantGroups.sameFamily(slotGroup, woodKey)) {
+					stacks.add(stack.copy()); // other family (planks in a piston): the recipe decides
+					continue;
+				}
 				return null; // this wood lacks the slot's form (e.g. bamboo has no hyphae)
 			}
 			stacks.add(new ItemStack(member));

@@ -1,0 +1,24 @@
+{
+	"values": [
+		"minecraft:stone_pressure_plate",
+		"mythstack:deepslate_pressure_plate",
+		"mythstack:granite_pressure_plate",
+		"mythstack:diorite_pressure_plate",
+		"mythstack:andesite_pressure_plate",
+		"mythstack:tuff_pressure_plate",
+		"mythstack:calcite_pressure_plate",
+		"minecraft:polished_blackstone_pressure_plate",
+		"mythstack:basalt_pressure_plate",
+		"mythstack:end_stone_pressure_plate",
+		"mythstack:dripstone_pressure_plate",
+		"mythstack:sandstone_pressure_plate",
+		"mythstack:red_sandstone_pressure_plate",
+		"mythstack:cinnabar_pressure_plate",
+		"mythstack:sulfur_pressure_plate",
+		"mythstack:netherrack_pressure_plate",
+		"mythstack:quartz_pressure_plate",
+		"mythstack:prismarine_pressure_plate",
+		"mythstack:purpur_pressure_plate",
+		"mythstack:packed_mud_pressure_plate"
+	]
+}

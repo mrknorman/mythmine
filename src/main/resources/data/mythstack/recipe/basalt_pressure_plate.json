@@ -1,0 +1,12 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"#": "minecraft:basalt"
+	},
+	"pattern": [
+		"##"
+	],
+	"result": {
+		"id": "mythstack:basalt_pressure_plate"
+	}
+}

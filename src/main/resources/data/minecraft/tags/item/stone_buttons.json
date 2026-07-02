@@ -1,0 +1,22 @@
+{
+	"values": [
+		"mythstack:deepslate_button",
+		"mythstack:granite_button",
+		"mythstack:diorite_button",
+		"mythstack:andesite_button",
+		"mythstack:tuff_button",
+		"mythstack:calcite_button",
+		"mythstack:basalt_button",
+		"mythstack:end_stone_button",
+		"mythstack:dripstone_button",
+		"mythstack:sandstone_button",
+		"mythstack:red_sandstone_button",
+		"mythstack:cinnabar_button",
+		"mythstack:sulfur_button",
+		"mythstack:netherrack_button",
+		"mythstack:quartz_button",
+		"mythstack:prismarine_button",
+		"mythstack:purpur_button",
+		"mythstack:packed_mud_button"
+	]
+}

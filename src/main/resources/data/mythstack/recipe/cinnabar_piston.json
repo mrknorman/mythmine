@@ -1,0 +1,17 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"T": "#minecraft:planks",
+		"#": "mythstack:cobbled_cinnabar",
+		"X": "minecraft:iron_ingot",
+		"R": "minecraft:redstone"
+	},
+	"pattern": [
+		"TTT",
+		"#X#",
+		"#R#"
+	],
+	"result": {
+		"id": "mythstack:cinnabar_piston"
+	}
+}

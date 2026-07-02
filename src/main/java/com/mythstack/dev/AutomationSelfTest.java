@@ -190,8 +190,10 @@ public final class AutomationSelfTest {
 		//     tag. 251 = 143 core kit (S1a) + 56 mossy (S1b) + 40 tier-2 (S1c) + 12 cinnabar/sulfur.
 		//     tag; the stonecutter gained full parity cuts.
 		int kitCount = com.mythstack.registry.StoneKit.NEW_FORMS.values().stream()
-				.mapToInt(java.util.List::size).sum();
-		check("stone kit: all 251 gap blocks registered (core + mossy + tier-2 + cinnabar/sulfur)", kitCount == 251, failures);
+				.mapToInt(java.util.List::size).sum()
+				+ com.mythstack.registry.StoneKit.FUNCTIONAL_ANCHORS.values().stream()
+						.mapToInt(java.util.List::size).sum();
+		check("stone kit: all 329 blocks registered (kit 251 + functional 78)", kitCount == 329, failures);
 		Block cobbledGranite = net.minecraft.core.registries.BuiltInRegistries.BLOCK
 				.getValue(MythStack.id("cobbled_granite"));
 		BlockPos stonePos = new BlockPos(32, 200, 0);

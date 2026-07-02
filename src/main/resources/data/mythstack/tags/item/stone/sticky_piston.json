@@ -1,0 +1,19 @@
+{
+	"values": [
+		"minecraft:sticky_piston",
+		"mythstack:deepslate_sticky_piston",
+		"mythstack:granite_sticky_piston",
+		"mythstack:diorite_sticky_piston",
+		"mythstack:andesite_sticky_piston",
+		"mythstack:tuff_sticky_piston",
+		"mythstack:calcite_sticky_piston",
+		"mythstack:blackstone_sticky_piston",
+		"mythstack:basalt_sticky_piston",
+		"mythstack:end_stone_sticky_piston",
+		"mythstack:dripstone_sticky_piston",
+		"mythstack:sandstone_sticky_piston",
+		"mythstack:red_sandstone_sticky_piston",
+		"mythstack:cinnabar_sticky_piston",
+		"mythstack:sulfur_sticky_piston"
+	]
+}

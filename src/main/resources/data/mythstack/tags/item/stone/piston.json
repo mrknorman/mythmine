@@ -1,0 +1,19 @@
+{
+	"values": [
+		"minecraft:piston",
+		"mythstack:deepslate_piston",
+		"mythstack:granite_piston",
+		"mythstack:diorite_piston",
+		"mythstack:andesite_piston",
+		"mythstack:tuff_piston",
+		"mythstack:calcite_piston",
+		"mythstack:blackstone_piston",
+		"mythstack:basalt_piston",
+		"mythstack:end_stone_piston",
+		"mythstack:dripstone_piston",
+		"mythstack:sandstone_piston",
+		"mythstack:red_sandstone_piston",
+		"mythstack:cinnabar_piston",
+		"mythstack:sulfur_piston"
+	]
+}

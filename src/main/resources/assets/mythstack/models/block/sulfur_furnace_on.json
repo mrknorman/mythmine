@@ -1,0 +1,8 @@
+{
+	"parent": "minecraft:block/orientable",
+	"textures": {
+		"front": "mythstack:block/sulfur_furnace_front_on",
+		"side": "mythstack:block/sulfur_furnace_side",
+		"top": "mythstack:block/sulfur_furnace_top"
+	}
+}

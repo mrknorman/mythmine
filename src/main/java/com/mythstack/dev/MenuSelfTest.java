@@ -932,6 +932,39 @@ public final class MenuSelfTest {
 		check("stone families: lever accepts cobbled calcite + a typed stick",
 				leverTaken.getItem() == Items.LEVER, failures);
 
+		// Functional forms: a granite button from granite; a granite furnace from its cobbled ring;
+		// a mixed-cobbled piston grid transmutes to the majority material's piston.
+		var graniteButton = reg.getValue(com.mythstack.MythStack.id("granite_button"));
+		CraftingMenu button = table(level, player);
+		button.getSlot(1).set(new ItemStack(Items.GRANITE, 1));
+		check("stone functional: one granite crafts the granite button",
+				take(button, player).getItem() == graniteButton, failures);
+
+		var graniteFurnace = reg.getValue(com.mythstack.MythStack.id("granite_furnace"));
+		CraftingMenu furnace = table(level, player);
+		for (int slot : new int[]{1, 2, 3, 4, 6, 7, 8, 9}) {
+			furnace.getSlot(slot).set(new ItemStack(cobbledGranite, 1));
+		}
+		check("stone functional: eight cobbled granite craft the granite furnace",
+				take(furnace, player).getItem() == graniteFurnace, failures);
+
+		var granitePiston = reg.getValue(com.mythstack.MythStack.id("granite_piston"));
+		CraftingMenu piston = table(level, player);
+		piston.getSlot(1).set(new ItemStack(Items.OAK_PLANKS, 1));
+		piston.getSlot(2).set(new ItemStack(Items.SPRUCE_PLANKS, 1));
+		piston.getSlot(3).set(new ItemStack(Items.OAK_PLANKS, 1));
+		piston.getSlot(4).set(new ItemStack(cobbledGranite, 1));
+		piston.getSlot(5).set(new ItemStack(Items.IRON_INGOT, 1));
+		piston.getSlot(6).set(new ItemStack(cobbledGranite, 1));
+		piston.getSlot(7).set(new ItemStack(Items.COBBLED_DEEPSLATE, 1));
+		piston.getSlot(8).set(new ItemStack(Items.REDSTONE, 1));
+		piston.getSlot(9).set(new ItemStack(cobbledGranite, 1));
+		check("stone functional: a mixed-cobbled piston grid transmutes to the granite piston",
+				piston.getSlot(0).getItem().getItem() == granitePiston, failures);
+		for (int slot = 1; slot <= 9; slot++) {
+			piston.getSlot(slot).set(ItemStack.EMPTY);
+		}
+
 		// Acceptance: stone tools take any cobbled (the stone_tool_materials append).
 		CraftingMenu pick = table(level, player);
 		pick.getSlot(1).set(new ItemStack(cobbledSulfur, 1));
