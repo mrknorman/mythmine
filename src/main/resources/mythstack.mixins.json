@@ -15,6 +15,7 @@
 		"InventoryAddMixin",
 		"InventoryMenuMixin",
 		"InventoryRecipeBookMixin",
+		"ItemCostMixin",
 		"ItemMixin",
 		"ItemStackSplitMixin",
 		"ItemTooltipImageMixin",

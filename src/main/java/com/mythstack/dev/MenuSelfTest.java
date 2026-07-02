@@ -16,6 +16,8 @@ import net.minecraft.world.entity.player.StackedItemContents;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.item.trading.ItemCost;
+import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerInput;
@@ -59,6 +61,7 @@ public final class MenuSelfTest {
 		stickPropagation(level, player, failures);
 		craftOutputConsolidation(level, player, failures);
 		creativeParity(level, player, failures);
+		familyTrades(failures);
 
 		player.getInventory().clearContent();
 		player.containerMenu = player.inventoryMenu;
@@ -588,6 +591,33 @@ public final class MenuSelfTest {
 			player.containerMenu = player.inventoryMenu;
 			player.getInventory().clearContent();
 		}
+	}
+
+	/** Trades asking for a family canonical (the plain stick) accept any family member — exactly. */
+	private static void familyTrades(int[] failures) {
+		// The fletcher's stick trade, as vanilla constructs it.
+		MerchantOffer fletcher = new MerchantOffer(new ItemCost(Items.STICK, 32),
+				new ItemStack(Items.EMERALD), 16, 2, 0.05f);
+		check("trades: 32 spruce sticks satisfy the fletcher's stick trade",
+				fletcher.satisfiedBy(new ItemStack(ModItems.SPRUCE_STICK, 32), ItemStack.EMPTY), failures);
+		ItemStack payment = new ItemStack(ModItems.SPRUCE_STICK, 40);
+		check("trades: taking the trade consumes exactly 32 typed sticks",
+				fletcher.take(payment, ItemStack.EMPTY) && payment.getCount() == 8, failures);
+		// Piles pay too (vanilla host semantics, kept deliberately): the shrink is reconciled lazily at
+		// the next read, consuming canonical-first — same as any external shrink (see SelfTest #3).
+		ItemStack pile = VariantPiles.makeStacks(VariantGroups.STICKS, VariantPiles.pool(VariantGroups.STICKS,
+				List.of(new ItemStack(Items.STICK, 20), new ItemStack(ModItems.SPRUCE_STICK, 20)))).get(0);
+		boolean paid = fletcher.take(pile, ItemStack.EMPTY);
+		VariantPiles.reconcile(pile);
+		check("trades: a stick pile pays canonical-first (20 plain + 12 spruce eaten, {spruce8} left)",
+				paid && pile.getCount() == 8
+						&& VariantPiles.countOf(pile, ModItems.SPRUCE_STICK) == 8 && wellFormed(pile), failures);
+		// A cost naming a NON-canonical member stays exact.
+		MerchantOffer exact = new MerchantOffer(new ItemCost(Items.SPRUCE_PLANKS, 4),
+				new ItemStack(Items.EMERALD), 16, 2, 0.05f);
+		check("trades: a spruce-planks cost is NOT satisfied by birch planks",
+				!exact.satisfiedBy(new ItemStack(Items.BIRCH_PLANKS, 4), ItemStack.EMPTY)
+						&& exact.satisfiedBy(new ItemStack(Items.SPRUCE_PLANKS, 4), ItemStack.EMPTY), failures);
 	}
 
 	private static ResourceKey<Recipe<?>> recipeKey(String path) {
