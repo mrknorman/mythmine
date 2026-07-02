@@ -7,6 +7,7 @@ import com.mythstack.registry.ModComponents;
 import com.mythstack.registry.ModItems;
 import com.mythstack.registry.ModMenus;
 import com.mythstack.registry.ModRecipes;
+import com.mythstack.registry.ModVillagers;
 import com.mythstack.variant.VariantGroups;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
@@ -37,6 +38,7 @@ public class MythStack implements ModInitializer {
 		ModItems.initialize();
 		ModRecipes.initialize();
 		ModMenus.initialize();
+		ModVillagers.initialize();
 		PileNetworking.register();
 
 		// Every typed family sits DIRECTLY AFTER its canonical, in whichever tab vanilla put it —

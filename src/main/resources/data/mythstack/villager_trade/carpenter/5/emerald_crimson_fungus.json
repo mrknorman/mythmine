@@ -1,0 +1,12 @@
+{
+	"wants": {
+		"id": "minecraft:emerald",
+		"count": 5
+	},
+	"gives": {
+		"id": "minecraft:crimson_fungus"
+	},
+	"max_uses": 8,
+	"xp": 30,
+	"reputation_discount": 0.05
+}

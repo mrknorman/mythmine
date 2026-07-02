@@ -160,6 +160,31 @@ public final class AutomationSelfTest {
 		check("stations: a typed bookshelf drops its 3 books", books == 3, failures);
 		level.setBlock(CHEST_A, Blocks.AIR.defaultBlockState(), 3);
 
+		// 4e. The carpenter: profession + POI registered, the sawmill is its job site, and the
+		//     data-driven trade sets/trades all loaded (biome-keyed entries included).
+		boolean professionOk = net.minecraft.core.registries.BuiltInRegistries.VILLAGER_PROFESSION
+				.containsKey(MythStack.id("carpenter"));
+		boolean poiOk = com.mythstack.mixin.PoiTypesAccessor.mythstack$typeByState()
+				.get(ModBlocks.SAWMILL.defaultBlockState()) != null
+				&& com.mythstack.mixin.PoiTypesAccessor.mythstack$typeByState()
+						.get(ModBlocks.SAWMILL.defaultBlockState())
+						.is(com.mythstack.registry.ModVillagers.CARPENTER_POI_KEY);
+		check("carpenter: profession registered and the sawmill is its job site", professionOk && poiOk, failures);
+		var tradeSets = level.registryAccess()
+				.lookupOrThrow(net.minecraft.core.registries.Registries.TRADE_SET);
+		var trades = level.registryAccess()
+				.lookupOrThrow(net.minecraft.core.registries.Registries.VILLAGER_TRADE);
+		boolean setsOk = true;
+		for (int lvl = 1; lvl <= 5; lvl++) {
+			setsOk &= tradeSets.get(net.minecraft.resources.ResourceKey.create(
+					net.minecraft.core.registries.Registries.TRADE_SET,
+					MythStack.id("carpenter/level_" + lvl))).isPresent();
+		}
+		long tradeCount = trades.listElements()
+				.filter(ref -> ref.key().identifier().getNamespace().equals("mythstack")).count();
+		check("carpenter: all 5 trade sets + 53 trades loaded (" + tradeCount + ")",
+				setsOk && tradeCount == 53, failures);
+
 		// 5. Comparators read a pile exactly like the plain stack it stands in for.
 		level.setBlock(CHEST_A, Blocks.CHEST.defaultBlockState(), 3);
 		level.setBlock(CHEST_B, Blocks.CHEST.defaultBlockState(), 3);

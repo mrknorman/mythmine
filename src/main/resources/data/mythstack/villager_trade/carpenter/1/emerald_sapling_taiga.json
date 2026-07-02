@@ -1,0 +1,20 @@
+{
+	"wants": {
+		"id": "minecraft:emerald"
+	},
+	"gives": {
+		"id": "minecraft:spruce_sapling"
+	},
+	"max_uses": 12,
+	"xp": 1,
+	"reputation_discount": 0.05,
+	"merchant_predicate": {
+		"condition": "minecraft:entity_properties",
+		"entity": "this",
+		"predicate": {
+			"minecraft:predicates": {
+				"minecraft:villager/variant": "minecraft:taiga"
+			}
+		}
+	}
+}

@@ -809,6 +809,26 @@ public final class MenuSelfTest {
 		player.containerMenu = menu;
 		check("sawmill: the menu stays valid over the sawmill block", menu.stillValid(player), failures);
 
+		// Exhaustive: every loaded sawing recipe assembles a REAL, legally-stacked product, and its
+		// display (what clients render) resolves to the same — catches any "cuts to Air" recipe.
+		var sawSet = com.mythstack.craft.SawmillRecipes.build(
+				(RecipeManager) level.recipeAccess());
+		int bad = 0;
+		var displayContext = net.minecraft.world.item.crafting.display.SlotDisplayContext.fromLevel(level);
+		for (var entry : sawSet.entries()) {
+			ItemStack product = entry.recipe().recipe()
+					.map(holder -> holder.value().assemble(new net.minecraft.world.item.crafting.SingleRecipeInput(
+							new ItemStack(Items.OAK_LOG))))
+					.orElse(ItemStack.EMPTY);
+			ItemStack display = entry.recipe().optionDisplay().resolveForFirstStack(displayContext);
+			if (product.isEmpty() || display.isEmpty() || product.getCount() > product.getMaxStackSize()) {
+				MythStack.LOGGER.error("[selftest] bad sawing recipe: {}", entry.recipe().recipe());
+				bad++;
+			}
+		}
+		check("sawmill: all " + sawSet.size() + " cuts produce real, legally-stacked products (0 bad)",
+				bad == 0 && sawSet.size() == 323, failures);
+
 		menu.getSlot(0).set(new ItemStack(Items.SPRUCE_PLANKS, 4));
 		check("sawmill: spruce planks offer the six plank cuts",
 				menu.getNumberOfVisibleRecipes() == 6, failures);

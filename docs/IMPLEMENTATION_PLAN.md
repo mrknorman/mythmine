@@ -600,6 +600,20 @@ Raised during implementation; captured here so they aren't lost.
   wood (not canonical oak) — the world-placement path, not an inventory gesture.
 
 ### Post-MVP (outline only)
+- **Carpenter villager — DONE (part 1).** Job site = the sawmill (own PoiType, state-wired).
+  26.2's villager trades are DATA-DRIVEN (datapack registries: `villager_trade/`, `trade_set/`,
+  trade tags; the profession maps level → trade-set key), so the whole ladder is JSON — 53 trades:
+  biome-coherent via `merchant_predicate` on the villager variant (novice sells the HOME biome's
+  sapling; ladders/barrels/boats/bookshelves sold in the home wood, typed blocks included), buys
+  any-family logs/planks/stripped logs via canonical costs (piles pay), pays PREMIUM for exotic
+  woods (cherry/pale-oak logs 12→1, nether stems 8→1), and master level sells the rarities: pale
+  oak sapling, mangrove propagule, crimson/warped fungus, and a randomly-enchanted wooden axe.
+  Programmatic profession textures (sawdust-tinted fletcher garb, villager + zombie). Verify
+  in-game: a jobless villager claiming a sawmill, and the trade screen. Part 2 (sapling-planting
+  behavior) remains a separately-decided follow-up; tree-chopping shelved.
+- **Sawing validation.** The 'cuts to Air' bug was 11 log→shovel cuts yielding an illegal 2× of an
+  unstackable item; every one of the 323 cuts is now exhaustively verified headlessly (assemble +
+  client display resolution + legal stack size).
 - **Sawmill — DONE.** The stonecutter for wood (`mythstack:sawmill`, stonecutter visuals for now).
   Architecture: `SawmillRecipe extends StonecutterRecipe` with its OWN `mythstack:sawing` type (so
   sawing never appears in real stonecutters and vice versa); `SawmillMenu extends StonecutterMenu`
