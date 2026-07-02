@@ -12,7 +12,10 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.player.StackedItemContents;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.ContainerLevelAccess;
@@ -51,6 +54,7 @@ public final class MenuSelfTest {
 		typedSticks(level, player, failures);
 		netherAndBamboo(level, player, failures);
 		craftLedger(level, player, failures);
+		recipeBookFill(level, player, failures);
 
 		player.getInventory().clearContent();
 		player.containerMenu = player.inventoryMenu;
@@ -411,6 +415,36 @@ public final class MenuSelfTest {
 		check("ledger: mass craft unlocks all per-wood recipes used (oak + jungle planks)",
 				player.getRecipeBook().contains(recipeKey("oak_planks"))
 						&& player.getRecipeBook().contains(recipeKey("jungle_planks")), failures);
+		player.getInventory().clearContent();
+	}
+
+	/** The recipe book sees pile CONTENTS and auto-fill pulls the intended wood out of the pile. */
+	private static void recipeBookFill(ServerLevel level, FakePlayer player, int[] failures) {
+		CraftingMenu menu = table(level, player);
+		player.getInventory().clearContent();
+		player.getInventory().setItem(9, VariantPiles.makeStacks(VariantGroups.LOGS,
+				VariantPiles.pool(VariantGroups.LOGS,
+						List.of(new ItemStack(Items.OAK_LOG, 10), new ItemStack(Items.SPRUCE_LOG, 10)))).get(0));
+
+		// Availability: a spruce recipe is craftable from spruce living INSIDE an oak-hosted pile.
+		StackedItemContents contents = new StackedItemContents();
+		player.getInventory().fillStackedContents(contents);
+		RecipeHolder<?> spruceRecipe = ((RecipeManager) level.recipeAccess())
+				.byKey(recipeKey("spruce_planks")).orElse(null);
+		check("book: pile contents count for availability (spruce planks craftable)",
+				spruceRecipe != null && contents.canCraft(spruceRecipe.value(), null), failures);
+
+		// Fill: clicking the recipe pulls SPRUCE out of the pile, not the oak host.
+		menu.handlePlacement(false, false, spruceRecipe, level, player.getInventory());
+		ItemStack inPile = player.getInventory().getItem(9);
+		check("book: auto-fill places a spruce log in the grid",
+				gridTotal(menu, 9, Items.SPRUCE_LOG) == 1, failures);
+		check("book: the pile lost exactly one spruce ({oak10,spruce9})",
+				VariantPiles.isPile(inPile) && VariantPiles.countOf(inPile, Items.SPRUCE_LOG) == 9
+						&& VariantPiles.countOf(inPile, Items.OAK_LOG) == 10 && wellFormed(inPile), failures);
+		for (int i = 1; i <= 9; i++) {
+			menu.getSlot(i).set(ItemStack.EMPTY);
+		}
 		player.getInventory().clearContent();
 	}
 

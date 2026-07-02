@@ -14,11 +14,14 @@
 		"CraftingMenuMixin",
 		"InventoryAddMixin",
 		"InventoryMenuMixin",
+		"InventoryRecipeBookMixin",
 		"ItemMixin",
 		"ItemStackSplitMixin",
 		"ItemTooltipImageMixin",
 		"PickItemFromBlockMixin",
-		"ResultSlotMixin"
+		"ResultSlotMixin",
+		"ServerPlaceRecipeMixin",
+		"StackedItemContentsMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

@@ -540,10 +540,14 @@ Raised during implementation; captured here so they aren't lost.
   pure stacks, then empty slots), leaving the sub-stack remainder in piles; drained piles collapse to pure
   stacks. Manual piles are never drained or counted. Capped by available room so nothing is lost. Covered
   by SelfTest.
-- **Selective extraction for crafting & recipe book** *(Phase 7).* Pulling components out of a pile
-  for the crafting grid and recipe-book auto-fill should take the **intended** variant, not blindly
-  canonical-first. Enumerate + test the edge cases: shift-click into grid, recipe-book fill, the
-  crafter block, quick-move, and JEI/REI-style click-fill.
+- **Selective extraction for crafting & recipe book — DONE.** The recipe book is pile-aware end to
+  end: availability counting decomposes piles into their contents (`StackedItemContentsMixin` — a
+  {oak,spruce} pile makes spruce recipes craftable and stops overcounting oak), the ingredient slot
+  search matches piles CONTAINING the wanted wood (`InventoryRecipeBookMixin`), and auto-fill
+  extracts the intended wood from the pile (`ServerPlaceRecipeMixin` — vanilla peeled canonical-first
+  or dumped the whole pile into a grid slot). Manual piles are fair game: a recipe fill is an explicit
+  crafting demand, and pulling one wood out of a mix reduces entropy (§1). The crafter block got its
+  own transmute in phase 9; JEI/REI click-fill routes through the same ServerPlaceRecipe path.
 - **Pile-on-pile unmix — DONE.** Left-clicking a carried pile onto a same-group pile repacks BOTH
   piles' contents canonical-first (`DragMerge.unmix`, hooked at `clicked` — the cursor's host item can
   change): the slot keeps the purest possible stack (often a plain pure 64), the cursor the remainder.
