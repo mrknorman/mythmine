@@ -61,13 +61,26 @@ public final class VariantGroups {
 	public static final VariantGroup LADDERS = group("ladders", custom("wood/ladders"), Items.LADDER);
 	public static final VariantGroup CHESTS = group("chests", custom("wood/chests"), Items.CHEST);
 
+	// The ORE families — the first non-wood groups: each ore's stone + deepslate (+ nether, for gold)
+	// variants pile together, canonical = the stone form. Vanilla ships the membership tags. The
+	// pile-aware furnace already smelts these per element (phase 8), so a mixed ore pile just works.
+	public static final VariantGroup IRON_ORES = ores("iron_ores", Items.IRON_ORE);
+	public static final VariantGroup COAL_ORES = ores("coal_ores", Items.COAL_ORE);
+	public static final VariantGroup COPPER_ORES = ores("copper_ores", Items.COPPER_ORE);
+	public static final VariantGroup GOLD_ORES = ores("gold_ores", Items.GOLD_ORE);
+	public static final VariantGroup REDSTONE_ORES = ores("redstone_ores", Items.REDSTONE_ORE);
+	public static final VariantGroup EMERALD_ORES = ores("emerald_ores", Items.EMERALD_ORE);
+	public static final VariantGroup LAPIS_ORES = ores("lapis_ores", Items.LAPIS_ORE);
+	public static final VariantGroup DIAMOND_ORES = ores("diamond_ores", Items.DIAMOND_ORE);
+
 	// The pile cap is per-group ({@link VariantGroup#cap} = the canonical's max stack size), so signs
 	// (cap 16) pile fine. Boats are intentionally absent: they stack to 1, so a pile (which needs >= 2 of
 	// an item in one stack) can never form — there's nothing to pile.
 	private static final List<VariantGroup> ALL = List.of(
 			LOGS, WOODS, STRIPPED_LOGS, STRIPPED_WOODS, PLANKS, STAIRS, SLABS, FENCES, FENCE_GATES, DOORS,
 			TRAPDOORS, PRESSURE_PLATES, BUTTONS, SHELVES, SIGNS, HANGING_SIGNS, LEAVES, STICKS,
-			LADDERS, CHESTS);
+			LADDERS, CHESTS,
+			IRON_ORES, COAL_ORES, COPPER_ORES, GOLD_ORES, REDSTONE_ORES, EMERALD_ORES, LAPIS_ORES, DIAMOND_ORES);
 
 	/** item -> group, snapshotted from the tags when they are loaded/synced (bindings reliable on both sides). */
 	private static volatile Map<Item, VariantGroup> membership = Map.of();
@@ -176,6 +189,10 @@ public final class VariantGroups {
 
 	private static VariantGroup group(String form, TagKey<Item> members, Item canonical) {
 		return new VariantGroup(MythStack.id("wood/" + form), members, canonical);
+	}
+
+	private static VariantGroup ores(String form, Item canonical) {
+		return new VariantGroup(MythStack.id("ores/" + form), vanillaTag(form), canonical);
 	}
 
 	private static TagKey<Item> custom(String path) {

@@ -79,6 +79,18 @@ public final class FurnaceSelfTest {
 						&& VariantPiles.isPile(furnace.getItem(SLOT_FUEL))
 						&& furnace.getItem(SLOT_FUEL).getCount() == 2, failures);
 
+		// D2. Ore families: a mixed iron-ore pile (stone + deepslate) smelts per element — each
+		//     variant's own recipe — down to plain iron ingots.
+		furnace = freshFurnace(level);
+		furnace.setItem(SLOT_INPUT, VariantPiles.makeStacks(VariantGroups.IRON_ORES,
+				VariantPiles.pool(VariantGroups.IRON_ORES, List.of(
+						new ItemStack(Items.IRON_ORE, 2), new ItemStack(Items.DEEPSLATE_IRON_ORE, 2)))).get(0));
+		furnace.setItem(SLOT_FUEL, new ItemStack(Items.COAL, 1));
+		tick(level, furnace, 850);
+		check("furnace: a mixed iron-ore pile smelts down to 4 ingots (per-element recipes)",
+				count(furnace, SLOT_RESULT, Items.IRON_INGOT) == 4
+						&& furnace.getItem(SLOT_INPUT).isEmpty(), failures);
+
 		// E. Fuel-slot extraction QOL: unburnable remainders may leave through the bottom face.
 		check("furnace: hopper may extract the unburnable remainder from the fuel slot",
 				furnace.canTakeItemThroughFace(SLOT_FUEL, new ItemStack(Items.CRIMSON_STEM, 2), Direction.DOWN), failures);

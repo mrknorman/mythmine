@@ -215,6 +215,17 @@ public final class SelfTest {
 					stairs.products().equals(Map.of(Items.SPRUCE_STAIRS, 20, Items.BIRCH_STAIRS, 20)), failures);
 		}
 
+		// 18b. Ore families (the first non-wood groups): stone + deepslate variants consolidate on
+		//      pickup like any family, and the pile reads as a proper title ("Iron Ores").
+		List<ItemStack> oreInv = new ArrayList<>(List.of(new ItemStack(Items.IRON_ORE, 10)));
+		ItemStack oreIn = new ItemStack(Items.DEEPSLATE_IRON_ORE, 10);
+		boolean oreDone = Pickup.consolidate(oreInv, oreIn);
+		check("ore pickup: deepslate iron onto iron -> one Iron Ores pile {iron10,deepslate10}",
+				oreDone && oreIn.isEmpty() && VariantPiles.isPile(oreInv.get(0))
+						&& oreInv.get(0).getCount() == 20
+						&& contentsEqual(oreInv.get(0), Items.IRON_ORE, 10, Items.DEEPSLATE_IRON_ORE, 10), failures);
+		check("ore pile name -> 'Iron Ores'", "Iron Ores".equals(oreInv.get(0).getHoverName().getString()), failures);
+
 		// 19. End-to-end menu path: a fake player driving real crafting-menu clicks (phase 3).
 		failures[0] += MenuSelfTest.run(level);
 

@@ -600,6 +600,13 @@ Raised during implementation; captured here so they aren't lost.
   wood (not canonical oak) — the world-placement path, not an inventory gesture.
 
 ### Post-MVP (outline only)
+- **Ore families — DONE (the first non-wood groups).** Each ore's stone + deepslate (+ nether, for
+  gold) variants pile as one family — 8 groups straight off the vanilla `#minecraft:*_ores` tags,
+  canonical = the stone form. Everything inherited: piles/merge/unmix/scroll, pickup consolidation,
+  hoppers/comparators, recipe book, and per-element furnace smelting (a mixed iron-ore pile smelts
+  each variant by its own recipe down to ingots — the phase 8 seam doing its job). Pile names now
+  title-case multi-word groups ("Iron Ores", and incidentally "Fence Gates"). This is the dry run
+  for stone §12: declaring groups + icon overrides was the entire cost.
 - **Fan-out — typed ladders & chests DONE.** 11 `mythstack:<wood>_ladder` + 11 `<wood>_chest` blocks
   (vanilla ladder/chest = the oak/canonical members, renamed Oak Ladder / Oak Chest). Ladders:
   real `LadderBlock`s (AW'd ctor), climbable + axe-mineable tags, palette-mapped textures (same

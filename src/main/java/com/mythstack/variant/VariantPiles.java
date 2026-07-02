@@ -429,9 +429,16 @@ public final class VariantPiles {
 		String form = "Wood";
 		if (group != null) {
 			String last = group.id().getPath();
-			last = last.substring(last.lastIndexOf('/') + 1); // "logs", "planks" — keep the plural
+			last = last.substring(last.lastIndexOf('/') + 1); // "logs", "iron_ores" — keep the plural
 			if (!last.isEmpty()) {
-				form = Character.toUpperCase(last.charAt(0)) + last.substring(1);
+				StringBuilder words = new StringBuilder();
+				for (String word : last.split("_")) {
+					if (!words.isEmpty()) {
+						words.append(' ');
+					}
+					words.append(Character.toUpperCase(word.charAt(0))).append(word.substring(1));
+				}
+				form = words.toString();
 			}
 		}
 		return Component.literal(form);
