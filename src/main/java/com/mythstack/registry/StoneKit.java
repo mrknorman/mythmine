@@ -184,6 +184,11 @@ public final class StoneKit {
 				}
 			}
 		}
+		// Resin: a PARTIAL material — brick line + chiseled only (see gen_stone_families.py).
+		for (String name : List.of("resin_bricks", "resin_brick_stairs", "resin_brick_slab",
+				"resin_brick_wall", "chiseled_resin_bricks")) {
+			keys.put(BuiltInRegistries.ITEM.getValue(Identifier.withDefaultNamespace(name)), "resin");
+		}
 		return keys;
 	}
 

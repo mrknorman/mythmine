@@ -954,6 +954,21 @@ public final class MenuSelfTest {
 		check("stone families: taking it crafts granite bricks",
 				brickTaken.getItem() == graniteBricks && brickTaken.getItem() != dioriteBricks, failures);
 
+		// Resin transmutes within its brick line: a majority-resin mixed stairs grid.
+		CraftingMenu resinStairs = table(level, player);
+		int[] stairSlots = {1, 4, 5, 7, 8, 9};
+		Item[] stairWoods = {Items.RESIN_BRICKS, Items.RESIN_BRICKS, Items.RESIN_BRICKS,
+				Items.RESIN_BRICKS, net.minecraft.core.registries.BuiltInRegistries.ITEM
+						.getValue(com.mythstack.MythStack.id("granite_bricks")), Items.STONE_BRICKS};
+		for (int i = 0; i < stairSlots.length; i++) {
+			resinStairs.getSlot(stairSlots[i]).set(new ItemStack(stairWoods[i], 1));
+		}
+		check("resin: a majority-resin mixed brick grid previews resin brick stairs",
+				resinStairs.getSlot(0).getItem().getItem() == Items.RESIN_BRICK_STAIRS, failures);
+		for (int slot : stairSlots) {
+			resinStairs.getSlot(slot).set(ItemStack.EMPTY);
+		}
+
 		// Acceptance: lever = ANY cobbled + ANY stick (cross-family, both via tags).
 		CraftingMenu lever = table(level, player);
 		lever.getSlot(2).set(new ItemStack(com.mythstack.registry.ModItems.TYPED_STICKS.get(0), 1));

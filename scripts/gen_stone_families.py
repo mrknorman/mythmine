@@ -32,6 +32,14 @@ for form in FORM_KEYS:
             members.append(member_id(name))
         if m[0] == "stone" and name:
             canonicals[form] = name
+    # Resin (pale garden) is a PARTIAL material: its brick line + chiseled act stone-like and
+    # join the groups; resin_block stays out of raw (it shouldn't satisfy any-raw-stone recipes),
+    # and the kit never gap-fills it (no cobbled/cracked/pillar resin).
+    RESIN = {"bricks": "resin_bricks", "brick_stairs": "resin_brick_stairs",
+             "brick_slab": "resin_brick_slab", "brick_wall": "resin_brick_wall",
+             "chiseled": "chiseled_resin_bricks"}
+    if form in RESIN:
+        members.append(f"minecraft:{RESIN[form]}")
     write(f"data/mythstack/tags/item/stone/{form}.json", {"values": members})
 print(f"{len(FORM_KEYS)} group tags; canonicals: {len(canonicals)}")
 

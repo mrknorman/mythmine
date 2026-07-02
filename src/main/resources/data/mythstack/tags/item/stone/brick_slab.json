@@ -19,6 +19,7 @@
 		"mythstack:quartz_brick_slab",
 		"minecraft:prismarine_brick_slab",
 		"mythstack:purpur_brick_slab",
-		"minecraft:mud_brick_slab"
+		"minecraft:mud_brick_slab",
+		"minecraft:resin_brick_slab"
 	]
 }

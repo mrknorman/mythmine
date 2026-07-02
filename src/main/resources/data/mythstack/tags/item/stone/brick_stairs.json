@@ -19,6 +19,7 @@
 		"mythstack:quartz_brick_stairs",
 		"minecraft:prismarine_brick_stairs",
 		"mythstack:purpur_brick_stairs",
-		"minecraft:mud_brick_stairs"
+		"minecraft:mud_brick_stairs",
+		"minecraft:resin_brick_stairs"
 	]
 }

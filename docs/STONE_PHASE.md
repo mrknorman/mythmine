@@ -155,6 +155,12 @@ raw drops itself.
 bone block (organic) · terracotta (the 16-color axis is its own future project) · sculk, magma,
 glowstone, coral, ices (mechanics/function blocks).
 
+**Resin — a PARTIAL material** (2026-07-02): its brick line + chiseled join the form groups
+(piles, transmute identity "resin", stonecutter via groups) but the kit never gap-fills it — no
+cobbled/cracked/pillar/polished resin, and resin_block deliberately stays OUT of the raw group so
+it can't satisfy any-raw-stone recipes (repeaters from amber would be silly). The partial-material
+pattern is now established for future semi-stones.
+
 **Vanilla one-offs stay one-offs**: deepslate tiles (+forms), cut sandstone (+slab), smooth
 basalt, chiseled tuff bricks, red nether bricks, gilded blackstone, reinforced deepslate, mossy
 one-offs already counted. They keep working, join no group, generate no counterparts.

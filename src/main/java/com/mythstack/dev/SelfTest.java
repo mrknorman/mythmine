@@ -310,6 +310,14 @@ public final class SelfTest {
 				VariantPiles.isPile(inv.get(0))
 						&& VariantPiles.countOf(inv.get(0), cobbledGranite) == curatedGranite, failures);
 
+		// 18h. Resin: a partial stone material — its brick line piles with the other bricks.
+		var bricksGroup = VariantGroups.of(Items.RESIN_BRICKS);
+		ItemStack brickPile = VariantPiles.makeStacks(bricksGroup, VariantPiles.pool(bricksGroup,
+				List.of(new ItemStack(Items.STONE_BRICKS, 3), new ItemStack(Items.RESIN_BRICKS, 4)))).get(0);
+		check("resin: resin bricks pile with stone bricks on the canonical host (7 deep)",
+				bricksGroup != null && VariantPiles.isPile(brickPile)
+						&& brickPile.getItem() == Items.STONE_BRICKS && brickPile.getCount() == 7, failures);
+
 		if (com.mythstack.config.ModConfig.TERRAIN) {
 		// 18f. Geology: sample far, freshly-generated chunks and assert the regional stone bands
 		//      exist. Widely-spaced columns at y=40 must show several region stones (shale/granite/

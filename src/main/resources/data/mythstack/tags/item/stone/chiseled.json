@@ -19,6 +19,7 @@
 		"minecraft:chiseled_quartz_block",
 		"mythstack:chiseled_prismarine",
 		"mythstack:chiseled_purpur",
-		"mythstack:chiseled_packed_mud"
+		"mythstack:chiseled_packed_mud",
+		"minecraft:chiseled_resin_bricks"
 	]
 }
