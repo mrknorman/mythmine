@@ -1,0 +1,10 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		"minecraft:cobbled_deepslate",
+		"minecraft:moss_block"
+	],
+	"result": {
+		"id": "mythstack:mossy_cobbled_deepslate"
+	}
+}

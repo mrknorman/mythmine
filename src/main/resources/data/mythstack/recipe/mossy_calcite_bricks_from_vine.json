@@ -1,0 +1,10 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		"mythstack:calcite_bricks",
+		"minecraft:vine"
+	],
+	"result": {
+		"id": "mythstack:mossy_calcite_bricks"
+	}
+}

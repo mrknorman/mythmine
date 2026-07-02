@@ -1,0 +1,7 @@
+{
+	"type": "minecraft:stonecutting",
+	"ingredient": "mythstack:mossy_cobbled_calcite",
+	"result": {
+		"id": "mythstack:mossy_cobbled_calcite_wall"
+	}
+}

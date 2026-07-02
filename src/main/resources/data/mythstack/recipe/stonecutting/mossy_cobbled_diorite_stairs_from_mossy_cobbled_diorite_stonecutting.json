@@ -1,0 +1,7 @@
+{
+	"type": "minecraft:stonecutting",
+	"ingredient": "mythstack:mossy_cobbled_diorite",
+	"result": {
+		"id": "mythstack:mossy_cobbled_diorite_stairs"
+	}
+}

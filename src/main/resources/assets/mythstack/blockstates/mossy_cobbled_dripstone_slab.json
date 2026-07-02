@@ -1,0 +1,13 @@
+{
+	"variants": {
+		"type=bottom": {
+			"model": "mythstack:block/mossy_cobbled_dripstone_slab"
+		},
+		"type=double": {
+			"model": "mythstack:block/mossy_cobbled_dripstone"
+		},
+		"type=top": {
+			"model": "mythstack:block/mossy_cobbled_dripstone_slab_top"
+		}
+	}
+}

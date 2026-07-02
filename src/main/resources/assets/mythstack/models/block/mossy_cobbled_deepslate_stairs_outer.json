@@ -1,0 +1,8 @@
+{
+	"parent": "minecraft:block/outer_stairs",
+	"textures": {
+		"bottom": "mythstack:block/mossy_cobbled_deepslate",
+		"top": "mythstack:block/mossy_cobbled_deepslate",
+		"side": "mythstack:block/mossy_cobbled_deepslate"
+	}
+}

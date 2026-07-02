@@ -5,7 +5,7 @@ Recipe chains follow vanilla's deepslate/tuff convention: cobbled -> raw (smelt)
 Stonecutting gets full parity minus cuts vanilla already has."""
 import json, os, sys, zipfile
 sys.path.insert(0, os.path.dirname(__file__))
-from stone_naming import MATERIALS, lines, stem
+from stone_naming import MATERIALS, lines, stem, is_mossy
 
 ROOT = os.path.join(os.path.dirname(__file__), "..", "src/main/resources")
 CJ = zipfile.ZipFile(os.path.expanduser("~/.gradle/caches/fabric-loom/26.2/minecraft-client.jar"))
@@ -151,44 +151,62 @@ total_new = 0
 for m in MATERIALS:
     name, raw, cob, pol, br, chis, pillar, raw_is_pillar, loot_norm = m
     raw_line = "dripstone" if name == "dripstone" else raw
-    line_bases = {"raw": raw_line, "cob": stem(cob, br), "pol": stem(pol, br), "br": stem(br, br)}
-    new = [n for n in lines(m) if n not in VANILLA]
+
+    # (block name, kind, base full-cube) in kit order — mirrors StoneKit.lines()
+    entries = []
+    def add_line(base):
+        s = stem(base, br) if not base.startswith("mossy_") else (base[:-1] if base.endswith("s") else base)
+        entries.append((base, "cube", None))
+        entries.append((f"{s}_stairs", "stairs", base))
+        entries.append((f"{s}_slab", "slab", base))
+        entries.append((f"{s}_wall", "wall", base))
+    entries.append((raw, "cube", None))
+    entries.append((f"{raw_line}_stairs", "stairs", raw))
+    entries.append((f"{raw_line}_slab", "slab", raw))
+    entries.append((f"{raw_line}_wall", "wall", raw))
+    for base in (cob, pol, br):
+        add_line(base)
+    entries.append((f"cracked_{br}", "cube", None))
+    entries.append((chis, "cube", None))
+    if not raw_is_pillar:
+        entries.append((pillar, "pillar", None))
+    if is_mossy(name):
+        add_line(f"mossy_{cob}")
+        add_line(f"mossy_{br}")
+
+    new = [(n, k, b) for n, k, b in entries if n not in VANILLA]
     total_new += len(new)
-    for n in new:
-        if n.endswith("_stairs"):
-            base = {v + "_stairs": (raw if k == "raw" else {"cob": cob, "pol": pol, "br": br}[k])
-                    for k, v in line_bases.items()}[n]
-            emit_block(n, "stairs", base)
+    for n, kind, base in new:
+        emit_block(n, kind, base)
+        if kind == "stairs":
             shaped(n, ["#  ", "## ", "###"], {"#": item_id(base)}, f"mythstack:{n}", 4)
-        elif n.endswith("_slab"):
-            base = {v + "_slab": (raw if k == "raw" else {"cob": cob, "pol": pol, "br": br}[k])
-                    for k, v in line_bases.items()}[n]
-            emit_block(n, "slab", base)
+            stairs_tag.append(f"mythstack:{n}")
+        elif kind == "slab":
             shaped(n, ["###"], {"#": item_id(base)}, f"mythstack:{n}", 6)
-        elif n.endswith("_wall"):
-            base = {v + "_wall": (raw if k == "raw" else {"cob": cob, "pol": pol, "br": br}[k])
-                    for k, v in line_bases.items()}[n]
-            emit_block(n, "wall", base)
+            slabs_tag.append(f"mythstack:{n}")
+        elif kind == "wall":
             shaped(n, ["###", "###"], {"#": item_id(base)}, f"mythstack:{n}", 6)
             walls_tag.append(f"mythstack:{n}")
-        elif n == pillar and not raw_is_pillar:
-            emit_block(n, "pillar")
+        elif kind == "pillar":
             shaped(n, ["#", "#"], {"#": item_id(raw)}, f"mythstack:{n}", 2)
-        else:
-            emit_block(n, "cube")
-            if n == pol:
-                shaped(n, ["##", "##"], {"#": item_id(raw)}, f"mythstack:{n}", 4)
-            elif n == br:
-                shaped(n, ["##", "##"], {"#": item_id(pol)}, f"mythstack:{n}", 4)
-            elif n == chis:
-                shaped(n, ["#", "#"], {"#": item_id(f"{raw_line}_slab")}, f"mythstack:{n}", 1)
-            elif n == f"cracked_{br}":
-                smelt(n, item_id(br), f"mythstack:{n}")
-            elif n == cob:
-                smelt(f"{raw}_from_smelting_{cob}", f"mythstack:{cob}", item_id(raw))
-    # track new stairs/slabs for tags
-    stairs_tag += [f"mythstack:{n}" for n in new if n.endswith("_stairs")]
-    slabs_tag += [f"mythstack:{n}" for n in new if n.endswith("_slab")]
+        elif n == pol:
+            shaped(n, ["##", "##"], {"#": item_id(raw)}, f"mythstack:{n}", 4)
+        elif n == br:
+            shaped(n, ["##", "##"], {"#": item_id(pol)}, f"mythstack:{n}", 4)
+        elif n == chis:
+            shaped(n, ["#", "#"], {"#": item_id(f"{raw_line}_slab")}, f"mythstack:{n}", 1)
+        elif n == f"cracked_{br}":
+            smelt(n, item_id(br), f"mythstack:{n}")
+        elif n == cob:
+            smelt(f"{raw}_from_smelting_{cob}", f"mythstack:{cob}", item_id(raw))
+        elif n.startswith("mossy_"):
+            plain = n.removeprefix("mossy_")
+            for greenery in ("minecraft:vine", "minecraft:moss_block"):
+                write(f"data/mythstack/recipe/{n}_from_{greenery.split(':')[1]}.json",
+                      {"type": "minecraft:crafting_shapeless",
+                       "ingredients": [item_id(plain), greenery],
+                       "result": {"id": f"mythstack:{n}"}})
+                counts["recipe"] += 1
 
     # loot normalization: mining raw drops cobbled, silk touch restores raw
     if loot_norm:
@@ -199,23 +217,21 @@ for m in MATERIALS:
     if name in ("blackstone", "basalt"):
         cut(f"{cob}_from_{raw}_stonecutting", item_id(raw), item_id(cob))
 
-    # stonecutting parity (skipping vanilla-covered cuts)
-    def line(k):
-        b = {"raw": raw, "cob": cob, "pol": pol, "br": br}[k]
-        s = line_bases[k]
-        return b, [f"{s}_stairs", f"{s}_slab", f"{s}_wall"]
+    # stonecutting parity: raw reaches everything; each line base reaches its own shapes
+    line_stems = {raw: raw_line, cob: stem(cob, br), pol: stem(pol, br), br: stem(br, br)}
     raw_targets = []
-    for k in ("raw", "pol", "br"):
-        b, forms = line(k)
-        if k != "raw":
-            raw_targets.append(b)
-        raw_targets += forms
+    for b in (pol, br):
+        raw_targets.append(b)
+    for b in (raw, pol, br):
+        s2 = line_stems[b]
+        raw_targets += [f"{s2}_stairs", f"{s2}_slab", f"{s2}_wall"]
     raw_targets += [chis] + ([] if raw_is_pillar else [pillar])
     for t in raw_targets:
         cut(f"{t}_from_{raw}_stonecutting", item_id(raw), item_id(t), 2 if t.endswith("_slab") else 1)
-    for k in ("cob", "pol", "br"):
-        b, forms = line(k)
-        for t in forms:
+    mossy_bases = [f"mossy_{cob}", f"mossy_{br}"] if is_mossy(name) else []
+    for b in (cob, pol, br, *mossy_bases):
+        s2 = line_stems.get(b) or (b[:-1] if b.endswith("s") else b)
+        for t in (f"{s2}_stairs", f"{s2}_slab", f"{s2}_wall"):
             cut(f"{t}_from_{b}_stonecutting", item_id(b), item_id(t), 2 if t.endswith("_slab") else 1)
 
 write("data/minecraft/tags/block/mineable/pickaxe.json", pickaxe)

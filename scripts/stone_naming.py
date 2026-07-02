@@ -30,4 +30,11 @@ def lines(m):
     names += [f"cracked_{br}", chis]
     if not raw_is_pillar:
         names.append(pillar)
+    if is_mossy(name):
+        for base in (f"mossy_{cob}", f"mossy_{br}"):
+            s = base[:-1] if base.endswith("s") else base
+            names += [base, f"{s}_stairs", f"{s}_slab", f"{s}_wall"]
     return names
+
+def is_mossy(name):
+    return name in ("stone", "deepslate", "granite", "diorite", "andesite", "tuff", "calcite", "dripstone")

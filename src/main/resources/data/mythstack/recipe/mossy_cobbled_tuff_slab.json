@@ -1,0 +1,13 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"#": "mythstack:mossy_cobbled_tuff"
+	},
+	"pattern": [
+		"###"
+	],
+	"result": {
+		"id": "mythstack:mossy_cobbled_tuff_slab",
+		"count": 6
+	}
+}

@@ -68,6 +68,7 @@ public final class MenuSelfTest {
 		mixedIngredients(level, player, failures);
 		typedStations(level, player, failures);
 		utilityStations(level, player, failures);
+		mossyStone(level, player, failures);
 		sawmill(level, player, failures);
 
 		player.getInventory().clearContent();
@@ -874,6 +875,20 @@ public final class MenuSelfTest {
 		menu.getSlot(0).set(ItemStack.EMPTY);
 		player.containerMenu = player.inventoryMenu;
 		level.setBlock(pos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
+	}
+
+	/** S1b: mossing works for normalized materials — cobbled granite + vine = mossy (shapeless). */
+	private static void mossyStone(ServerLevel level, FakePlayer player, int[] failures) {
+		var cobbledGranite = net.minecraft.core.registries.BuiltInRegistries.ITEM
+				.getValue(com.mythstack.MythStack.id("cobbled_granite"));
+		var mossy = net.minecraft.core.registries.BuiltInRegistries.ITEM
+				.getValue(com.mythstack.MythStack.id("mossy_cobbled_granite"));
+		CraftingMenu menu = table(level, player);
+		menu.getSlot(1).set(new ItemStack(cobbledGranite, 1));
+		menu.getSlot(2).set(new ItemStack(Items.VINE, 1));
+		ItemStack taken = take(menu, player);
+		check("stone: cobbled granite + vine crafts mossy cobbled granite",
+				taken.getItem() == mossy, failures);
 	}
 
 	private static ResourceKey<Recipe<?>> recipeKey(String path) {

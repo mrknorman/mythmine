@@ -1,0 +1,8 @@
+{
+	"type": "minecraft:stonecutting",
+	"ingredient": "mythstack:mossy_cobbled_deepslate",
+	"result": {
+		"id": "mythstack:mossy_cobbled_deepslate_slab",
+		"count": 2
+	}
+}

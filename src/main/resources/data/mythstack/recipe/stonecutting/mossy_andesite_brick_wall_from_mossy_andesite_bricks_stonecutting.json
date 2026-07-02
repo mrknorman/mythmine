@@ -1,0 +1,7 @@
+{
+	"type": "minecraft:stonecutting",
+	"ingredient": "mythstack:mossy_andesite_bricks",
+	"result": {
+		"id": "mythstack:mossy_andesite_brick_wall"
+	}
+}

@@ -34,6 +34,15 @@ public final class StoneKit {
 		public String cracked() {
 			return "cracked_" + bricks;
 		}
+
+		/** Wet-overworld materials moss (S1b); nether/end/dry ones don't. */
+		public boolean mossy() {
+			return switch (name) {
+				case "stone", "deepslate", "granite", "diorite", "andesite", "tuff", "calcite",
+						"dripstone" -> true;
+				default -> false;
+			};
+		}
 	}
 
 	public static final List<Material> MATERIALS = List.of(
@@ -89,6 +98,15 @@ public final class StoneKit {
 		if (!m.rawIsPillar()) {
 			names.add(m.pillar());
 		}
+		if (m.mossy()) { // S1b: the mossy axis — mossy cobbled + mossy bricks lines
+			for (String base : List.of("mossy_" + m.cobbled(), "mossy_" + m.bricks())) {
+				String stem = base.endsWith("s") ? base.substring(0, base.length() - 1) : base;
+				names.add(base);
+				names.add(stem + "_stairs");
+				names.add(stem + "_slab");
+				names.add(stem + "_wall");
+			}
+		}
 		return names;
 	}
 
@@ -128,8 +146,8 @@ public final class StoneKit {
 				NEW_FORMS.put(raw, List.copyOf(added));
 			}
 		}
-		if (NEW_FORMS.values().stream().mapToInt(List::size).sum() != 143) {
-			throw new IllegalStateException("stone kit expected 143 new blocks, got "
+		if (NEW_FORMS.values().stream().mapToInt(List::size).sum() != 199) {
+			throw new IllegalStateException("stone kit expected 199 new blocks, got "
 					+ NEW_FORMS.values().stream().mapToInt(List::size).sum());
 		}
 	}

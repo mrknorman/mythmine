@@ -74,3 +74,34 @@ with zipfile.ZipFile(JAR2) as z:
             open(os.path.join(OUT, f"{out_name}.png"), "wb").write(png_encode(w, h, px))
             made += 1
 print(f"generated {made} stone base textures")
+
+# ---- S1b: moss-mask transfer -------------------------------------------------------------
+from stone_naming import is_mossy
+with zipfile.ZipFile(JAR2) as z:
+    def vtex2(name):
+        _, _, px = png_decode(z.read(f"assets/minecraft/textures/block/{name}.png"))
+        return px
+    def our_or_vanilla(name):
+        ours = os.path.join(OUT, f"{name}.png")
+        if os.path.exists(ours):
+            _, _, px = png_decode(open(ours, "rb").read())
+            return px
+        return vtex2(name)
+    def moss_mask(plain, mossy):
+        """Pixels where the mossy donor departs from its plain twin — that's the moss."""
+        return [m if sum(abs(a - b) for a, b in zip(p[:3], m[:3])) > 30 else None
+                for p, m in zip(plain, mossy)]
+    COB_MASK = moss_mask(vtex2("cobblestone"), vtex2("mossy_cobblestone"))
+    BRICK_MASK = moss_mask(vtex2("stone_bricks"), vtex2("mossy_stone_bricks"))
+    made = 0
+    for m in MATERIALS:
+        name, raw, cob, pol, br, chis, pillar, raw_is_pillar, _ = m
+        if not is_mossy(name) or name == "stone":
+            continue
+        for base, mask in ((cob, COB_MASK), (br, BRICK_MASK)):
+            target = our_or_vanilla(base)
+            out = [mask[i] if mask[i] else target[i] for i in range(len(target))]
+            w = h = int(len(out) ** 0.5)
+            open(os.path.join(OUT, f"mossy_{base}.png"), "wb").write(png_encode(w, h, out))
+            made += 1
+print(f"generated {made} mossy base textures")
