@@ -1,0 +1,12 @@
+{
+	"parent": "minecraft:block/cube",
+	"textures": {
+		"down": "mythstack:block/jungle_smithing_table_bottom",
+		"east": "mythstack:block/jungle_smithing_table_side",
+		"north": "mythstack:block/jungle_smithing_table_front",
+		"particle": "mythstack:block/jungle_smithing_table_front",
+		"south": "mythstack:block/jungle_smithing_table_front",
+		"up": "mythstack:block/jungle_smithing_table_top",
+		"west": "mythstack:block/jungle_smithing_table_side"
+	}
+}

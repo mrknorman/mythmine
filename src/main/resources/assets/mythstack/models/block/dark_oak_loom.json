@@ -1,0 +1,9 @@
+{
+	"parent": "minecraft:block/orientable_with_bottom",
+	"textures": {
+		"bottom": "mythstack:block/dark_oak_loom_bottom",
+		"front": "mythstack:block/dark_oak_loom_front",
+		"side": "mythstack:block/dark_oak_loom_side",
+		"top": "mythstack:block/dark_oak_loom_top"
+	}
+}

@@ -1,0 +1,12 @@
+{
+	"parent": "minecraft:block/cube",
+	"textures": {
+		"down": "minecraft:block/birch_planks",
+		"east": "mythstack:block/dark_oak_fletching_table_side",
+		"north": "mythstack:block/dark_oak_fletching_table_front",
+		"particle": "mythstack:block/dark_oak_fletching_table_front",
+		"south": "mythstack:block/dark_oak_fletching_table_front",
+		"up": "mythstack:block/dark_oak_fletching_table_top",
+		"west": "mythstack:block/dark_oak_fletching_table_side"
+	}
+}

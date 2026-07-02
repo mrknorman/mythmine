@@ -1,0 +1,16 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"category": "redstone",
+	"key": {
+		"#": "minecraft:dark_oak_planks",
+		"X": "minecraft:redstone"
+	},
+	"pattern": [
+		"###",
+		"#X#",
+		"###"
+	],
+	"result": {
+		"id": "mythstack:dark_oak_note_block"
+	}
+}

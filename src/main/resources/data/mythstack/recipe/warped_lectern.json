@@ -1,0 +1,16 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"category": "redstone",
+	"key": {
+		"B": "mythstack:warped_bookshelf",
+		"S": "minecraft:warped_slab"
+	},
+	"pattern": [
+		"SSS",
+		" B ",
+		" S "
+	],
+	"result": {
+		"id": "mythstack:warped_lectern"
+	}
+}

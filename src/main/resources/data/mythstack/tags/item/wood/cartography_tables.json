@@ -1,0 +1,16 @@
+{
+	"values": [
+		"minecraft:cartography_table",
+		"mythstack:spruce_cartography_table",
+		"mythstack:birch_cartography_table",
+		"mythstack:jungle_cartography_table",
+		"mythstack:acacia_cartography_table",
+		"mythstack:dark_oak_cartography_table",
+		"mythstack:mangrove_cartography_table",
+		"mythstack:cherry_cartography_table",
+		"mythstack:pale_oak_cartography_table",
+		"mythstack:bamboo_cartography_table",
+		"mythstack:crimson_cartography_table",
+		"mythstack:warped_cartography_table"
+	]
+}

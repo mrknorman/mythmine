@@ -1,0 +1,15 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"#": "minecraft:bamboo_planks",
+		"@": "minecraft:paper"
+	},
+	"pattern": [
+		"@@",
+		"##",
+		"##"
+	],
+	"result": {
+		"id": "mythstack:bamboo_cartography_table"
+	}
+}

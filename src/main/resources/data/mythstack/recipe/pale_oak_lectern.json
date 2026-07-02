@@ -1,0 +1,16 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"category": "redstone",
+	"key": {
+		"B": "mythstack:pale_oak_bookshelf",
+		"S": "minecraft:pale_oak_slab"
+	},
+	"pattern": [
+		"SSS",
+		" B ",
+		" S "
+	],
+	"result": {
+		"id": "mythstack:pale_oak_lectern"
+	}
+}

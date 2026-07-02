@@ -1,0 +1,19 @@
+{
+	"variants": {
+		"facing=east": {
+			"model": "mythstack:block/dark_oak_loom",
+			"y": 90
+		},
+		"facing=north": {
+			"model": "mythstack:block/dark_oak_loom"
+		},
+		"facing=south": {
+			"model": "mythstack:block/dark_oak_loom",
+			"y": 180
+		},
+		"facing=west": {
+			"model": "mythstack:block/dark_oak_loom",
+			"y": 270
+		}
+	}
+}

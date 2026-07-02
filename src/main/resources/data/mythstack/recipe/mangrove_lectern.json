@@ -1,0 +1,16 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"category": "redstone",
+	"key": {
+		"B": "mythstack:mangrove_bookshelf",
+		"S": "minecraft:mangrove_slab"
+	},
+	"pattern": [
+		"SSS",
+		" B ",
+		" S "
+	],
+	"result": {
+		"id": "mythstack:mangrove_lectern"
+	}
+}

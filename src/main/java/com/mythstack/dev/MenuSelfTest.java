@@ -67,6 +67,7 @@ public final class MenuSelfTest {
 		typedBlocks(level, player, failures);
 		mixedIngredients(level, player, failures);
 		typedStations(level, player, failures);
+		utilityStations(level, player, failures);
 
 		player.getInventory().clearContent();
 		player.containerMenu = player.inventoryMenu;
@@ -749,6 +750,50 @@ public final class MenuSelfTest {
 		CraftingMenu opened = new CraftingMenu(98, player.getInventory(),
 				ContainerLevelAccess.create(level, pos));
 		check("stations: a typed crafting table keeps its menu valid", opened.stillValid(player), failures);
+		level.setBlock(pos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
+	}
+
+	/** The wooden utility stations: relaxed-guard crafts, multi-group lecterns, menu validity. */
+	private static void utilityStations(ServerLevel level, FakePlayer player, int[] failures) {
+		// Beehive: planks + honeycomb (a non-family ingredient riding the relaxed guard).
+		CraftingMenu hive = table(level, player);
+		for (int slot : new int[]{1, 2, 3, 7, 8, 9}) {
+			hive.getSlot(slot).set(new ItemStack(Items.SPRUCE_PLANKS, 1));
+		}
+		for (int slot : new int[]{4, 5, 6}) {
+			hive.getSlot(slot).set(new ItemStack(Items.HONEYCOMB, 1));
+		}
+		ItemStack hiveTaken = take(hive, player);
+		check("utility: spruce planks + honeycomb craft the spruce beehive",
+				hiveTaken.getItem() == ModBlocks.TYPED_BEEHIVES.get(0).asItem()
+						&& gridTotal(hive, 9, Items.HONEYCOMB) == 0, failures);
+
+		// Lectern: slabs + the TYPED bookshelf — two families propagating as one wood.
+		CraftingMenu lectern = table(level, player);
+		lectern.getSlot(1).set(new ItemStack(Items.SPRUCE_SLAB, 1));
+		lectern.getSlot(2).set(new ItemStack(Items.SPRUCE_SLAB, 1));
+		lectern.getSlot(3).set(new ItemStack(Items.SPRUCE_SLAB, 1));
+		lectern.getSlot(5).set(new ItemStack(ModBlocks.TYPED_BOOKSHELVES.get(0).asItem(), 1));
+		lectern.getSlot(8).set(new ItemStack(Items.SPRUCE_SLAB, 1));
+		check("utility: spruce slabs + spruce bookshelf preview the spruce lectern",
+				lectern.getSlot(0).getItem().getItem() == ModBlocks.TYPED_LECTERNS.get(0).asItem(), failures);
+
+		// Composter: all-slab single-group craft.
+		CraftingMenu composter = table(level, player);
+		for (int slot : new int[]{1, 3, 4, 6, 7, 8, 9}) {
+			composter.getSlot(slot).set(new ItemStack(Items.SPRUCE_SLAB, 1));
+		}
+		ItemStack compTaken = take(composter, player);
+		check("utility: 7 spruce slabs craft the spruce composter",
+				compTaken.getItem() == ModBlocks.TYPED_COMPOSTERS.get(0).asItem(), failures);
+
+		// A typed loom keeps its menu open (the shared station-validity rule).
+		BlockPos pos = new BlockPos(24, 200, 0);
+		level.setBlock(pos, ModBlocks.TYPED_LOOMS.get(0).defaultBlockState(), 3);
+		player.setPos(pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5);
+		net.minecraft.world.inventory.LoomMenu loom = new net.minecraft.world.inventory.LoomMenu(
+				97, player.getInventory(), ContainerLevelAccess.create(level, pos));
+		check("utility: a typed loom keeps its menu valid", loom.stillValid(player), failures);
 		level.setBlock(pos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
 	}
 

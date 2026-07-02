@@ -1,0 +1,16 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"category": "redstone",
+	"key": {
+		"#": "minecraft:spruce_planks",
+		"X": "minecraft:redstone"
+	},
+	"pattern": [
+		"###",
+		"#X#",
+		"###"
+	],
+	"result": {
+		"id": "mythstack:spruce_note_block"
+	}
+}

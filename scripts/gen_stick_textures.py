@@ -122,6 +122,8 @@ BASES = [  # (vanilla texture to palette-map fully, per-wood output path templat
 ]
 # Textures that mix wood with non-wood detail (books, tools, the crafting grid): only pixels close to
 # the OAK planks palette are remapped; everything else is preserved verbatim.
+SELECTIVE_PREFIXES = ["fletching_table", "cartography_table", "smithing_table", "loom", "lectern",
+                      "composter", "note_block", "jukebox", "beehive"]
 SELECTIVE = [
     ("assets/minecraft/textures/block/bookshelf.png", "assets/mythstack/textures/block/{}_bookshelf.png"),
     ("assets/minecraft/textures/block/chiseled_bookshelf_top.png", "assets/mythstack/textures/block/{}_chiseled_bookshelf_top.png"),
@@ -143,6 +145,12 @@ def nearest_distance(p, palette):
 
 
 with zipfile.ZipFile(JAR) as z:
+    # Station families: every texture under the family prefix, selectively mapped.
+    for prefix in SELECTIVE_PREFIXES:
+        for n in z.namelist():
+            if n.startswith(f"assets/minecraft/textures/block/{prefix}") and n.endswith(".png"):
+                base = os.path.basename(n)[:-4]  # e.g. loom_side, note_block
+                SELECTIVE.append((n, "assets/mythstack/textures/block/{}_" + base + ".png"))
     _, _, oak_planks = png_decode(z.read("assets/minecraft/textures/block/oak_planks.png"))
     oak_palette = sorted({p[:3] for p in oak_planks if p[3] > 0})
     for base_path, out_template in SELECTIVE:

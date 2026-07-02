@@ -1,0 +1,16 @@
+{
+	"values": [
+		"minecraft:jukebox",
+		"mythstack:spruce_jukebox",
+		"mythstack:birch_jukebox",
+		"mythstack:jungle_jukebox",
+		"mythstack:acacia_jukebox",
+		"mythstack:dark_oak_jukebox",
+		"mythstack:mangrove_jukebox",
+		"mythstack:cherry_jukebox",
+		"mythstack:pale_oak_jukebox",
+		"mythstack:bamboo_jukebox",
+		"mythstack:crimson_jukebox",
+		"mythstack:warped_jukebox"
+	]
+}

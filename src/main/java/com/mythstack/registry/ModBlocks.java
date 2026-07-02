@@ -16,8 +16,16 @@ import net.minecraft.world.level.block.BarrelBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ChestBlock;
+import net.minecraft.world.level.block.BeehiveBlock;
+import net.minecraft.world.level.block.CartographyTableBlock;
 import net.minecraft.world.level.block.ChiseledBookShelfBlock;
+import net.minecraft.world.level.block.ComposterBlock;
 import net.minecraft.world.level.block.CraftingTableBlock;
+import net.minecraft.world.level.block.JukeboxBlock;
+import net.minecraft.world.level.block.LecternBlock;
+import net.minecraft.world.level.block.LoomBlock;
+import net.minecraft.world.level.block.NoteBlock;
+import net.minecraft.world.level.block.SmithingTableBlock;
 import net.minecraft.world.level.block.LadderBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -86,6 +94,47 @@ public final class ModBlocks {
 					BlockBehaviour.Properties.ofFullCopy(Blocks.CRAFTING_TABLE), true))
 			.toList();
 
+	// The wooden utility stations (audit follow-up): the fletching table is a plain Block in 26.2.
+	public static final List<Block> TYPED_FLETCHING_TABLES = station("fletching_table", Block::new, Blocks.FLETCHING_TABLE);
+	public static final List<Block> TYPED_CARTOGRAPHY_TABLES = station("cartography_table", CartographyTableBlock::new, Blocks.CARTOGRAPHY_TABLE);
+	public static final List<Block> TYPED_SMITHING_TABLES = station("smithing_table", SmithingTableBlock::new, Blocks.SMITHING_TABLE);
+	public static final List<Block> TYPED_LOOMS = station("loom", LoomBlock::new, Blocks.LOOM);
+	public static final List<Block> TYPED_LECTERNS = station("lectern", LecternBlock::new, Blocks.LECTERN);
+	public static final List<Block> TYPED_COMPOSTERS = station("composter", ComposterBlock::new, Blocks.COMPOSTER);
+	public static final List<Block> TYPED_NOTE_BLOCKS = station("note_block", NoteBlock::new, Blocks.NOTE_BLOCK);
+	public static final List<Block> TYPED_JUKEBOXES = station("jukebox", JukeboxBlock::new, Blocks.JUKEBOX);
+	public static final List<Block> TYPED_BEEHIVES = station("beehive", BeehiveBlock::new, Blocks.BEEHIVE);
+
+	/** canonical vanilla block -> its typed variants, insertion-ordered for creative-tab placement. */
+	public static final Map<Block, List<Block>> TYPED_FAMILIES = typedFamilies();
+
+	private static Map<Block, List<Block>> typedFamilies() {
+		Map<Block, List<Block>> families = new java.util.LinkedHashMap<>();
+		families.put(Blocks.LADDER, TYPED_LADDERS);
+		families.put(Blocks.CHEST, TYPED_CHESTS);
+		families.put(Blocks.BOOKSHELF, TYPED_BOOKSHELVES);
+		families.put(Blocks.CHISELED_BOOKSHELF, TYPED_CHISELED_BOOKSHELVES);
+		families.put(Blocks.BARREL, TYPED_BARRELS);
+		families.put(Blocks.CRAFTING_TABLE, TYPED_CRAFTING_TABLES);
+		families.put(Blocks.FLETCHING_TABLE, TYPED_FLETCHING_TABLES);
+		families.put(Blocks.CARTOGRAPHY_TABLE, TYPED_CARTOGRAPHY_TABLES);
+		families.put(Blocks.SMITHING_TABLE, TYPED_SMITHING_TABLES);
+		families.put(Blocks.LOOM, TYPED_LOOMS);
+		families.put(Blocks.LECTERN, TYPED_LECTERNS);
+		families.put(Blocks.COMPOSTER, TYPED_COMPOSTERS);
+		families.put(Blocks.NOTE_BLOCK, TYPED_NOTE_BLOCKS);
+		families.put(Blocks.JUKEBOX, TYPED_JUKEBOXES);
+		families.put(Blocks.BEEHIVE, TYPED_BEEHIVES);
+		return java.util.Collections.unmodifiableMap(families);
+	}
+
+	private static List<Block> station(String name, Function<BlockBehaviour.Properties, Block> factory, Block canonical) {
+		return WOODS.stream()
+				.map(wood -> register(wood + "_" + name, factory,
+						BlockBehaviour.Properties.ofFullCopy(canonical), true))
+				.toList();
+	}
+
 	private static Block register(String name,
 			Function<BlockBehaviour.Properties, Block> factory,
 			BlockBehaviour.Properties properties,
@@ -116,20 +165,37 @@ public final class ModBlocks {
 		widen(BlockEntityTypes.CHEST, TYPED_CHESTS);
 		widen(BlockEntityTypes.CHISELED_BOOKSHELF, TYPED_CHISELED_BOOKSHELVES);
 		widen(BlockEntityTypes.BARREL, TYPED_BARRELS);
+		widen(BlockEntityTypes.LECTERN, TYPED_LECTERNS);
+		widen(BlockEntityTypes.JUKEBOX, TYPED_JUKEBOXES);
+		widen(BlockEntityTypes.BEEHIVE, TYPED_BEEHIVES);
 
-		// Typed barrels are fisherman job sites like the vanilla barrel (POI discovery is keyed by
-		// block STATE). If the vanilla mapping isn't found, degrade silently — barrels still work as
-		// containers, villagers just won't claim them.
-		Holder<PoiType> fisherman = PoiTypesAccessor.mythstack$typeByState()
-				.get(Blocks.BARREL.defaultBlockState());
-		if (fisherman != null) {
-			Map<BlockState, Holder<PoiType>> byState =
-					new HashMap<>(PoiTypesAccessor.mythstack$typeByState());
-			for (Block barrel : TYPED_BARRELS) {
-				for (BlockState state : barrel.getStateDefinition().getPossibleStates()) {
-					byState.put(state, fisherman);
+		// Typed blocks inherit their canonical's POI role (job sites, bee homes) — POI discovery is
+		// keyed by block STATE. Missing vanilla mappings degrade silently (the block still works,
+		// villagers/bees just won't claim it).
+		Map<BlockState, Holder<PoiType>> byState = new HashMap<>(PoiTypesAccessor.mythstack$typeByState());
+		boolean changed = false;
+		Map<Block, List<Block>> poiFamilies = new HashMap<>();
+		poiFamilies.put(Blocks.BARREL, TYPED_BARRELS);              // fisherman
+		poiFamilies.put(Blocks.FLETCHING_TABLE, TYPED_FLETCHING_TABLES); // fletcher
+		poiFamilies.put(Blocks.CARTOGRAPHY_TABLE, TYPED_CARTOGRAPHY_TABLES); // cartographer
+		poiFamilies.put(Blocks.SMITHING_TABLE, TYPED_SMITHING_TABLES); // toolsmith
+		poiFamilies.put(Blocks.LOOM, TYPED_LOOMS);                  // shepherd
+		poiFamilies.put(Blocks.LECTERN, TYPED_LECTERNS);            // librarian
+		poiFamilies.put(Blocks.COMPOSTER, TYPED_COMPOSTERS);        // farmer
+		poiFamilies.put(Blocks.BEEHIVE, TYPED_BEEHIVES);            // bee home
+		for (Map.Entry<Block, List<Block>> family : poiFamilies.entrySet()) {
+			Holder<PoiType> poi = byState.get(family.getKey().defaultBlockState());
+			if (poi == null) {
+				continue;
+			}
+			for (Block typed : family.getValue()) {
+				for (BlockState state : typed.getStateDefinition().getPossibleStates()) {
+					byState.put(state, poi);
 				}
 			}
+			changed = true;
+		}
+		if (changed) {
 			PoiTypesAccessor.mythstack$setTypeByState(byState);
 		}
 	}

@@ -1,0 +1,9 @@
+{
+	"parent": "minecraft:block/orientable_with_bottom",
+	"textures": {
+		"bottom": "mythstack:block/cherry_loom_bottom",
+		"front": "mythstack:block/cherry_loom_front",
+		"side": "mythstack:block/cherry_loom_side",
+		"top": "mythstack:block/cherry_loom_top"
+	}
+}

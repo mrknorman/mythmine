@@ -1,0 +1,15 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"#": "minecraft:birch_planks",
+		"@": "minecraft:paper"
+	},
+	"pattern": [
+		"@@",
+		"##",
+		"##"
+	],
+	"result": {
+		"id": "mythstack:birch_cartography_table"
+	}
+}

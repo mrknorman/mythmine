@@ -1,0 +1,25 @@
+{
+	"textures": {
+		"particle": "mythstack:block/birch_composter_compost",
+		"inside": "mythstack:block/birch_composter_ready"
+	},
+	"elements": [
+		{
+			"from": [
+				2,
+				0,
+				2
+			],
+			"to": [
+				14,
+				15,
+				14
+			],
+			"faces": {
+				"up": {
+					"texture": "#inside"
+				}
+			}
+		}
+	]
+}

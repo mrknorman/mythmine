@@ -1,0 +1,7 @@
+{
+	"parent": "minecraft:block/cube_top",
+	"textures": {
+		"side": "mythstack:block/mangrove_jukebox_side",
+		"top": "mythstack:block/mangrove_jukebox_top"
+	}
+}

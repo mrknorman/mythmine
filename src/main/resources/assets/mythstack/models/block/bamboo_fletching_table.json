@@ -1,0 +1,12 @@
+{
+	"parent": "minecraft:block/cube",
+	"textures": {
+		"down": "minecraft:block/birch_planks",
+		"east": "mythstack:block/bamboo_fletching_table_side",
+		"north": "mythstack:block/bamboo_fletching_table_front",
+		"particle": "mythstack:block/bamboo_fletching_table_front",
+		"south": "mythstack:block/bamboo_fletching_table_front",
+		"up": "mythstack:block/bamboo_fletching_table_top",
+		"west": "mythstack:block/bamboo_fletching_table_side"
+	}
+}

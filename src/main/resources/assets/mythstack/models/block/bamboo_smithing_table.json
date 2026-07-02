@@ -1,0 +1,12 @@
+{
+	"parent": "minecraft:block/cube",
+	"textures": {
+		"down": "mythstack:block/bamboo_smithing_table_bottom",
+		"east": "mythstack:block/bamboo_smithing_table_side",
+		"north": "mythstack:block/bamboo_smithing_table_front",
+		"particle": "mythstack:block/bamboo_smithing_table_front",
+		"south": "mythstack:block/bamboo_smithing_table_front",
+		"up": "mythstack:block/bamboo_smithing_table_top",
+		"west": "mythstack:block/bamboo_smithing_table_side"
+	}
+}

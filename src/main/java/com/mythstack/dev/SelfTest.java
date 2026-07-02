@@ -235,6 +235,21 @@ public final class SelfTest {
 						&& sapInv.get(0).getCount() == 10
 						&& "Saplings".equals(sapInv.get(0).getHoverName().getString()), failures);
 
+		// 18d. Creative tabs: every typed family sits DIRECTLY AFTER its canonical, in whichever tab
+		//      vanilla put it (the anchor-following insertion).
+		net.minecraft.world.item.CreativeModeTabs.tryRebuildTabContents(
+				level.enabledFeatures(), false, level.registryAccess());
+		check("creative tabs: typed sticks directly follow the stick",
+				tabAdjacent(Items.STICK, com.mythstack.registry.ModItems.TYPED_STICKS.get(0)), failures);
+		boolean allAdjacent = true;
+		for (var family : com.mythstack.registry.ModBlocks.TYPED_FAMILIES.entrySet()) {
+			if (!tabAdjacent(family.getKey().asItem(), family.getValue().get(0).asItem())) {
+				MythStack.LOGGER.error("[selftest] tab adjacency missing for {}", family.getKey());
+				allAdjacent = false;
+			}
+		}
+		check("creative tabs: all 15 typed block families directly follow their canonicals", allAdjacent, failures);
+
 		// 19. End-to-end menu path: a fake player driving real crafting-menu clicks (phase 3).
 		failures[0] += MenuSelfTest.run(level);
 
@@ -288,6 +303,20 @@ public final class SelfTest {
 			expected.add(new Entry((net.minecraft.world.item.Item) itemThenCount[i], (Integer) itemThenCount[i + 1]));
 		}
 		return pile.contents().equals(expected);
+	}
+
+	/** True if some creative tab lists {@code first} immediately after {@code anchor}. */
+	private static boolean tabAdjacent(net.minecraft.world.item.Item anchor, net.minecraft.world.item.Item first) {
+		for (net.minecraft.world.item.CreativeModeTab tab : net.minecraft.world.item.CreativeModeTabs.allTabs()) {
+			ItemStack previous = ItemStack.EMPTY;
+			for (ItemStack stack : tab.getDisplayItems()) {
+				if (previous.getItem() == anchor && stack.getItem() == first) {
+					return true;
+				}
+				previous = stack;
+			}
+		}
+		return false;
 	}
 
 	private static void check(String name, boolean ok, int[] failures) {

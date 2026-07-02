@@ -1,0 +1,7 @@
+{
+	"parent": "minecraft:block/cube_top",
+	"textures": {
+		"side": "mythstack:block/acacia_jukebox_side",
+		"top": "mythstack:block/acacia_jukebox_top"
+	}
+}

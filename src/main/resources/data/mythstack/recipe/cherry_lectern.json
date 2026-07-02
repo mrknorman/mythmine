@@ -1,0 +1,16 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"category": "redstone",
+	"key": {
+		"B": "mythstack:cherry_bookshelf",
+		"S": "minecraft:cherry_slab"
+	},
+	"pattern": [
+		"SSS",
+		" B ",
+		" S "
+	],
+	"result": {
+		"id": "mythstack:cherry_lectern"
+	}
+}

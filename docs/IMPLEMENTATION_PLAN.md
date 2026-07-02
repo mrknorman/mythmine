@@ -600,6 +600,19 @@ Raised during implementation; captured here so they aren't lost.
   wood (not canonical oak) — the world-placement path, not an inventory gesture.
 
 ### Post-MVP (outline only)
+- **Wooden utility stations — DONE (9 more families, 99 blocks).** Fletching/cartography/smithing
+  tables, looms, lecterns, composters, note blocks, jukeboxes, beehives — all typed per wood with
+  selective palette-mapped textures (string/paper/iron/honey details preserved). Menu validity
+  redirects for loom/cartography/smithing (same hardcoded-block trap as the crafting table, via the
+  shared `TypedStationValidity`); lectern/jukebox/beehive share their vanilla block entities
+  (widened); POI widening generalized — typed stations are villager job sites (fletcher,
+  cartographer, toolsmith, shepherd, librarian, farmer, fisherman) and typed beehives are bee homes
+  (verify claims in-game). Lectern recipes propagate across THREE families (slabs + typed
+  bookshelf). Fuel matches vanilla (beehive excluded); flammability mirrored.
+- **Creative-tab organization — anchor-following insertion.** Every typed family inserts DIRECTLY
+  AFTER its canonical in whichever tab vanilla put it (`MODIFY_OUTPUT_ALL` + anchor-presence check) —
+  no hardcoded tab guesses; verified headlessly by rebuilding real tab contents and asserting
+  adjacency for all 15 block families + sticks.
 - **Mixed-ingredient crafting (the relaxed guard) — DONE.** `firstCraft` accepts NON-family
   ingredients (books, chains, coal), consumed one-per-slot as-is with no vote on the wood; items with
   crafting remainders (buckets) stay fully vanilla. Unlocks: hanging signs propagate (chains ride

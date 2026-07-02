@@ -1,0 +1,12 @@
+{
+	"parent": "minecraft:block/cube",
+	"textures": {
+		"down": "minecraft:block/dark_oak_planks",
+		"east": "mythstack:block/birch_cartography_table_side3",
+		"north": "mythstack:block/birch_cartography_table_side3",
+		"particle": "mythstack:block/birch_cartography_table_side3",
+		"south": "mythstack:block/birch_cartography_table_side1",
+		"up": "mythstack:block/birch_cartography_table_top",
+		"west": "mythstack:block/birch_cartography_table_side2"
+	}
+}

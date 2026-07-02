@@ -1,0 +1,16 @@
+{
+	"values": [
+		"minecraft:smithing_table",
+		"mythstack:spruce_smithing_table",
+		"mythstack:birch_smithing_table",
+		"mythstack:jungle_smithing_table",
+		"mythstack:acacia_smithing_table",
+		"mythstack:dark_oak_smithing_table",
+		"mythstack:mangrove_smithing_table",
+		"mythstack:cherry_smithing_table",
+		"mythstack:pale_oak_smithing_table",
+		"mythstack:bamboo_smithing_table",
+		"mythstack:crimson_smithing_table",
+		"mythstack:warped_smithing_table"
+	]
+}

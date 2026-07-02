@@ -1,0 +1,6 @@
+{
+	"parent": "minecraft:block/cube_all",
+	"textures": {
+		"all": "mythstack:block/dark_oak_note_block"
+	}
+}

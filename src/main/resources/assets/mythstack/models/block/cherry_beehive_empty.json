@@ -1,0 +1,10 @@
+{
+	"parent": "minecraft:block/orientable_with_bottom",
+	"textures": {
+		"bottom": "mythstack:block/cherry_beehive_end",
+		"front": "mythstack:block/cherry_beehive_front",
+		"particle": "mythstack:block/cherry_beehive_side",
+		"side": "mythstack:block/cherry_beehive_side",
+		"top": "mythstack:block/cherry_beehive_end"
+	}
+}

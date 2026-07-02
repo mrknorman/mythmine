@@ -1,0 +1,15 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"H": "minecraft:honeycomb",
+		"P": "minecraft:bamboo_planks"
+	},
+	"pattern": [
+		"PPP",
+		"HHH",
+		"PPP"
+	],
+	"result": {
+		"id": "mythstack:bamboo_beehive"
+	}
+}

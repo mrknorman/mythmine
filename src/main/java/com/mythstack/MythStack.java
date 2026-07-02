@@ -17,6 +17,8 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -33,44 +35,44 @@ public class MythStack implements ModInitializer {
 		ModItems.initialize();
 		PileNetworking.register();
 
-		// Typed sticks sit next to the vanilla stick in Ingredients and burn exactly like it —
-		// except the nether ones: crimson/warped wood is not furnace fuel, so neither are its sticks.
-		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(output ->
-				output.insertAfter(Items.STICK, ModItems.TYPED_STICKS.stream().map(ItemStack::new).toArray(ItemStack[]::new)));
+		// Every typed family sits DIRECTLY AFTER its canonical, in whichever tab vanilla put it —
+		// anchor-following insertion, so the creative inventory stays organised without hardcoding tabs.
+		CreativeModeTabEvents.MODIFY_OUTPUT_ALL.register((tab, output) -> {
+			insertFamilyAfter(output, Items.STICK, ModItems.TYPED_STICKS);
+			for (var family : ModBlocks.TYPED_FAMILIES.entrySet()) {
+				insertFamilyAfter(output, family.getKey().asItem(),
+						family.getValue().stream().map(Block::asItem).toList());
+			}
+		});
+
 		FuelValueEvents.BUILD.register((builder, context) -> {
 			ModItems.TYPED_STICKS.stream()
 					.filter(stick -> stick != ModItems.CRIMSON_STICK && stick != ModItems.WARPED_STICK)
 					.forEach(stick -> builder.add(stick, 100));
-			// Typed wooden blocks burn like their vanilla canonicals (300) — except the nether woods'.
-			for (var blocks : List.of(ModBlocks.TYPED_LADDERS, ModBlocks.TYPED_CHESTS,
-					ModBlocks.TYPED_BOOKSHELVES, ModBlocks.TYPED_CHISELED_BOOKSHELVES,
-					ModBlocks.TYPED_BARRELS, ModBlocks.TYPED_CRAFTING_TABLES)) {
-				blocks.stream().filter(block -> !ModBlocks.netherWood(block))
+			// Typed wooden blocks burn like their vanilla canonicals (300) — except the nether woods'
+			// and the beehive (not fuel in vanilla).
+			for (var family : ModBlocks.TYPED_FAMILIES.entrySet()) {
+				if (family.getKey() == Blocks.BEEHIVE) {
+					continue;
+				}
+				family.getValue().stream().filter(block -> !ModBlocks.netherWood(block))
 						.forEach(block -> builder.add(block, 300));
 			}
 		});
 
-		// Bookshelves catch fire like vanilla's (30/20); nether wood doesn't burn.
-		for (var blocks : List.of(ModBlocks.TYPED_BOOKSHELVES, ModBlocks.TYPED_CHISELED_BOOKSHELVES)) {
-			blocks.stream().filter(block -> !ModBlocks.netherWood(block))
-					.forEach(block -> FlammableBlockRegistry.getDefaultInstance().add(block, 30, 20));
+		// Flammability mirrors vanilla (bookshelves 30/20, lectern 30/20, composter/beehive 5/20);
+		// nether wood doesn't burn.
+		record Burn(List<Block> blocks, int ignite, int spread) {
 		}
-
-		// Typed blocks sit next to their vanilla canonicals in Functional Blocks.
-		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register(output -> {
-			output.insertAfter(Items.LADDER,
-					ModBlocks.TYPED_LADDERS.stream().map(ItemStack::new).toArray(ItemStack[]::new));
-			output.insertAfter(Items.CHEST,
-					ModBlocks.TYPED_CHESTS.stream().map(ItemStack::new).toArray(ItemStack[]::new));
-			output.insertAfter(Items.BOOKSHELF,
-					ModBlocks.TYPED_BOOKSHELVES.stream().map(ItemStack::new).toArray(ItemStack[]::new));
-			output.insertAfter(Items.CHISELED_BOOKSHELF,
-					ModBlocks.TYPED_CHISELED_BOOKSHELVES.stream().map(ItemStack::new).toArray(ItemStack[]::new));
-			output.insertAfter(Items.BARREL,
-					ModBlocks.TYPED_BARRELS.stream().map(ItemStack::new).toArray(ItemStack[]::new));
-			output.insertAfter(Items.CRAFTING_TABLE,
-					ModBlocks.TYPED_CRAFTING_TABLES.stream().map(ItemStack::new).toArray(ItemStack[]::new));
-		});
+		for (Burn burn : List.of(new Burn(ModBlocks.TYPED_BOOKSHELVES, 30, 20),
+				new Burn(ModBlocks.TYPED_CHISELED_BOOKSHELVES, 30, 20),
+				new Burn(ModBlocks.TYPED_LECTERNS, 30, 20),
+				new Burn(ModBlocks.TYPED_COMPOSTERS, 5, 20),
+				new Burn(ModBlocks.TYPED_BEEHIVES, 5, 20))) {
+			burn.blocks().stream().filter(block -> !ModBlocks.netherWood(block))
+					.forEach(block -> FlammableBlockRegistry.getDefaultInstance()
+							.add(block, burn.ignite(), burn.spread()));
+		}
 
 		// Snapshot variant-group membership whenever tags load/sync (client + server), so resolving an
 		// item to its group never depends on a flaky per-call tag binding during container prediction.
@@ -91,6 +93,14 @@ public class MythStack implements ModInitializer {
 		}
 
 		LOGGER.info("mythstack initialized");
+	}
+
+	/** Insert {@code family} right after {@code anchor}, only in tabs that actually contain it. */
+	private static void insertFamilyAfter(net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTabOutput output,
+			net.minecraft.world.item.Item anchor, List<? extends net.minecraft.world.item.Item> family) {
+		if (output.getDisplayStacks().stream().anyMatch(stack -> stack.is(anchor))) {
+			output.insertAfter(anchor, family.stream().map(ItemStack::new).toArray(ItemStack[]::new));
+		}
 	}
 
 	public static Identifier id(String path) {

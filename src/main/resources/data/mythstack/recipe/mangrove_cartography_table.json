@@ -1,0 +1,15 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"#": "minecraft:mangrove_planks",
+		"@": "minecraft:paper"
+	},
+	"pattern": [
+		"@@",
+		"##",
+		"##"
+	],
+	"result": {
+		"id": "mythstack:mangrove_cartography_table"
+	}
+}

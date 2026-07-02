@@ -1,0 +1,16 @@
+{
+	"values": [
+		"minecraft:fletching_table",
+		"mythstack:spruce_fletching_table",
+		"mythstack:birch_fletching_table",
+		"mythstack:jungle_fletching_table",
+		"mythstack:acacia_fletching_table",
+		"mythstack:dark_oak_fletching_table",
+		"mythstack:mangrove_fletching_table",
+		"mythstack:cherry_fletching_table",
+		"mythstack:pale_oak_fletching_table",
+		"mythstack:bamboo_fletching_table",
+		"mythstack:crimson_fletching_table",
+		"mythstack:warped_fletching_table"
+	]
+}

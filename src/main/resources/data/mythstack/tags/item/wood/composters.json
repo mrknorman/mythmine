@@ -1,0 +1,16 @@
+{
+	"values": [
+		"minecraft:composter",
+		"mythstack:spruce_composter",
+		"mythstack:birch_composter",
+		"mythstack:jungle_composter",
+		"mythstack:acacia_composter",
+		"mythstack:dark_oak_composter",
+		"mythstack:mangrove_composter",
+		"mythstack:cherry_composter",
+		"mythstack:pale_oak_composter",
+		"mythstack:bamboo_composter",
+		"mythstack:crimson_composter",
+		"mythstack:warped_composter"
+	]
+}

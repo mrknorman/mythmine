@@ -9,6 +9,7 @@
 		"AbstractFurnaceBlockEntityMixin",
 		"BlockEntityTypeAccessor",
 		"BlockItemPlaceMixin",
+		"CartographyTableMenuMixin",
 		"CrafterBlockInvoker",
 		"CrafterBlockMixin",
 		"CrafterMenuMixin",
@@ -18,12 +19,14 @@
 		"InventoryRecipeBookMixin",
 		"ItemCostMixin",
 		"ItemMixin",
+		"LoomMenuMixin",
 		"ItemStackSplitMixin",
 		"ItemTooltipImageMixin",
 		"PickItemFromBlockMixin",
 		"PoiTypesAccessor",
 		"ResultSlotMixin",
 		"ServerPlaceRecipeMixin",
+		"SmithingMenuMixin",
 		"StackedItemContentsMixin"
 	],
 	"injectors": {

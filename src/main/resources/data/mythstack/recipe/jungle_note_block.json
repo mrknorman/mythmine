@@ -1,0 +1,16 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"category": "redstone",
+	"key": {
+		"#": "minecraft:jungle_planks",
+		"X": "minecraft:redstone"
+	},
+	"pattern": [
+		"###",
+		"#X#",
+		"###"
+	],
+	"result": {
+		"id": "mythstack:jungle_note_block"
+	}
+}

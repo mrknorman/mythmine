@@ -1,9 +1,18 @@
 {
 	"block.minecraft.barrel": "Oak Barrel",
+	"block.minecraft.beehive": "Oak Beehive",
 	"block.minecraft.bookshelf": "Oak Bookshelf",
+	"block.minecraft.cartography_table": "Oak Cartography Table",
 	"block.minecraft.chest": "Oak Chest",
 	"block.minecraft.chiseled_bookshelf": "Oak Chiseled Bookshelf",
+	"block.minecraft.composter": "Oak Composter",
 	"block.minecraft.crafting_table": "Oak Crafting Table",
+	"block.minecraft.fletching_table": "Oak Fletching Table",
+	"block.minecraft.jukebox": "Oak Jukebox",
 	"block.minecraft.ladder": "Oak Ladder",
+	"block.minecraft.lectern": "Oak Lectern",
+	"block.minecraft.loom": "Oak Loom",
+	"block.minecraft.note_block": "Oak Note Block",
+	"block.minecraft.smithing_table": "Oak Smithing Table",
 	"item.minecraft.stick": "Oak Stick"
 }

@@ -1,0 +1,12 @@
+{
+	"parent": "minecraft:block/cube",
+	"textures": {
+		"down": "mythstack:block/dark_oak_smithing_table_bottom",
+		"east": "mythstack:block/dark_oak_smithing_table_side",
+		"north": "mythstack:block/dark_oak_smithing_table_front",
+		"particle": "mythstack:block/dark_oak_smithing_table_front",
+		"south": "mythstack:block/dark_oak_smithing_table_front",
+		"up": "mythstack:block/dark_oak_smithing_table_top",
+		"west": "mythstack:block/dark_oak_smithing_table_side"
+	}
+}

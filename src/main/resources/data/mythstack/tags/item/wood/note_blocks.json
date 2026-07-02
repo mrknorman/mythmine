@@ -1,0 +1,16 @@
+{
+	"values": [
+		"minecraft:note_block",
+		"mythstack:spruce_note_block",
+		"mythstack:birch_note_block",
+		"mythstack:jungle_note_block",
+		"mythstack:acacia_note_block",
+		"mythstack:dark_oak_note_block",
+		"mythstack:mangrove_note_block",
+		"mythstack:cherry_note_block",
+		"mythstack:pale_oak_note_block",
+		"mythstack:bamboo_note_block",
+		"mythstack:crimson_note_block",
+		"mythstack:warped_note_block"
+	]
+}

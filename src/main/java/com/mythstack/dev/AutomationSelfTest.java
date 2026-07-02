@@ -141,8 +141,19 @@ public final class AutomationSelfTest {
 		level.setBlock(CHEST_A, ModBlocks.TYPED_CHISELED_BOOKSHELVES.get(0).defaultBlockState(), 3);
 		boolean chiseledOk = level.getBlockEntity(CHEST_A)
 				instanceof net.minecraft.world.level.block.entity.ChiseledBookShelfBlockEntity;
+		level.setBlock(CHEST_A, ModBlocks.TYPED_LECTERNS.get(0).defaultBlockState(), 3);
+		boolean lecternOk = level.getBlockEntity(CHEST_A)
+				instanceof net.minecraft.world.level.block.entity.LecternBlockEntity;
+		level.setBlock(CHEST_A, ModBlocks.TYPED_JUKEBOXES.get(0).defaultBlockState(), 3);
+		boolean jukeboxOk = level.getBlockEntity(CHEST_A)
+				instanceof net.minecraft.world.level.block.entity.JukeboxBlockEntity;
+		level.setBlock(CHEST_A, ModBlocks.TYPED_BEEHIVES.get(0).defaultBlockState(), 3);
+		boolean beehiveOk = level.getBlockEntity(CHEST_A)
+				instanceof net.minecraft.world.level.block.entity.BeehiveBlockEntity;
 		check("stations: typed barrels and chiseled bookshelves host working block entities",
 				barrelOk && chiseledOk, failures);
+		check("stations: typed lecterns, jukeboxes, and beehives host working block entities",
+				lecternOk && jukeboxOk && beehiveOk, failures);
 		level.setBlock(CHEST_A, ModBlocks.TYPED_BOOKSHELVES.get(0).defaultBlockState(), 3);
 		java.util.List<ItemStack> shelfDrops = Block.getDrops(level.getBlockState(CHEST_A), level, CHEST_A, null);
 		int books = shelfDrops.stream().filter(d -> d.getItem() == Items.BOOK).mapToInt(ItemStack::getCount).sum();

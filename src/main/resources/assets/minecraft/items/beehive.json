@@ -1,0 +1,32 @@
+{
+	"model": {
+		"type": "minecraft:condition",
+		"property": "minecraft:has_component",
+		"component": "mythstack:variant_pile",
+		"on_true": {
+			"type": "minecraft:special",
+			"base": "mythstack:item/pile_base",
+			"model": {
+				"type": "mythstack:pile"
+			}
+		},
+		"on_false": {
+			"type": "minecraft:select",
+			"block_state_property": "honey_level",
+			"cases": [
+				{
+					"model": {
+						"type": "minecraft:model",
+						"model": "minecraft:block/beehive_honey"
+					},
+					"when": "5"
+				}
+			],
+			"fallback": {
+				"type": "minecraft:model",
+				"model": "minecraft:block/beehive_empty"
+			},
+			"property": "minecraft:block_state"
+		}
+	}
+}

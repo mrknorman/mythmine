@@ -64,6 +64,15 @@ public final class VariantGroups {
 	public static final VariantGroup CHISELED_BOOKSHELVES = group("chiseled_bookshelves", custom("wood/chiseled_bookshelves"), Items.CHISELED_BOOKSHELF);
 	public static final VariantGroup BARRELS = group("barrels", custom("wood/barrels"), Items.BARREL);
 	public static final VariantGroup CRAFTING_TABLES = group("crafting_tables", custom("wood/crafting_tables"), Items.CRAFTING_TABLE);
+	public static final VariantGroup FLETCHING_TABLES = group("fletching_tables", custom("wood/fletching_tables"), Items.FLETCHING_TABLE);
+	public static final VariantGroup CARTOGRAPHY_TABLES = group("cartography_tables", custom("wood/cartography_tables"), Items.CARTOGRAPHY_TABLE);
+	public static final VariantGroup SMITHING_TABLES = group("smithing_tables", custom("wood/smithing_tables"), Items.SMITHING_TABLE);
+	public static final VariantGroup LOOMS = group("looms", custom("wood/looms"), Items.LOOM);
+	public static final VariantGroup LECTERNS = group("lecterns", custom("wood/lecterns"), Items.LECTERN);
+	public static final VariantGroup COMPOSTERS = group("composters", custom("wood/composters"), Items.COMPOSTER);
+	public static final VariantGroup NOTE_BLOCKS = group("note_blocks", custom("wood/note_blocks"), Items.NOTE_BLOCK);
+	public static final VariantGroup JUKEBOXES = group("jukeboxes", custom("wood/jukeboxes"), Items.JUKEBOX);
+	public static final VariantGroup BEEHIVES = group("beehives", custom("wood/beehives"), Items.BEEHIVE);
 	// Saplings: #minecraft:saplings also tags azalea/flowering azalea (like leaves — harmless to pile).
 	public static final VariantGroup SAPLINGS = group("saplings", vanillaTag("saplings"), Items.OAK_SAPLING);
 
@@ -86,6 +95,8 @@ public final class VariantGroups {
 			LOGS, WOODS, STRIPPED_LOGS, STRIPPED_WOODS, PLANKS, STAIRS, SLABS, FENCES, FENCE_GATES, DOORS,
 			TRAPDOORS, PRESSURE_PLATES, BUTTONS, SHELVES, SIGNS, HANGING_SIGNS, LEAVES, STICKS,
 			LADDERS, CHESTS, BOOKSHELVES, CHISELED_BOOKSHELVES, BARRELS, CRAFTING_TABLES, SAPLINGS,
+			FLETCHING_TABLES, CARTOGRAPHY_TABLES, SMITHING_TABLES, LOOMS, LECTERNS, COMPOSTERS, NOTE_BLOCKS,
+			JUKEBOXES, BEEHIVES,
 			IRON_ORES, COAL_ORES, COPPER_ORES, GOLD_ORES, REDSTONE_ORES, EMERALD_ORES, LAPIS_ORES, DIAMOND_ORES);
 
 	/** item -> group, snapshotted from the tags when they are loaded/synced (bindings reliable on both sides). */
