@@ -593,10 +593,17 @@ Raised during implementation; captured here so they aren't lost.
   torch, rails, fences, gates, signs, banners, ladder, bow/crossbow, campfires, grindstone, item
   frame, painting, armor stand, brush, fishing rod, lever, tripwire hook) overridden mechanically to
   accept `#mythstack:wood/sticks` — typed sticks never dead-end. Transmuter handles mixed/pile stick
-  CREATION for free (per-wood recipes + substitution). **Phase B (deferred): propagation** — fence /
-  gate / sign outputs carrying the wood of their inputs needs multi-group per-slot substitution
-  (planks slot → W planks, stick slot → W stick) keyed by a cross-group wood identity (member index
-  in canonical tag order).
+  CREATION for free (per-wood recipes + substitution). **Phase B — DONE: propagation.** A cross-group wood
+  identity (`VariantGroups.woodKey`/`member` — name-matched longest-first, canonical members key as
+  "oak", unknown/modded woods get per-item keys valid within their own group) lets the transmuter
+  substitute per SLOT per GROUP: a planks slot gets the wood's planks, a stick slot its stick. Gates
+  and signs propagate their wood (contributions tally by identity — 4 spruce sticks + 2 birch planks
+  → spruce gate), piles feed multi-group grids by their active wood, and the crafter inherits it all.
+  **Fences are pure sticks now** (6 same-wood sticks → 3 fences, per user decision) — single-group,
+  so mixed sticks / stick piles / ratio mass work with zero extra code. Gates/signs keep their
+  vanilla shape with tag-accepted sticks. The pooled ratio mass plan stays single-group: shift-click
+  on a multi-group grid runs the vanilla loop over per-slot single-takes (serial, correct
+  propagation, no pooled rebalancing).
 - **Stone (§12):** subgroup split + content to close smelting gaps.
 
 ---

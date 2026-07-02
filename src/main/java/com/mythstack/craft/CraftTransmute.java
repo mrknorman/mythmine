@@ -59,16 +59,19 @@ public final class CraftTransmute {
 				return null;
 			}
 		}
+		// The pooled ratio plan is single-group only: multi-group grids (gates: planks + sticks) return
+		// null here, so shift-click falls back to the vanilla loop over our per-slot single-takes —
+		// serial mass crafting with correct propagation, just not pooled rebalancing.
 		VariantGroup group = inputGroup(grid);
 		int perCraft = woodSlots(grid);
 		LinkedHashMap<Item, Integer> pool = buildPool(grid);
-		if (group == null || perCraft == 0 || pool.isEmpty()) {
+		if (group == null || perCraft == 0 || pool.isEmpty() || !singleGroup(grid, group)) {
 			return null;
 		}
 		// Identify the recipe by normalizing every wood slot to the canonical wood — so a shape filled with
 		// MIXED woods (which matches no per-wood recipe as laid out) still resolves to its canonical recipe.
-		Map<Item, Optional<Resolved>> memo = new HashMap<>();
-		Resolved canonical = resolve(grid, width, height, group.canonical(), level, memo);
+		Map<String, Optional<Resolved>> memo = new HashMap<>();
+		Resolved canonical = resolve(grid, width, height, "oak", level, memo);
 		if (canonical == null || canonical.product().isEmpty()) {
 			return null;
 		}
@@ -82,7 +85,7 @@ public final class CraftTransmute {
 			// never an output. Counts are PER WOOD: a bamboo block yields 2 planks where a log yields 4.
 			LinkedHashMap<Item, Resolved> byWood = new LinkedHashMap<>();
 			for (Item wood : pool.keySet()) {
-				Resolved resolved = resolve(grid, width, height, wood, level, memo);
+				Resolved resolved = resolve(grid, width, height, VariantGroups.woodKey(wood), level, memo);
 				if (resolved != null && !resolved.product().isEmpty()) {
 					byWood.put(wood, resolved);
 				}
@@ -116,21 +119,41 @@ public final class CraftTransmute {
 	}
 
 	/**
-	 * Resolve the recipe matched (and product assembled) when {@code wood} fills every wood slot, or
-	 * {@code null}. Memoized per top-level call — the canonical wood and an output wood are often the
-	 * same lookup, and recipe-manager scans are the expensive part of a grid recompute.
+	 * Resolve the recipe matched (and product assembled) when the wood identified by {@code woodKey}
+	 * fills every wood slot — per SLOT per GROUP (spec §13 phase B): a planks slot gets the wood's
+	 * planks, a stick slot its stick, so multi-group recipes (gates, signs) transmute per wood. The
+	 * key {@code "oak"} is the canonical normalization (every group's canonical member is its oak
+	 * form). Null when the wood lacks a slot's form or no recipe matches. Memoized per top-level call
+	 * — recipe-manager scans are the expensive part of a grid recompute.
 	 */
-	private static Resolved resolve(List<ItemStack> grid, int width, int height, Item wood, ServerLevel level,
-			Map<Item, Optional<Resolved>> memo) {
-		return memo.computeIfAbsent(wood, substituted -> {
-			List<ItemStack> stacks = new ArrayList<>(grid.size());
-			for (ItemStack stack : grid) {
-				stacks.add(isWood(stack) ? new ItemStack(substituted) : stack.copy());
+	private static Resolved resolve(List<ItemStack> grid, int width, int height, String woodKey,
+			ServerLevel level, Map<String, Optional<Resolved>> memo) {
+		return memo.computeIfAbsent(woodKey, key -> {
+			List<ItemStack> stacks = substitute(grid, key);
+			if (stacks == null) {
+				return Optional.empty();
 			}
 			CraftingInput input = CraftingInput.of(width, height, stacks);
 			return level.recipeAccess().getRecipeFor(RecipeType.CRAFTING, input, level)
 					.map(holder -> new Resolved(holder, holder.value().assemble(input)));
 		}).orElse(null);
+	}
+
+	/** The grid with every wood slot swapped for {@code woodKey}'s member of that slot's group. */
+	private static List<ItemStack> substitute(List<ItemStack> grid, String woodKey) {
+		List<ItemStack> stacks = new ArrayList<>(grid.size());
+		for (ItemStack stack : grid) {
+			if (!isWood(stack)) {
+				stacks.add(stack.copy());
+				continue;
+			}
+			Item member = VariantGroups.member(VariantGroups.of(stack.getItem()), woodKey);
+			if (member == null) {
+				return null; // this wood lacks the slot's form (e.g. bamboo has no hyphae)
+			}
+			stacks.add(new ItemStack(member));
+		}
+		return stacks;
 	}
 
 	private static VariantGroup inputGroup(List<ItemStack> grid) {
@@ -172,7 +195,9 @@ public final class CraftTransmute {
 			return null;
 		}
 		List<SlotTake> takes = new ArrayList<>();
-		LinkedHashMap<Item, Integer> tally = new LinkedHashMap<>(); // insertion order = first-placed order
+		// Contributions tally by cross-group wood IDENTITY (spec §13 phase B): a spruce stick and a
+		// spruce plank both count toward "spruce", so a gate grid propagates its wood as one voice.
+		LinkedHashMap<String, Integer> tally = new LinkedHashMap<>(); // insertion order = first-placed
 		for (int i = 0; i < grid.size(); i++) {
 			ItemStack stack = grid.get(i);
 			if (!isWood(stack)) {
@@ -183,15 +208,15 @@ public final class CraftTransmute {
 				return null;
 			}
 			takes.add(new SlotTake(i, give));
-			tally.merge(give, 1, Integer::sum);
+			tally.merge(VariantGroups.woodKey(give), 1, Integer::sum);
 		}
 		if (takes.isEmpty()) {
 			return null;
 		}
-		Map<Item, Optional<Resolved>> memo = new HashMap<>();
-		Resolved canonical = resolve(grid, width, height, group.canonical(), level, memo);
+		Map<String, Optional<Resolved>> memo = new HashMap<>();
+		Resolved canonical = resolve(grid, width, height, "oak", level, memo);
 		if (canonical == null || canonical.product().isEmpty()) {
-			return null; // no recipe under canonical normalization
+			return null; // no recipe under canonical (per-group oak) normalization
 		}
 		// Note the output need NOT belong to a variant group: per-wood outputs outside any group (boats)
 		// transmute by substitution like everything else, and wood-agnostic outputs (chest, sticks) come
@@ -199,7 +224,7 @@ public final class CraftTransmute {
 		// Output = the most common contribution that actually HAS a product for this recipe: there is
 		// no crimson boat, so a crimson-majority grid makes the runner-up wood's boat. Descending count,
 		// stable sort — ties keep first-placed order. No productive wood at all -> not craftable.
-		List<Map.Entry<Item, Integer>> byCount = new ArrayList<>(tally.entrySet());
+		List<Map.Entry<String, Integer>> byCount = new ArrayList<>(tally.entrySet());
 		byCount.sort((a, b) -> Integer.compare(b.getValue(), a.getValue()));
 		for (var entry : byCount) {
 			Resolved resolved = resolve(grid, width, height, entry.getKey(), level, memo);
@@ -208,6 +233,16 @@ public final class CraftTransmute {
 			}
 		}
 		return null;
+	}
+
+	/** True when every wood slot belongs to {@code group} — the pooled mass path can't mix groups. */
+	private static boolean singleGroup(List<ItemStack> grid, VariantGroup group) {
+		for (ItemStack stack : grid) {
+			if (isWood(stack) && VariantGroups.of(stack.getItem()) != group) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/** The result-slot preview: one craft's worth of the head wood's product, or empty. */

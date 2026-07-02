@@ -68,6 +68,18 @@ public final class VariantGroups {
 	/** item -> group, snapshotted from the tags when they are loaded/synced (bindings reliable on both sides). */
 	private static volatile Map<Item, VariantGroup> membership = Map.of();
 
+	// The cross-group wood identity (spec §13 phase B): "spruce_planks" and "spruce_stick" both key as
+	// "spruce", so the transmuter can substitute per SLOT per GROUP (plank slots get the wood's planks,
+	// stick slots its stick). Matched longest-first so dark/pale oak never collide with oak; the
+	// "stripped_" prefix is peeled before matching; a group's canonical member always keys "oak" (the
+	// vanilla stick has no wood in its path). Members with no recognizable wood (modded, azalea leaves)
+	// get a per-item key that only resolves within their own group — single-group transmuting keeps
+	// working for them, cross-group propagation simply doesn't apply.
+	private static final List<String> WOOD_KEYS = List.of("dark_oak", "pale_oak", "oak", "spruce", "birch",
+			"jungle", "acacia", "mangrove", "cherry", "bamboo", "crimson", "warped");
+	private static volatile Map<Item, String> woodKeys = Map.of();
+	private static volatile Map<VariantGroup, Map<String, Item>> membersByKey = Map.of();
+
 	/** The group {@code item} belongs to, or {@code null} if none. */
 	public static VariantGroup of(Item item) {
 		VariantGroup cached = membership.get(item);
@@ -92,14 +104,55 @@ public final class VariantGroups {
 	public static void rebuildMembership(RegistryAccess registries) {
 		Registry<Item> items = registries.lookup(Registries.ITEM).orElseThrow();
 		Map<Item, VariantGroup> map = new HashMap<>();
+		Map<Item, String> keys = new HashMap<>();
+		Map<VariantGroup, Map<String, Item>> byKey = new HashMap<>();
 		for (VariantGroup group : ALL) {
+			Map<String, Item> groupByKey = byKey.computeIfAbsent(group, unused -> new HashMap<>());
 			for (Holder<Item> holder : items.getTagOrEmpty(group.members())) {
-				map.putIfAbsent(holder.value(), group);
+				Item item = holder.value();
+				map.putIfAbsent(item, group);
+				String key = keyFor(group, item);
+				keys.putIfAbsent(item, key);
+				groupByKey.putIfAbsent(key, item); // first-wins on collisions (e.g. bamboo mosaic forms)
 			}
 		}
 		membership = Map.copyOf(map);
+		woodKeys = Map.copyOf(keys);
+		membersByKey = Map.copyOf(byKey);
 		MythStack.LOGGER.info("[variant-group] membership snapshot rebuilt: {} items across {} groups",
 				map.size(), ALL.size());
+	}
+
+	/** The cross-group wood identity of {@code item} — "spruce" for both spruce planks and spruce stick. */
+	public static String woodKey(Item item) {
+		String cached = woodKeys.get(item);
+		if (cached != null) {
+			return cached;
+		}
+		VariantGroup group = of(item);
+		return group == null ? null : keyFor(group, item);
+	}
+
+	/** The member of {@code group} identified by {@code woodKey}, or {@code null} (that wood lacks the form). */
+	public static Item member(VariantGroup group, String woodKey) {
+		Map<String, Item> byKey = membersByKey.get(group);
+		return byKey == null ? null : byKey.get(woodKey);
+	}
+
+	private static String keyFor(VariantGroup group, Item item) {
+		if (item == group.canonical()) {
+			return "oak"; // D2: the canonical member IS the oak form (the plain stick has no wood in its path)
+		}
+		String path = BuiltInRegistries.ITEM.getKey(item).getPath();
+		if (path.startsWith("stripped_")) {
+			path = path.substring("stripped_".length());
+		}
+		for (String key : WOOD_KEYS) {
+			if (path.equals(key) || path.startsWith(key + "_")) {
+				return key;
+			}
+		}
+		return "item:" + BuiltInRegistries.ITEM.getKey(item); // unknown wood: identity within its own group only
 	}
 
 	/** Dev-only sanity dump (build phase 2). Logged on server start in the dev environment. */

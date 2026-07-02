@@ -55,6 +55,7 @@ public final class MenuSelfTest {
 		netherAndBamboo(level, player, failures);
 		craftLedger(level, player, failures);
 		recipeBookFill(level, player, failures);
+		stickPropagation(level, player, failures);
 
 		player.getInventory().clearContent();
 		player.containerMenu = player.inventoryMenu;
@@ -446,6 +447,74 @@ public final class MenuSelfTest {
 			menu.getSlot(i).set(ItemStack.EMPTY);
 		}
 		player.getInventory().clearContent();
+	}
+
+	/** Spec §13 phase B: pure-stick fences, and gates/signs propagating wood across groups. */
+	private static void stickPropagation(ServerLevel level, FakePlayer player, int[] failures) {
+		// Fences are pure sticks now (6 -> 3), single-group: mixed sticks give the majority's fence.
+		CraftingMenu fence = table(level, player);
+		for (int slot : new int[]{1, 2, 3}) {
+			fence.getSlot(slot).set(new ItemStack(ModItems.SPRUCE_STICK, 1));
+		}
+		for (int slot : new int[]{4, 5, 6}) {
+			fence.getSlot(slot).set(new ItemStack(ModItems.BIRCH_STICK, 1));
+		}
+		check("sticks-b: 6 mixed sticks preview the majority fence (tie -> first placed, x3)",
+				fence.getSlot(0).getItem().getItem() == Items.SPRUCE_FENCE
+						&& fence.getSlot(0).getItem().getCount() == 3, failures);
+		ItemStack fences = take(fence, player);
+		check("sticks-b: the fence take consumes one stick from every slot",
+				fences.getItem() == Items.SPRUCE_FENCE
+						&& gridTotal(fence, 9, ModItems.SPRUCE_STICK) == 0
+						&& gridTotal(fence, 9, ModItems.BIRCH_STICK) == 0, failures);
+
+		// A gate grid is MULTI-group (sticks + planks): pure spruce in, spruce gate out.
+		CraftingMenu gate = table(level, player);
+		for (int slot : new int[]{1, 3, 4, 6}) {
+			gate.getSlot(slot).set(new ItemStack(ModItems.SPRUCE_STICK, 1));
+		}
+		gate.getSlot(2).set(new ItemStack(Items.SPRUCE_PLANKS, 1));
+		gate.getSlot(5).set(new ItemStack(Items.SPRUCE_PLANKS, 1));
+		check("sticks-b: spruce sticks + spruce planks preview the SPRUCE gate (multi-group)",
+				gate.getSlot(0).getItem().getItem() == Items.SPRUCE_FENCE_GATE, failures);
+
+		// Mixed woods across the groups: sticks and planks vote as ONE wood identity each.
+		CraftingMenu mixed = table(level, player);
+		for (int slot : new int[]{1, 3, 4, 6}) {
+			mixed.getSlot(slot).set(new ItemStack(ModItems.SPRUCE_STICK, 1));
+		}
+		mixed.getSlot(2).set(new ItemStack(Items.BIRCH_PLANKS, 1));
+		mixed.getSlot(5).set(new ItemStack(Items.BIRCH_PLANKS, 1));
+		ItemStack gateTaken = take(mixed, player);
+		check("sticks-b: a mixed gate crafts the majority wood (4 spruce sticks beat 2 birch planks)",
+				gateTaken.getItem() == Items.SPRUCE_FENCE_GATE
+						&& gridTotal(mixed, 9, ModItems.SPRUCE_STICK) == 0
+						&& gridTotal(mixed, 9, Items.BIRCH_PLANKS) == 0, failures);
+
+		// Piles feed multi-group grids: a stick pile and a plank pile, both scrolled to jungle.
+		CraftingMenu piled = table(level, player);
+		ItemStack stickPile = VariantPiles.makeStacks(VariantGroups.STICKS, VariantPiles.pool(VariantGroups.STICKS,
+				List.of(new ItemStack(ModItems.JUNGLE_STICK, 4), new ItemStack(ModItems.BIRCH_STICK, 4)))).get(0);
+		VariantPiles.seed(stickPile, ModItems.JUNGLE_STICK);
+		ItemStack plankPile = VariantPiles.makeStacks(VariantGroups.PLANKS, VariantPiles.pool(VariantGroups.PLANKS,
+				List.of(new ItemStack(Items.JUNGLE_PLANKS, 4), new ItemStack(Items.BIRCH_PLANKS, 4)))).get(0);
+		VariantPiles.seed(plankPile, Items.JUNGLE_PLANKS);
+		for (int slot : new int[]{1, 3, 4, 6}) {
+			piled.getSlot(slot).set(stickPile.copy());
+		}
+		piled.getSlot(2).set(plankPile.copy());
+		piled.getSlot(5).set(plankPile.copy());
+		check("sticks-b: scrolled piles across groups preview the selected wood's gate (jungle)",
+				piled.getSlot(0).getItem().getItem() == Items.JUNGLE_FENCE_GATE, failures);
+
+		// Signs propagate the same way (planks + a stick): all cherry in, cherry sign out.
+		CraftingMenu sign = table(level, player);
+		for (int slot : new int[]{1, 2, 3, 4, 5, 6}) {
+			sign.getSlot(slot).set(new ItemStack(Items.CHERRY_PLANKS, 1));
+		}
+		sign.getSlot(8).set(new ItemStack(ModItems.CHERRY_STICK, 1));
+		check("sticks-b: a sign grid propagates its wood (cherry sign x3)",
+				sign.getSlot(0).getItem().getItem() == Items.CHERRY_SIGN, failures);
 	}
 
 	private static ResourceKey<Recipe<?>> recipeKey(String path) {
