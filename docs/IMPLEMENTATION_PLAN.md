@@ -563,6 +563,12 @@ Raised during implementation; captured here so they aren't lost.
   variant groups: a group's contract is "stackable family that piles" (drives pickup, merge, split, pack),
   and max-stack-1 boats would need special-casing in every interaction hook — the crafting layer is the
   right home for wood-typed outputs, groups are not.
+- **Crafted output consolidates like a pickup — DONE.** Shift-crafted results route through
+  `Pickup.consolidate` before the vanilla slot placement (§1 tenet). The transmuted ratio mass path
+  already did (it lands via `Inventory.add`); the redirect on the result-branch `moveItemStackTo`
+  covers the vanilla serial loop too — so multi-group grids (gates, signs) mass-crafted one take at a
+  time merge into piles / same-family stacks instead of opening new slots. Single takes to the cursor
+  are untouched (deposits already consolidate on click).
 - **Middle-click (pick-block) snaps to a matching pile — DONE.** `PickItemFromBlockMixin` hooks the
   server-side `tryPickItem`: when no loose stack of the clicked wood exists (and not creative), it hands
   over a pile containing that wood, set to place it (`seed`), via `pickSlot`/`setSelectedSlot`. So

@@ -56,6 +56,7 @@ public final class MenuSelfTest {
 		craftLedger(level, player, failures);
 		recipeBookFill(level, player, failures);
 		stickPropagation(level, player, failures);
+		craftOutputConsolidation(level, player, failures);
 
 		player.getInventory().clearContent();
 		player.containerMenu = player.inventoryMenu;
@@ -515,6 +516,29 @@ public final class MenuSelfTest {
 		sign.getSlot(8).set(new ItemStack(ModItems.CHERRY_STICK, 1));
 		check("sticks-b: a sign grid propagates its wood (cherry sign x3)",
 				sign.getSlot(0).getItem().getItem() == Items.CHERRY_SIGN, failures);
+	}
+
+	/** Crafted output consolidates like a pickup: serial shift-crafts merge into piles, not new slots. */
+	private static void craftOutputConsolidation(ServerLevel level, FakePlayer player, int[] failures) {
+		CraftingMenu menu = table(level, player);
+		player.getInventory().clearContent();
+		player.getInventory().setItem(9, new ItemStack(Items.BIRCH_FENCE_GATE, 5)); // already held, plain
+		// Materials for TWO spruce gates — a multi-group grid, so shift-click runs the vanilla serial
+		// loop over our single-takes; each crafted gate must consolidate instead of opening a new slot.
+		for (int slot : new int[]{1, 3, 4, 6}) {
+			menu.getSlot(slot).set(new ItemStack(ModItems.SPRUCE_STICK, 2));
+		}
+		menu.getSlot(2).set(new ItemStack(Items.SPRUCE_PLANKS, 2));
+		menu.getSlot(5).set(new ItemStack(Items.SPRUCE_PLANKS, 2));
+		menu.clicked(0, 0, ContainerInput.QUICK_MOVE, player);
+		ItemStack merged = player.getInventory().getItem(9);
+		check("craft-out: serially crafted gates consolidate into the held stack ({birch5,spruce2} pile)",
+				VariantPiles.isPile(merged) && VariantPiles.countOf(merged, Items.BIRCH_FENCE_GATE) == 5
+						&& VariantPiles.countOf(merged, Items.SPRUCE_FENCE_GATE) == 2 && wellFormed(merged), failures);
+		check("craft-out: both crafts' materials were consumed",
+				gridTotal(menu, 9, ModItems.SPRUCE_STICK) == 0
+						&& gridTotal(menu, 9, Items.SPRUCE_PLANKS) == 0, failures);
+		player.getInventory().clearContent();
 	}
 
 	private static ResourceKey<Recipe<?>> recipeKey(String path) {
