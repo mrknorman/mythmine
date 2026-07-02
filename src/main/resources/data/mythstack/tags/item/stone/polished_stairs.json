@@ -1,0 +1,24 @@
+{
+	"values": [
+		"mythstack:smooth_stone_stairs",
+		"minecraft:polished_deepslate_stairs",
+		"minecraft:polished_granite_stairs",
+		"minecraft:polished_diorite_stairs",
+		"minecraft:polished_andesite_stairs",
+		"minecraft:polished_tuff_stairs",
+		"mythstack:polished_calcite_stairs",
+		"minecraft:polished_blackstone_stairs",
+		"mythstack:polished_basalt_stairs",
+		"mythstack:polished_end_stone_stairs",
+		"mythstack:polished_dripstone_stairs",
+		"minecraft:smooth_sandstone_stairs",
+		"minecraft:smooth_red_sandstone_stairs",
+		"minecraft:polished_cinnabar_stairs",
+		"minecraft:polished_sulfur_stairs",
+		"mythstack:polished_netherrack_stairs",
+		"minecraft:smooth_quartz_stairs",
+		"minecraft:dark_prismarine_stairs",
+		"mythstack:polished_purpur_stairs",
+		"mythstack:polished_packed_mud_stairs"
+	]
+}

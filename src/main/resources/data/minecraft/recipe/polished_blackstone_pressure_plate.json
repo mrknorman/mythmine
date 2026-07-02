@@ -1,0 +1,13 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"category": "redstone",
+	"key": {
+		"#": "#mythstack:stone/polished"
+	},
+	"pattern": [
+		"##"
+	],
+	"result": {
+		"id": "minecraft:polished_blackstone_pressure_plate"
+	}
+}

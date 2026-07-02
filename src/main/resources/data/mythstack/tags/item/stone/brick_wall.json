@@ -1,0 +1,24 @@
+{
+	"values": [
+		"minecraft:stone_brick_wall",
+		"minecraft:deepslate_brick_wall",
+		"mythstack:granite_brick_wall",
+		"mythstack:diorite_brick_wall",
+		"mythstack:andesite_brick_wall",
+		"minecraft:tuff_brick_wall",
+		"mythstack:calcite_brick_wall",
+		"minecraft:polished_blackstone_brick_wall",
+		"mythstack:basalt_brick_wall",
+		"minecraft:end_stone_brick_wall",
+		"mythstack:dripstone_brick_wall",
+		"mythstack:sandstone_brick_wall",
+		"mythstack:red_sandstone_brick_wall",
+		"minecraft:cinnabar_brick_wall",
+		"minecraft:sulfur_brick_wall",
+		"minecraft:nether_brick_wall",
+		"mythstack:quartz_brick_wall",
+		"mythstack:prismarine_brick_wall",
+		"mythstack:purpur_brick_wall",
+		"minecraft:mud_brick_wall"
+	]
+}

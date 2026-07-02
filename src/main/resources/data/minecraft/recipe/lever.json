@@ -2,7 +2,7 @@
 	"type": "minecraft:crafting_shaped",
 	"category": "redstone",
 	"key": {
-		"#": "minecraft:cobblestone",
+		"#": "#mythstack:stone/cobbled",
 		"X": "#mythstack:wood/sticks"
 	},
 	"pattern": [

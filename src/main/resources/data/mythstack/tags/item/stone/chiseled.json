@@ -1,0 +1,24 @@
+{
+	"values": [
+		"minecraft:chiseled_stone_bricks",
+		"minecraft:chiseled_deepslate",
+		"mythstack:chiseled_granite",
+		"mythstack:chiseled_diorite",
+		"mythstack:chiseled_andesite",
+		"minecraft:chiseled_tuff",
+		"mythstack:chiseled_calcite",
+		"minecraft:chiseled_polished_blackstone",
+		"mythstack:chiseled_basalt",
+		"mythstack:chiseled_end_stone",
+		"mythstack:chiseled_dripstone",
+		"minecraft:chiseled_sandstone",
+		"minecraft:chiseled_red_sandstone",
+		"minecraft:chiseled_cinnabar",
+		"minecraft:chiseled_sulfur",
+		"minecraft:chiseled_nether_bricks",
+		"minecraft:chiseled_quartz_block",
+		"mythstack:chiseled_prismarine",
+		"mythstack:chiseled_purpur",
+		"mythstack:chiseled_packed_mud"
+	]
+}

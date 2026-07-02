@@ -600,7 +600,7 @@ Raised during implementation; captured here so they aren't lost.
   wood (not canonical oak) — the world-placement path, not an inventory gesture.
 
 ### Post-MVP (outline only)
-- **Stone phase — S1 COMPLETE (251 blocks incl. cinnabar/sulfur); S2 families pending.** See `STONE_PHASE.md`: material × form grid —
+- **Stone phase — COMPLETE (S1 251 blocks + S2 27 form-groups; 844 items/69 groups; family recipe acceptance).** See `STONE_PHASE.md`: material × form grid —
   19-form core kit (single chiseled; chiseled tuff bricks stays a tuff quirk; pillar included)
   across 13 tier-1 materials (sandstones promoted, with cobbled), + 8 mossy forms (wet overworld),
   + 5 tier-2 materials on a reduced kit — 239 blocks full sweep, 143 minimum (S1a). Decisions

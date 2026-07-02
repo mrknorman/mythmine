@@ -1,0 +1,23 @@
+{
+	"values": [
+		"mythstack:stone_pillar",
+		"mythstack:deepslate_pillar",
+		"mythstack:granite_pillar",
+		"mythstack:diorite_pillar",
+		"mythstack:andesite_pillar",
+		"mythstack:tuff_pillar",
+		"mythstack:calcite_pillar",
+		"mythstack:blackstone_pillar",
+		"mythstack:end_stone_pillar",
+		"mythstack:dripstone_pillar",
+		"mythstack:sandstone_pillar",
+		"mythstack:red_sandstone_pillar",
+		"mythstack:cinnabar_pillar",
+		"mythstack:sulfur_pillar",
+		"mythstack:netherrack_pillar",
+		"minecraft:quartz_pillar",
+		"mythstack:prismarine_pillar",
+		"minecraft:purpur_pillar",
+		"mythstack:packed_mud_pillar"
+	]
+}

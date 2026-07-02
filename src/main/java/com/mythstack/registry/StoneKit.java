@@ -10,6 +10,7 @@ import net.minecraft.world.level.block.WallBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -137,6 +138,27 @@ public final class StoneKit {
 			}
 		}
 		return names;
+	}
+
+	/**
+	 * Every kit item (vanilla or ours) -> its material key ("granite", "sulfur", ...), for
+	 * {@code VariantGroups.keyFor}. Exact ids from the naming tables — no substring matching, so
+	 * "sandstone" never collides with "stone".
+	 */
+	public static Map<net.minecraft.world.item.Item, String> materialItemKeys() {
+		Map<net.minecraft.world.item.Item, String> keys = new HashMap<>();
+		for (Material m : MATERIALS) {
+			for (String name : lines(m)) {
+				Identifier vanilla = Identifier.withDefaultNamespace(name);
+				Identifier ours = com.mythstack.MythStack.id(name);
+				Identifier id = BuiltInRegistries.ITEM.containsKey(vanilla) ? vanilla
+						: BuiltInRegistries.ITEM.containsKey(ours) ? ours : null;
+				if (id != null) {
+					keys.put(BuiltInRegistries.ITEM.getValue(id), m.name());
+				}
+			}
+		}
+		return keys;
 	}
 
 	static void initialize() {

@@ -34,22 +34,44 @@ def is_tier2(name):
 def stem(base, bricks):
     return base[:-1] if base == bricks and base.endswith("s") else base
 
-def lines(m):
-    """Kit-order names for one material tuple; same as StoneKit.lines()."""
+def forms(m):
+    """Kit-order {form_key: block name or None} for one material — the S2 group axis."""
     name, raw, cob, pol, br, chis, pillar, raw_is_pillar, _ = m
     raw_line = raw_line_of(name, raw)
-    names = [raw, f"{raw_line}_stairs", f"{raw_line}_slab", f"{raw_line}_wall"]
-    for base in ((pol, br) if is_tier2(name) else (cob, pol, br)):
+    out = {"raw": raw, "raw_stairs": f"{raw_line}_stairs", "raw_slab": f"{raw_line}_slab",
+           "raw_wall": f"{raw_line}_wall"}
+    tier2 = is_tier2(name)
+    for form_key, shaped_key, base in (("cobbled", "cobbled", cob), ("polished", "polished", pol),
+                                       ("bricks", "brick", br)):
+        if form_key == "cobbled" and tier2:
+            for k in ("cobbled", "cobbled_stairs", "cobbled_slab", "cobbled_wall"):
+                out[k] = None
+            continue
         s = stem(base, br)
-        names += [base, f"{s}_stairs", f"{s}_slab", f"{s}_wall"]
-    names += [f"cracked_{br}", chis]
-    if not raw_is_pillar:
-        names.append(pillar)
-    if is_mossy(name):
-        for base in (f"mossy_{cob}", f"mossy_{br}"):
-            s = base[:-1] if base.endswith("s") else base
-            names += [base, f"{s}_stairs", f"{s}_slab", f"{s}_wall"]
-    return names
+        out[form_key] = base
+        out[f"{shaped_key}_stairs"] = f"{s}_stairs"
+        out[f"{shaped_key}_slab"] = f"{s}_slab"
+        out[f"{shaped_key}_wall"] = f"{s}_wall"
+    out["cracked_bricks"] = f"cracked_{br}"
+    out["chiseled"] = chis
+    out["pillar"] = None if raw_is_pillar else pillar
+    for form_key, shaped_key, base in (("mossy_cobbled", "mossy_cobbled", f"mossy_{cob}"),
+                                       ("mossy_bricks", "mossy_brick", f"mossy_{br}")):
+        if not is_mossy(name):
+            out[form_key] = None
+            for k in ("_stairs", "_slab", "_wall"):
+                out[f"{shaped_key}{k}"] = None
+            continue
+        s = base[:-1] if base.endswith("s") else base
+        out[form_key] = base
+        out[f"{shaped_key}_stairs"] = f"{s}_stairs"
+        out[f"{shaped_key}_slab"] = f"{s}_slab"
+        out[f"{shaped_key}_wall"] = f"{s}_wall"
+    return out
+
+def lines(m):
+    """Kit-order names for one material tuple; same as StoneKit.lines()."""
+    return [n for n in forms(m).values() if n]
 
 def is_mossy(name):
     return name in ("stone", "deepslate", "granite", "diorite", "andesite", "tuff", "calcite", "dripstone")

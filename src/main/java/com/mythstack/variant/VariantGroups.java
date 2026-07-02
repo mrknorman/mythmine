@@ -91,13 +91,66 @@ public final class VariantGroups {
 	// The pile cap is per-group ({@link VariantGroup#cap} = the canonical's max stack size), so signs
 	// (cap 16) pile fine. Boats are intentionally absent: they stack to 1, so a pile (which needs >= 2 of
 	// an item in one stack) can never form — there's nothing to pile.
-	private static final List<VariantGroup> ALL = List.of(
+	/**
+	 * S2 (STONE_PHASE.md): the 27 stone form-groups — one per fine-grained form across materials
+	 * (brick stairs never group with plain stairs). Canonical = stone's version of each form.
+	 */
+	private static final List<VariantGroup> STONE_GROUPS = stoneGroups();
+
+	private static List<VariantGroup> stoneGroups() {
+		Map<String, String> canonicals = new java.util.LinkedHashMap<>();
+		canonicals.put("raw", "stone");
+		canonicals.put("raw_stairs", "stone_stairs");
+		canonicals.put("raw_slab", "stone_slab");
+		canonicals.put("raw_wall", "stone_wall");
+		canonicals.put("cobbled", "cobblestone");
+		canonicals.put("cobbled_stairs", "cobblestone_stairs");
+		canonicals.put("cobbled_slab", "cobblestone_slab");
+		canonicals.put("cobbled_wall", "cobblestone_wall");
+		canonicals.put("polished", "smooth_stone");
+		canonicals.put("polished_stairs", "smooth_stone_stairs");
+		canonicals.put("polished_slab", "smooth_stone_slab");
+		canonicals.put("polished_wall", "smooth_stone_wall");
+		canonicals.put("bricks", "stone_bricks");
+		canonicals.put("brick_stairs", "stone_brick_stairs");
+		canonicals.put("brick_slab", "stone_brick_slab");
+		canonicals.put("brick_wall", "stone_brick_wall");
+		canonicals.put("cracked_bricks", "cracked_stone_bricks");
+		canonicals.put("chiseled", "chiseled_stone_bricks");
+		canonicals.put("pillar", "stone_pillar");
+		canonicals.put("mossy_cobbled", "mossy_cobblestone");
+		canonicals.put("mossy_cobbled_stairs", "mossy_cobblestone_stairs");
+		canonicals.put("mossy_cobbled_slab", "mossy_cobblestone_slab");
+		canonicals.put("mossy_cobbled_wall", "mossy_cobblestone_wall");
+		canonicals.put("mossy_bricks", "mossy_stone_bricks");
+		canonicals.put("mossy_brick_stairs", "mossy_stone_brick_stairs");
+		canonicals.put("mossy_brick_slab", "mossy_stone_brick_slab");
+		canonicals.put("mossy_brick_wall", "mossy_stone_brick_wall");
+		List<VariantGroup> groups = new java.util.ArrayList<>();
+		for (var entry : canonicals.entrySet()) {
+			groups.add(new VariantGroup(MythStack.id("stone/" + entry.getKey()),
+					custom("stone/" + entry.getKey()), stoneItem(entry.getValue())));
+		}
+		return List.copyOf(groups);
+	}
+
+	private static Item stoneItem(String name) {
+		Identifier vanilla = Identifier.withDefaultNamespace(name);
+		return BuiltInRegistries.ITEM.containsKey(vanilla)
+				? BuiltInRegistries.ITEM.getValue(vanilla)
+				: BuiltInRegistries.ITEM.getValue(MythStack.id(name));
+	}
+
+	private static final List<VariantGroup> WOOD_AND_ORE_GROUPS = List.of(
 			LOGS, WOODS, STRIPPED_LOGS, STRIPPED_WOODS, PLANKS, STAIRS, SLABS, FENCES, FENCE_GATES, DOORS,
 			TRAPDOORS, PRESSURE_PLATES, BUTTONS, SHELVES, SIGNS, HANGING_SIGNS, LEAVES, STICKS,
 			LADDERS, CHESTS, BOOKSHELVES, CHISELED_BOOKSHELVES, BARRELS, CRAFTING_TABLES, SAPLINGS,
 			FLETCHING_TABLES, CARTOGRAPHY_TABLES, SMITHING_TABLES, LOOMS, LECTERNS, COMPOSTERS, NOTE_BLOCKS,
 			JUKEBOXES, BEEHIVES,
 			IRON_ORES, COAL_ORES, COPPER_ORES, GOLD_ORES, REDSTONE_ORES, EMERALD_ORES, LAPIS_ORES, DIAMOND_ORES);
+
+	private static final List<VariantGroup> ALL = java.util.stream.Stream
+			.concat(WOOD_AND_ORE_GROUPS.stream(), STONE_GROUPS.stream()).toList();
 
 	/** item -> group, snapshotted from the tags when they are loaded/synced (bindings reliable on both sides). */
 	private static volatile Map<Item, VariantGroup> membership = Map.of();
@@ -173,9 +226,22 @@ public final class VariantGroups {
 		return byKey == null ? null : byKey.get(woodKey);
 	}
 
+	private static volatile Map<Item, String> stoneMaterialKeys;
+
 	private static String keyFor(VariantGroup group, Item item) {
 		if (item == group.canonical()) {
 			return "oak"; // D2: the canonical member IS the oak form (the plain stick has no wood in its path)
+		}
+		// Stone identity is an exact-id map from the kit's naming tables (S2) — no substring
+		// matching, so "sandstone"/"end_stone"/"cobblestone" never collide with "stone".
+		Map<Item, String> stoneKeys = stoneMaterialKeys;
+		if (stoneKeys == null) {
+			stoneKeys = com.mythstack.registry.StoneKit.materialItemKeys();
+			stoneMaterialKeys = stoneKeys;
+		}
+		String stoneKey = stoneKeys.get(item);
+		if (stoneKey != null) {
+			return stoneKey;
 		}
 		String path = BuiltInRegistries.ITEM.getKey(item).getPath();
 		if (path.startsWith("stripped_")) {

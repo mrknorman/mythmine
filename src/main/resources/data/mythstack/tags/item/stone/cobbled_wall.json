@@ -1,0 +1,19 @@
+{
+	"values": [
+		"minecraft:cobblestone_wall",
+		"minecraft:cobbled_deepslate_wall",
+		"mythstack:cobbled_granite_wall",
+		"mythstack:cobbled_diorite_wall",
+		"mythstack:cobbled_andesite_wall",
+		"mythstack:cobbled_tuff_wall",
+		"mythstack:cobbled_calcite_wall",
+		"mythstack:cobbled_blackstone_wall",
+		"mythstack:cobbled_basalt_wall",
+		"mythstack:cobbled_end_stone_wall",
+		"mythstack:cobbled_dripstone_wall",
+		"mythstack:cobbled_sandstone_wall",
+		"mythstack:cobbled_red_sandstone_wall",
+		"mythstack:cobbled_cinnabar_wall",
+		"mythstack:cobbled_sulfur_wall"
+	]
+}

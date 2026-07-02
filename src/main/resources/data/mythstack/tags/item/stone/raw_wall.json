@@ -1,0 +1,24 @@
+{
+	"values": [
+		"mythstack:stone_wall",
+		"mythstack:deepslate_wall",
+		"minecraft:granite_wall",
+		"minecraft:diorite_wall",
+		"minecraft:andesite_wall",
+		"minecraft:tuff_wall",
+		"mythstack:calcite_wall",
+		"minecraft:blackstone_wall",
+		"mythstack:basalt_wall",
+		"mythstack:end_stone_wall",
+		"mythstack:dripstone_wall",
+		"minecraft:sandstone_wall",
+		"minecraft:red_sandstone_wall",
+		"minecraft:cinnabar_wall",
+		"minecraft:sulfur_wall",
+		"mythstack:netherrack_wall",
+		"mythstack:quartz_wall",
+		"minecraft:prismarine_wall",
+		"mythstack:purpur_wall",
+		"mythstack:packed_mud_wall"
+	]
+}

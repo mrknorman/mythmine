@@ -1,0 +1,24 @@
+{
+	"values": [
+		"minecraft:cracked_stone_bricks",
+		"minecraft:cracked_deepslate_bricks",
+		"mythstack:cracked_granite_bricks",
+		"mythstack:cracked_diorite_bricks",
+		"mythstack:cracked_andesite_bricks",
+		"mythstack:cracked_tuff_bricks",
+		"mythstack:cracked_calcite_bricks",
+		"minecraft:cracked_polished_blackstone_bricks",
+		"mythstack:cracked_basalt_bricks",
+		"mythstack:cracked_end_stone_bricks",
+		"mythstack:cracked_dripstone_bricks",
+		"mythstack:cracked_sandstone_bricks",
+		"mythstack:cracked_red_sandstone_bricks",
+		"mythstack:cracked_cinnabar_bricks",
+		"mythstack:cracked_sulfur_bricks",
+		"minecraft:cracked_nether_bricks",
+		"mythstack:cracked_quartz_bricks",
+		"mythstack:cracked_prismarine_bricks",
+		"mythstack:cracked_purpur_bricks",
+		"mythstack:cracked_mud_bricks"
+	]
+}

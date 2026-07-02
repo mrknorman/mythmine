@@ -1,0 +1,14 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"#": "#mythstack:stone/raw",
+		"I": "minecraft:iron_ingot"
+	},
+	"pattern": [
+		" I ",
+		"###"
+	],
+	"result": {
+		"id": "minecraft:stonecutter"
+	}
+}

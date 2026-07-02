@@ -1,0 +1,24 @@
+{
+	"values": [
+		"minecraft:smooth_stone",
+		"minecraft:polished_deepslate",
+		"minecraft:polished_granite",
+		"minecraft:polished_diorite",
+		"minecraft:polished_andesite",
+		"minecraft:polished_tuff",
+		"mythstack:polished_calcite",
+		"minecraft:polished_blackstone",
+		"minecraft:polished_basalt",
+		"mythstack:polished_end_stone",
+		"mythstack:polished_dripstone",
+		"minecraft:smooth_sandstone",
+		"minecraft:smooth_red_sandstone",
+		"minecraft:polished_cinnabar",
+		"minecraft:polished_sulfur",
+		"mythstack:polished_netherrack",
+		"minecraft:smooth_quartz",
+		"minecraft:dark_prismarine",
+		"mythstack:polished_purpur",
+		"mythstack:polished_packed_mud"
+	]
+}

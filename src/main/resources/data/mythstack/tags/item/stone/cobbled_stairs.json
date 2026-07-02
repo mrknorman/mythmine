@@ -1,0 +1,19 @@
+{
+	"values": [
+		"minecraft:cobblestone_stairs",
+		"minecraft:cobbled_deepslate_stairs",
+		"mythstack:cobbled_granite_stairs",
+		"mythstack:cobbled_diorite_stairs",
+		"mythstack:cobbled_andesite_stairs",
+		"mythstack:cobbled_tuff_stairs",
+		"mythstack:cobbled_calcite_stairs",
+		"mythstack:cobbled_blackstone_stairs",
+		"mythstack:cobbled_basalt_stairs",
+		"mythstack:cobbled_end_stone_stairs",
+		"mythstack:cobbled_dripstone_stairs",
+		"mythstack:cobbled_sandstone_stairs",
+		"mythstack:cobbled_red_sandstone_stairs",
+		"mythstack:cobbled_cinnabar_stairs",
+		"mythstack:cobbled_sulfur_stairs"
+	]
+}

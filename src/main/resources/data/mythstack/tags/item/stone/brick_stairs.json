@@ -1,0 +1,24 @@
+{
+	"values": [
+		"minecraft:stone_brick_stairs",
+		"minecraft:deepslate_brick_stairs",
+		"mythstack:granite_brick_stairs",
+		"mythstack:diorite_brick_stairs",
+		"mythstack:andesite_brick_stairs",
+		"minecraft:tuff_brick_stairs",
+		"mythstack:calcite_brick_stairs",
+		"minecraft:polished_blackstone_brick_stairs",
+		"mythstack:basalt_brick_stairs",
+		"minecraft:end_stone_brick_stairs",
+		"mythstack:dripstone_brick_stairs",
+		"mythstack:sandstone_brick_stairs",
+		"mythstack:red_sandstone_brick_stairs",
+		"minecraft:cinnabar_brick_stairs",
+		"minecraft:sulfur_brick_stairs",
+		"minecraft:nether_brick_stairs",
+		"mythstack:quartz_brick_stairs",
+		"minecraft:prismarine_brick_stairs",
+		"mythstack:purpur_brick_stairs",
+		"minecraft:mud_brick_stairs"
+	]
+}

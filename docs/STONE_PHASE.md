@@ -1,8 +1,21 @@
 # Stone Phase — Normalization + Families
 
-**Status: S1 COMPLETE (2026-07-02) — all normalization shipped: S1a core kit (143) + S1b mossy
-(56) + S1c tier-2 (40) + cinnabar/sulfur (12) = 251 blocks, 102 generated base textures, 562
-recipes, loot normalization on. Next: S2 families (27 form-groups + stoneKey).**
+**Status: PHASE COMPLETE (2026-07-02) — S1 normalization (251 blocks) AND S2 families shipped.
+844 items across 69 groups; all interactions live for stone: piles on pickup, transmute crafting
+(mixed polished 2x2 -> majority-material bricks), per-element furnaces, the pile-aware
+stonecutter, and family recipe ACCEPTANCE — any cobbled works in every cobbled material-cost
+recipe (piston/lever/dispenser/stone tools/furnaces...), any raw in every stone one
+(repeater/comparator/stonecutter/buttons...), same for polished/chiseled/slab forms and the
+armor-trim template duplications. Protected material-identity one-offs (never family-craftable):
+potent sulfur, cut sandstones, deepslate tiles, chiseled tuff bricks, nether brick fence.**
+
+S2 implementation notes: stone identity is an EXACT item->material map from the kit naming tables
+(no substring matching — "sandstone" can never collide with "stone"), hooked into
+`VariantGroups.keyFor` after the canonical branch; canonicals key as "oak" like wood's, so the
+transmuter's canonical normalization needed ZERO changes. Stone's own chain exceptions are
+completed by two added recipes (4 smooth stone -> stone bricks, 2 stone slabs -> chiseled stone
+bricks) so mixed-material grids normalize. Group tags live at `tags/item/stone/<form>`;
+`stone_tool_materials`/`stone_crafting_materials` gained the 13 new cobbled forms.
 
 S2 design caution: `stoneKey` name-matching must handle materials that are substrings of others —
 "stone" is a suffix of sandstone/end_stone/cobblestone/blackstone/dripstone; match longest-first

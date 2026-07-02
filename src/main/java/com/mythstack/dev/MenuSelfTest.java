@@ -69,6 +69,7 @@ public final class MenuSelfTest {
 		typedStations(level, player, failures);
 		utilityStations(level, player, failures);
 		mossyStone(level, player, failures);
+		stoneFamilies(level, player, failures);
 		sawmill(level, player, failures);
 
 		player.getInventory().clearContent();
@@ -889,6 +890,58 @@ public final class MenuSelfTest {
 		ItemStack taken = take(menu, player);
 		check("stone: cobbled granite + vine crafts mossy cobbled granite",
 				taken.getItem() == mossy, failures);
+	}
+
+	/** S2: stone families — piles, transmute across materials, and family recipe acceptance. */
+	private static void stoneFamilies(ServerLevel level, FakePlayer player, int[] failures) {
+		var reg = net.minecraft.core.registries.BuiltInRegistries.ITEM;
+		var cobbledGranite = reg.getValue(com.mythstack.MythStack.id("cobbled_granite"));
+		var cobbledCalcite = reg.getValue(com.mythstack.MythStack.id("cobbled_calcite"));
+		var cobbledSulfur = reg.getValue(com.mythstack.MythStack.id("cobbled_sulfur"));
+		var graniteBricks = reg.getValue(com.mythstack.MythStack.id("granite_bricks"));
+		var dioriteBricks = reg.getValue(com.mythstack.MythStack.id("diorite_bricks"));
+
+		// Grouping: mixed cobbled piles host the canonical (cobblestone).
+		var cobbledGroup = VariantGroups.of(Items.COBBLESTONE);
+		check("stone families: cobbled granite joined the cobbled group (canonical cobblestone)",
+				cobbledGroup != null && VariantGroups.of(cobbledGranite) == cobbledGroup
+						&& cobbledGroup.canonical() == Items.COBBLESTONE, failures);
+		ItemStack stonePile = VariantPiles.makeStacks(cobbledGroup, VariantPiles.pool(cobbledGroup,
+				List.of(new ItemStack(Items.COBBLESTONE, 2), new ItemStack(cobbledGranite, 3)))).get(0);
+		check("stone families: a mixed cobbled pile forms on the cobblestone host (5 deep)",
+				VariantPiles.isPile(stonePile) && stonePile.getItem() == Items.COBBLESTONE
+						&& stonePile.getCount() == 5, failures);
+
+		// Transmute: a MIXED polished grid still crafts bricks — majority material wins.
+		CraftingMenu bricks = table(level, player);
+		bricks.getSlot(1).set(new ItemStack(Items.POLISHED_GRANITE, 1));
+		bricks.getSlot(2).set(new ItemStack(Items.POLISHED_DIORITE, 1));
+		bricks.getSlot(4).set(new ItemStack(Items.POLISHED_GRANITE, 1));
+		bricks.getSlot(5).set(new ItemStack(Items.POLISHED_GRANITE, 1));
+		check("stone families: mixed polished 2x2 transmutes to the majority bricks (granite)",
+				bricks.getSlot(0).getItem().getItem() == graniteBricks, failures);
+		ItemStack brickTaken = take(bricks, player);
+		check("stone families: taking it crafts granite bricks",
+				brickTaken.getItem() == graniteBricks && brickTaken.getItem() != dioriteBricks, failures);
+
+		// Acceptance: lever = ANY cobbled + ANY stick (cross-family, both via tags).
+		CraftingMenu lever = table(level, player);
+		lever.getSlot(2).set(new ItemStack(com.mythstack.registry.ModItems.TYPED_STICKS.get(0), 1));
+		lever.getSlot(5).set(new ItemStack(cobbledCalcite, 1));
+		ItemStack leverTaken = take(lever, player);
+		check("stone families: lever accepts cobbled calcite + a typed stick",
+				leverTaken.getItem() == Items.LEVER, failures);
+
+		// Acceptance: stone tools take any cobbled (the stone_tool_materials append).
+		CraftingMenu pick = table(level, player);
+		pick.getSlot(1).set(new ItemStack(cobbledSulfur, 1));
+		pick.getSlot(2).set(new ItemStack(cobbledGranite, 1));
+		pick.getSlot(3).set(new ItemStack(Items.COBBLED_DEEPSLATE, 1));
+		pick.getSlot(5).set(new ItemStack(Items.STICK, 1));
+		pick.getSlot(8).set(new ItemStack(Items.STICK, 1));
+		ItemStack pickTaken = take(pick, player);
+		check("stone families: a stone pickaxe from three DIFFERENT cobbled stones",
+				pickTaken.getItem() == Items.STONE_PICKAXE, failures);
 	}
 
 	private static ResourceKey<Recipe<?>> recipeKey(String path) {

@@ -2,7 +2,7 @@
 	"type": "minecraft:crafting_shaped",
 	"key": {
 		"#": "#minecraft:planks",
-		"-": "minecraft:stone_slab",
+		"-": "#mythstack:stone/raw_slab",
 		"I": "#mythstack:wood/sticks"
 	},
 	"pattern": [

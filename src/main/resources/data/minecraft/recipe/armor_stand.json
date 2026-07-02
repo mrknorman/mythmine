@@ -2,7 +2,7 @@
 	"type": "minecraft:crafting_shaped",
 	"key": {
 		"/": "#mythstack:wood/sticks",
-		"_": "minecraft:smooth_stone_slab"
+		"_": "#mythstack:stone/polished_slab"
 	},
 	"pattern": [
 		"///",

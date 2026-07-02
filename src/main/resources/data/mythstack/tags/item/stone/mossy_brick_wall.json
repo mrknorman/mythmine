@@ -1,0 +1,12 @@
+{
+	"values": [
+		"minecraft:mossy_stone_brick_wall",
+		"mythstack:mossy_deepslate_brick_wall",
+		"mythstack:mossy_granite_brick_wall",
+		"mythstack:mossy_diorite_brick_wall",
+		"mythstack:mossy_andesite_brick_wall",
+		"mythstack:mossy_tuff_brick_wall",
+		"mythstack:mossy_calcite_brick_wall",
+		"mythstack:mossy_dripstone_brick_wall"
+	]
+}

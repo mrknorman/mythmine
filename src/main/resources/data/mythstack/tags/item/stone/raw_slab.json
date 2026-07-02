@@ -1,0 +1,24 @@
+{
+	"values": [
+		"minecraft:stone_slab",
+		"mythstack:deepslate_slab",
+		"minecraft:granite_slab",
+		"minecraft:diorite_slab",
+		"minecraft:andesite_slab",
+		"minecraft:tuff_slab",
+		"mythstack:calcite_slab",
+		"minecraft:blackstone_slab",
+		"mythstack:basalt_slab",
+		"mythstack:end_stone_slab",
+		"mythstack:dripstone_slab",
+		"minecraft:sandstone_slab",
+		"minecraft:red_sandstone_slab",
+		"minecraft:cinnabar_slab",
+		"minecraft:sulfur_slab",
+		"mythstack:netherrack_slab",
+		"minecraft:quartz_slab",
+		"minecraft:prismarine_slab",
+		"minecraft:purpur_slab",
+		"mythstack:packed_mud_slab"
+	]
+}

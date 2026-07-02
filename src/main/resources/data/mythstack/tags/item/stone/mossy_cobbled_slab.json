@@ -1,0 +1,12 @@
+{
+	"values": [
+		"minecraft:mossy_cobblestone_slab",
+		"mythstack:mossy_cobbled_deepslate_slab",
+		"mythstack:mossy_cobbled_granite_slab",
+		"mythstack:mossy_cobbled_diorite_slab",
+		"mythstack:mossy_cobbled_andesite_slab",
+		"mythstack:mossy_cobbled_tuff_slab",
+		"mythstack:mossy_cobbled_calcite_slab",
+		"mythstack:mossy_cobbled_dripstone_slab"
+	]
+}
