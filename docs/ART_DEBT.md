@@ -52,12 +52,14 @@ offenders rather than repainting families wholesale.
 
 ## Incoming (stone phase — scoped in STONE_PHASE.md, not yet built)
 
-~111 normalization blocks, of which only **~33 need new base textures** (cobbled/bricks/cracked/
-chiseled/polished per material — stairs/slabs/walls reuse their base block's texture). Plan is a
-new generator mode: *structure transfer* — take the pattern donor's luminance structure (e.g.
-vanilla `cobblestone.png` or `stone_bricks.png`) and re-render it through the target material's
-palette (granite, calcite, …) by luminance rank. Same review rule applies: programmatic first,
-human art opportunistically.
+Up to **248 normalization blocks** (full sweep: 20-form core kit + mossy axis + tier-2 materials —
+see STONE_PHASE.md for the staged tiers), of which only **~85 need new base textures**
+(cobbled/bricks/cracked/chiseled/polished/pillar/mossy per material — stairs/slabs/walls reuse
+their base block's texture). Plan is two new generator modes: *structure transfer* — a pattern
+donor's luminance structure (vanilla `cobblestone.png`, `stone_bricks.png`, pillar side/top)
+re-rendered through the target material's palette by luminance rank — and *moss-mask transfer* —
+the pixel-diff between `mossy_cobblestone` and `cobblestone` composited onto each material's
+cobbled/bricks. Same review rule applies: programmatic first, human art opportunistically.
 
 ## Explicit non-debt
 

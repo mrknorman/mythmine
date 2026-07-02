@@ -600,9 +600,12 @@ Raised during implementation; captured here so they aren't lost.
   wood (not canonical oak) — the world-placement path, not an inventory gesture.
 
 ### Post-MVP (outline only)
-- **Stone phase — SCOPED, not started.** See `STONE_PHASE.md`: normalize all 11 natural stones to
-  an 18-form kit (111 new blocks, exact per-material gap table there), then 18 form-groups
-  (brick_stairs group with brick_stairs, never with plain stairs). Art ledger in `ART_DEBT.md`.
+- **Stone phase — SCOPED, not started.** See `STONE_PHASE.md`: normalize to a 28-form kit
+  (core 20 + mossy 8; pillars and the chiseled/chiseled-bricks split included) across 11 tier-1
+  masonry stones + 7 tier-2 soft/dimensional materials — 248 new blocks full sweep, 131 minimum
+  (exact jar-probed gap tables there), then 28 form-groups (brick_stairs group with brick_stairs,
+  never with plain stairs). Staged S1a core → S1b mossy → S1c tier-2 → S2 families. Art ledger in
+  `ART_DEBT.md`.
 - **Carpenter villager — DONE (part 1).** Job site = the sawmill (own PoiType, state-wired).
   26.2's villager trades are DATA-DRIVEN (datapack registries: `villager_trade/`, `trade_set/`,
   trade tags; the profession maps level → trade-set key), so the whole ladder is JSON — 53 trades:
