@@ -96,6 +96,30 @@ public class MythStack implements ModInitializer {
 
 		// Snapshot variant-group membership whenever tags load/sync (client + server), so resolving an
 		// item to its group never depends on a flaky per-call tag binding during container prediction.
+		// Geology overhaul: the vanilla granite/diorite/andesite/tuff mini-blob features are
+		// replaced by regional base stones (surface-rule noise bands in our noise-settings
+		// override), and blue ice veins seed the tundra ice band.
+		net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(id("remove_stone_blobs"))
+				.add(net.fabricmc.fabric.api.biome.v1.ModificationPhase.REMOVALS,
+						net.fabricmc.fabric.api.biome.v1.BiomeSelectors.all(), context -> {
+							for (String feature : List.of("ore_granite_lower", "ore_granite_upper",
+									"ore_diorite_lower", "ore_diorite_upper",
+									"ore_andesite_lower", "ore_andesite_upper", "ore_tuff")) {
+								context.getGenerationSettings().removeFeature(
+										net.minecraft.resources.ResourceKey.create(
+												net.minecraft.core.registries.Registries.PLACED_FEATURE,
+												Identifier.withDefaultNamespace(feature)));
+							}
+						});
+		net.fabricmc.fabric.api.biome.v1.BiomeModifications.addFeature(
+				net.fabricmc.fabric.api.biome.v1.BiomeSelectors.includeByKey(
+						net.minecraft.world.level.biome.Biomes.SNOWY_PLAINS,
+						net.minecraft.world.level.biome.Biomes.ICE_SPIKES,
+						net.minecraft.world.level.biome.Biomes.SNOWY_TAIGA),
+				net.minecraft.world.level.levelgen.GenerationStep.Decoration.UNDERGROUND_ORES,
+				net.minecraft.resources.ResourceKey.create(
+						net.minecraft.core.registries.Registries.PLACED_FEATURE, id("blue_ice_vein")));
+
 		CommonLifecycleEvents.TAGS_LOADED.register((registries, client) ->
 				VariantGroups.rebuildMembership(registries));
 

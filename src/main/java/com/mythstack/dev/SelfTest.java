@@ -334,6 +334,36 @@ public final class SelfTest {
 			}
 		}
 		MythStack.LOGGER.info("[selftest] geology sample: {}", geology);
+		// The vanilla granite/diorite/andesite/tuff mini-blob features must be GONE from biomes
+		// (regions replace them) — while ore_dirt survives as the control.
+		var plains = level.registryAccess()
+				.lookupOrThrow(net.minecraft.core.registries.Registries.BIOME)
+				.getOrThrow(net.minecraft.world.level.biome.Biomes.PLAINS).value();
+		java.util.Set<String> plainsFeatures = new java.util.HashSet<>();
+		for (var stepFeatures : plains.getGenerationSettings().features()) {
+			for (var holder : stepFeatures) {
+				holder.unwrapKey().ifPresent(key -> plainsFeatures.add(key.identifier().toString()));
+			}
+		}
+		check("geology: the stone mini-blob features are removed (dirt blobs remain as control)",
+				!plainsFeatures.contains("minecraft:ore_granite_upper")
+						&& !plainsFeatures.contains("minecraft:ore_diorite_lower")
+						&& !plainsFeatures.contains("minecraft:ore_andesite_upper")
+						&& !plainsFeatures.contains("minecraft:ore_tuff")
+						&& plainsFeatures.contains("minecraft:ore_dirt"), failures);
+		var snowy = level.registryAccess()
+				.lookupOrThrow(net.minecraft.core.registries.Registries.BIOME)
+				.getOrThrow(net.minecraft.world.level.biome.Biomes.SNOWY_PLAINS).value();
+		boolean blueIce = false;
+		for (var stepFeatures : snowy.getGenerationSettings().features()) {
+			for (var holder : stepFeatures) {
+				if (holder.unwrapKey().map(key -> key.identifier().toString()
+						.equals("mythstack:blue_ice_vein")).orElse(false)) {
+					blueIce = true;
+				}
+			}
+		}
+		check("geology: blue ice veins are wired into the tundra biomes", blueIce, failures);
 		long regionKinds = geology.keySet().stream().filter(java.util.Set.of(
 				"minecraft:stone", "minecraft:granite", "minecraft:diorite",
 				"minecraft:andesite", "minecraft:calcite")::contains).count();
