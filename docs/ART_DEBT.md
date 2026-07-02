@@ -52,14 +52,16 @@ offenders rather than repainting families wholesale.
 
 ## Incoming (stone phase — scoped in STONE_PHASE.md, not yet built)
 
-Up to **248 normalization blocks** (full sweep: 20-form core kit + mossy axis + tier-2 materials —
-see STONE_PHASE.md for the staged tiers), of which only **~85 need new base textures**
-(cobbled/bricks/cracked/chiseled/polished/pillar/mossy per material — stairs/slabs/walls reuse
-their base block's texture). Plan is two new generator modes: *structure transfer* — a pattern
-donor's luminance structure (vanilla `cobblestone.png`, `stone_bricks.png`, pillar side/top)
-re-rendered through the target material's palette by luminance rank — and *moss-mask transfer* —
-the pixel-diff between `mossy_cobblestone` and `cobblestone` composited onto each material's
-cobbled/bricks. Same review rule applies: programmatic first, human art opportunistically.
+**239 normalization blocks** (design locked — 19-form core kit across 13 tier-1 materials
+incl. both sandstones, + mossy axis, + 5 tier-2 materials; staged tiers in STONE_PHASE.md).
+**All 239 ship with generated textures — nothing waits on art.** Only **~80 base textures** are
+new (stairs/slabs/walls/pillars reuse their base block's art), via two generator modes: *structure
+transfer* — a pattern donor's luminance structure (vanilla `cobblestone.png`, `stone_bricks.png`,
+`chiseled_…`, pillar side/top) re-rendered through the target material's palette by luminance
+rank — and *moss-mask transfer* — the pixel-diff between `mossy_cobblestone` and `cobblestone`
+composited onto each material's cobbled/bricks. Those ~80 generated bases are this ledger's
+priority-3 debt once built: replace opportunistically, worst offenders first (likely candidates:
+cobbled calcite and anything where a donor's baked-in shading fights the target palette).
 
 ## Explicit non-debt
 

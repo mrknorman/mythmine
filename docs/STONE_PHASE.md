@@ -1,32 +1,49 @@
-# Stone Phase — Normalization + Families (scope)
+# Stone Phase — Normalization + Families
 
-Goal: bring the pile/family system to stone — and unlike wood, **normalize vanilla first**. Vanilla
-stone coverage is gap-ridden and inconsistent (granite has polished but no bricks; calcite has
-*nothing*; deepslate has cobbled stairs but no raw stairs; chiseled exists as *chiseled tuff* on
-one material and *chiseled stone bricks* on another; only stone has mossy; only basalt/quartz/
-purpur have pillars). We fill every material to the same form kit so the family layer needs no
-exception table, then group by form across materials.
+**Status: design locked (2026-07-02). Not yet implemented.**
 
-Counts are exact — probed against the 26.2 client jar (2026-07-02, second pass incl. pillars,
-the chiseled split, mossy, and the tier-2 material sweep).
+Goal: bring the pile/family system to stone — and unlike wood, **normalize vanilla first**.
+Vanilla stone coverage is gap-ridden and inconsistent (granite has polished but no bricks; calcite
+has *nothing*; deepslate has cobbled stairs but no raw stairs; only stone has mossy; only
+basalt/quartz/purpur have pillars). We fill every material to the same form kit so the family
+layer needs no exception table, then group by form across materials.
 
-## The form kit
+All counts are exact, probed against the 26.2 client jar.
 
-**Core kit — 20 forms** (every hard masonry stone):
+## The two axes
+
+Everything in this phase is a point on a **material × form** grid — the stone analog of wood's
+*species × form* (spruce × bookshelf). A **material** is a stone identity (granite, calcite,
+sandstone…). A **form** is a shape/finish of that material (cobbled, brick stairs, pillar…).
+
+- **Normalization** fills the grid: every tier-1 material gets every core form.
+- **Families (groups)** run along the material axis, one group per *fine-grained* form: all
+  materials' `raw_stairs` are one group; all `brick_stairs` are another; `mossy_brick_stairs` a
+  third. **Brick stairs never group with plain stairs.** Canonical member of every group = stone's
+  version of that form. `stoneKey` (the `woodKey` analog) identifies the material across groups so
+  transmute voting, furnaces, and the stonecutter treat "granite" as one identity in any form.
+
+### The form axis
+
+**Core kit — 19 forms** (every tier-1 material):
 
 ```
 raw          raw_stairs        raw_slab        raw_wall
 cobbled      cobbled_stairs    cobbled_slab    cobbled_wall
 polished     polished_stairs   polished_slab   polished_wall
 bricks       brick_stairs      brick_slab      brick_wall
-cracked_bricks    chiseled     chiseled_bricks    pillar
+cracked_bricks         chiseled         pillar
 ```
 
-- **chiseled is two forms** (vanilla is inconsistent): `chiseled` (raw/polished line — chiseled
-  tuff, chiseled deepslate) and `chiseled_bricks` (chiseled stone bricks, chiseled tuff bricks).
-  Every material gets both.
-- **pillar**: the quartz/purpur-style axis column, for every material. Basalt's raw block IS
-  columnar and counts as its own pillar.
+- **chiseled is ONE form per material** (decided): each material keeps its vanilla chiseled
+  wherever vanilla put it (stone → chiseled stone bricks, deepslate → chiseled deepslate,
+  blackstone → chiseled polished blackstone); new ones are raw-line `chiseled_<material>`.
+  **Chiseled tuff bricks stays a unique tuff quirk** — we do not replicate the double-chiseled
+  anywhere else.
+- **pillar**: the quartz/purpur-style axis column, for every material. Basalt's raw block is
+  already columnar and counts as its own pillar.
+- **polished mappings**: smooth_stone, smooth_sandstone, smooth_red_sandstone, smooth_quartz, and
+  dark_prismarine each serve as their material's *polished*.
 
 **Mossy axis — +8 forms** (wet-overworld materials only):
 
@@ -35,126 +52,128 @@ mossy_cobbled  mossy_cobbled_stairs  mossy_cobbled_slab  mossy_cobbled_wall
 mossy_bricks   mossy_brick_stairs    mossy_brick_slab    mossy_brick_wall
 ```
 
-Mossy conversion recipes follow vanilla (block + vine / moss block). Nether, end, ocean, and dry
+Conversion recipes follow vanilla (block + vine / moss block). Nether, end, ocean, and dry
 materials don't moss.
 
-**Grouping rule (decided):** groups are per *fine-grained form* across materials — all `raw_stairs`
-are one group, all `brick_stairs` another, `mossy_brick_stairs` a third; brick stairs never group
-with plain stairs. 28 forms → **28 new variant groups**, canonical = **stone's** version of each
-form. `stoneKey` (the `woodKey` analog) spans groups for transmute voting.
+### The material axis
 
-## Material census
-
-### Tier 1 — hard masonry stones (full core kit; mossy where wet-overworld)
+**Tier 1 — full core kit** (13 materials). Includes the sandstones (decided): they get cobbled
+variants like every other hard stone.
 
 | Material | Core missing | Mossy missing | Notes |
 |---|---|---|---|
-| stone | 5 | 0 | smooth_stone = its polished; has all mossy already |
-| deepslate | 5 | 8 | tiles stay a deepslate one-off |
-| granite | 13 | 8 | |
-| diorite | 13 | 8 | |
-| andesite | 13 | 8 | |
-| tuff | 6 | 8 | |
-| calcite | 19 | 8 | vanilla gave it nothing |
-| blackstone | 6 | — | nether: no mossy; polished_blackstone_bricks = its bricks |
-| basalt | 17 | — | nether: no mossy; raw is its own pillar |
-| end_stone | 15 | — | end: no mossy |
-| dripstone | 19 | 8 | wet caves: mossy applies |
-| **Subtotal** | **131** | **56** | |
+| stone | 4 | 0 | has all mossy already |
+| deepslate | 4 | 8 | tiles stay a deepslate one-off |
+| granite | 12 | 8 | |
+| diorite | 12 | 8 | |
+| andesite | 12 | 8 | |
+| tuff | 6 | 8 | keeps chiseled tuff bricks as its quirk |
+| calcite | 18 | 8 | vanilla gave it nothing |
+| blackstone | 5 | — | nether: no mossy |
+| basalt | 16 | — | nether: no mossy; raw is its pillar |
+| end_stone | 14 | — | end: no mossy |
+| dripstone | 18 | 8 | wet caves: mossy applies |
+| sandstone | 11 | — | dry: no mossy |
+| red_sandstone | 11 | — | dry: no mossy |
+| **Subtotal** | **143** | **56** | |
 
-### Tier 2 — soft / self-dropping / dimensional masonry (reduced kit: no cobbled, no mossy)
-
-These drop themselves when mined (or are crafted materials), so the cobbled axis doesn't apply —
-that's the principled rule, not an exception list: *cobbled exists exactly where mining raw drops
-rubble*.
+**Tier 2 — reduced kit, 15 forms** (no cobbled ×4, no mossy): crafted/dimensional masonry whose
+raw drops itself.
 
 | Material | Missing | Notes |
 |---|---|---|
-| sandstone | 8 | smooth = polished; cut sandstone stays a one-off |
-| red_sandstone | 8 | same mapping |
-| netherrack | 9 | bricks chain via nether-brick item (recipes differ, forms don't) |
-| quartz | 7 | quartz_stairs/slab exist under short names; smooth = polished |
-| prismarine | 6 | **dark prismarine = its polished** (incl. stairs/slab) |
-| purpur | 12 | purpur_stairs/slab exist; pillar exists |
-| packed_mud | 11 | mud_bricks = its bricks |
-| **Subtotal** | **61** | |
+| netherrack | 8 | bricks chain via the nether-brick item |
+| quartz | 6 | |
+| prismarine | 5 | dark prismarine = its polished |
+| purpur | 11 | |
+| packed_mud | 10 | mud_bricks = its bricks |
+| **Subtotal** | **40** | |
 
-### Excluded (with reasons)
+**Excluded** (reasons): obsidian (tool-tier/portal semantics) · amethyst (budding mechanics) ·
+bone block (organic) · terracotta (the 16-color axis is its own future project) · sculk, magma,
+glowstone, coral, ices (mechanics/function blocks).
 
-obsidian (tool-tier/portal semantics, no masonry identity) · amethyst (budding mechanics) ·
-bone block (organic pillar) · terracotta (the 16-color axis is its own project) · sculk (mechanics)
-· magma/glowstone (function blocks) · coral (dies) · packed ice/snow (melting) · smooth basalt,
-cut sandstone, dark prismarine*, red nether bricks, mossy one-offs, gilded blackstone, reinforced
-deepslate (vanilla one-offs: keep working, join no group, generate no counterparts — *except dark
-prismarine, which maps to polished).
+**Vanilla one-offs stay one-offs**: deepslate tiles (+forms), cut sandstone (+slab), smooth
+basalt, chiseled tuff bricks, red nether bricks, gilded blackstone, reinforced deepslate, mossy
+one-offs already counted. They keep working, join no group, generate no counterparts.
 
 ## Totals
 
 | Scope | New blocks |
 |---|---|
-| Tier 1 core kit | 131 |
-| + mossy (wet overworld) | +56 → 187 |
-| + tier 2 | +61 → **248** |
+| Tier-1 core kit | 143 |
+| + mossy axis | 199 |
+| + tier-2 | **239** |
 
-Staged shipping: **S1a** tier-1 core kit → **S1b** mossy → **S1c** tier-2 → **S2** families.
-Each stage is independently useful; families (S2) can land after S1a and simply grow as members
-appear.
+## Resolved decisions
+
+1. **Loot normalization: YES** (decided). Mining any tier-1 raw stone drops its **cobbled** form;
+   silk touch restores raw — exactly like stone/cobblestone and deepslate. Applies to granite,
+   diorite, andesite, tuff, calcite, dripstone, end stone, **and both sandstones**. Cobbled→raw
+   smelting closes the loop.
+2. **Chiseled: single form**, tuff's double is a quirk (decided — see form axis).
+3. **Sandstones: tier 1** with cobbled variants (decided).
+4. **Textures: ship everything programmatic** (decided). No block waits on art — see below.
+
+## Textures: default-first, art-debt for the rest
+
+**Every one of the 239 blocks ships with generated textures.** Only **~80 base textures** are new
+(stairs/slabs/walls/pillar-body reuse their base block's art); the rest is model reuse. Two new
+generator modes in `scripts/`:
+
+- **Structure transfer**: a vanilla pattern donor's luminance structure (`cobblestone.png`,
+  `stone_bricks.png`, `cracked_stone_bricks.png`, `chiseled_…`, pillar side/top) re-rendered
+  through the target material's palette by luminance rank. This is how cobbled calcite, granite
+  bricks, etc. are made.
+- **Moss-mask transfer**: the pixel-diff between `mossy_cobblestone` and `cobblestone` is the moss
+  overlay — composited onto each material's cobbled and bricks textures.
+
+The ~80 generated bases are logged in `ART_DEBT.md` as priority-3 debt (replace opportunistically,
+worst offenders first). Nothing in this phase creates priority-1 art debt.
 
 ## Work breakdown
 
-### S1 — Normalization
+### S1 — Normalization (ships in three stages)
+
+**S1a: tier-1 core kit (143)** → **S1b: mossy (+56)** → **S1c: tier-2 (+40)**. Each stage is
+independently useful; families (S2) can land after S1a and grow as members appear.
 
 - **Registration**: one `stoneKit()` helper (mirrors `station()`); `StairBlock`/`SlabBlock`/
   `WallBlock`/`RotatedPillarBlock` (AW for ctors as needed).
-- **Textures (~85 new base textures)** — stairs/slabs/walls reuse base textures. New generator
-  mode *structure transfer*: pattern donor's luminance structure (vanilla `cobblestone`,
-  `stone_bricks`, `cracked_…`, `chiseled_…`, pillar side/top) re-rendered through the target
-  material's palette by luminance rank. **Mossy overlay transfer**: the pixel-diff between
-  `mossy_cobblestone` and `cobblestone` is the moss mask — composite it onto each material's
-  cobbled/bricks.
-- **Models/blockstates**: standard parents, all generated (stairs=3 models, slab=2, wall=3+item,
-  pillar=axis rotations); ~600 model files across the full sweep.
-- **Recipes** per material: bricks 4→4, polished 4→4, chiseled (slabs), pillar (2 vertical), stairs
-  6→4, slabs 3→6, walls 6→6, cracked (smelt bricks), cobbled→raw smelting, mossy conversions;
-  plus **full stonecutter parity** (~30 cuts/material) ≈ **~700 stonecutting recipes** at full
-  sweep. Total ≈ 1,100+ generated data files.
-- **Loot/tags**: self-drops; tier-1 raw drops cobbled + silk touch restores (the gameplay
-  decision, see below); `mineable/pickaxe`, `walls`, `stairs`, `slabs` block+item tags (walls MUST
-  join `#minecraft:walls` to connect).
-- **Creative tabs**: anchor-following after each material's raw block (mechanism exists).
-- **Tests**: kit-completeness registry probe (28×materials), zero-data-error scan, stonecutter cut
-  counts, wall-connectivity, mossy conversion crafts.
+- **Assets**: standard model parents, all generated (stairs=3 models, slab=2, wall=3+item,
+  pillar=axis) — ~600 model files full sweep; blockstates, item defs, ~80 base textures.
+- **Recipes** per material: bricks 4→4, polished 4→4, chiseled (slabs), pillar (2 vertical),
+  stairs 6→4, slabs 3→6, walls 6→6, cracked (smelt bricks), cobbled→raw smelting, mossy
+  conversions; plus **full stonecutter parity** (~30 cuts/material) ≈ ~700 stonecutting recipes at
+  full sweep. Total ≈ 1,100+ generated data files.
+- **Loot/tags**: the normalization drops (decision 1) + self-drops for shaped forms;
+  `mineable/pickaxe`; walls MUST join `#minecraft:walls` to connect, stairs/slabs likewise.
+- **Creative tabs**: anchor-following insertion after each material's raw block (mechanism
+  exists).
+- **Tests**: kit-completeness registry probe (forms × materials), zero-data-load-error scan,
+  stonecutter cut counts per input, wall connectivity, mossy conversions, silk-touch loot pairs.
 
 ### S2 — Stone families (the payoff)
 
-- 28 groups + `stoneKey` + tags; membership rebuild; canonical = stone's form.
+- 27 groups (19 core + 8 mossy) + `stoneKey` + tags; canonical = stone's form.
 - Everything else is **already built and generic**: pickup consolidation, transmute crafting,
-  per-element furnaces (each cobbled smelts by its own recipe), **pile-aware stonecutter came free
-  with the sawmill work**, comparator/hopper/crafter, recipe book, trades (canonical costs —
+  per-element furnaces (each cobbled smelts by its own recipe), **pile-aware stonecutter came
+  free with the sawmill work**, comparator/hopper/crafter, recipe book, trades (canonical costs —
   mason trades take piles automatically), bundles.
 - Tests mirror the wood suite: mixed-pile mining pickup, transmute grid, furnace smelt-down,
   stonecutter pile cut, mass-craft ratios.
 
 ### S3 — Extensions (optional)
 
-Mason trade audit / stone-mason villager flavor, tiles/mossy one-offs as single-member groups if
-pile icons are wanted, terracotta as its own future color-axis project.
-
-## Decisions to settle before implementation
-
-1. **Loot normalization** (recommended: yes) — tier-1 raw stones drop their cobbled form, silk
-   touch restores raw (parity with stone/deepslate). Changes established drops for granite,
-   diorite, andesite, tuff, calcite, dripstone, end stone.
-2. **Mossy scope** (recommended: wet-overworld only, +56) vs everywhere (+80) vs skip (0).
-3. **Tier 2 in the first pass?** (recommended: ship S1a first, tier-2 as S1c follow-up).
-4. **Blackstone cobbled** (recommended: in, +4 already counted) — vs treating raw as its cobble.
+Mason trade audit / stone-carpenter villager flavor, one-offs as single-member groups if pile
+icons are wanted, terracotta color-axis project.
 
 ## Estimate (full sweep)
 
 | | |
 |---|---|
-| New blocks | **248** (131 minimum viable) |
-| New base textures | ~85 (programmatic; see ART_DEBT.md) |
+| New blocks | **239** (143 minimum viable = S1a) |
+| New base textures | ~80, all generated (see ART_DEBT.md) |
 | Generated asset/data files | ~2,000 |
-| New variant groups | 28 (→ ~70 total) |
-| New code | `stoneKit()`, `stoneKey`, structure-transfer + moss-mask generator modes, loot overrides — **no new mixins expected** (every interaction hook is already form-agnostic) |
+| New variant groups | 27 (→ ~69 total) |
+| New code | `stoneKit()`, `stoneKey`, two texture-generator modes, loot overrides — **no new mixins expected** (every interaction hook is already form-agnostic) |
