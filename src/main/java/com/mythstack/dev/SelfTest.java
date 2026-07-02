@@ -221,6 +221,9 @@ public final class SelfTest {
 		// 20. Pile-aware furnaces: a real block entity ticked through serverTick (phase 8).
 		failures[0] += FurnaceSelfTest.run(level);
 
+		// 21. Automation: crafter pulses, hopper transfer, comparator signal (phase 9).
+		failures[0] += AutomationSelfTest.run(level);
+
 		if (failures[0] == 0) {
 			MythStack.LOGGER.info("[selftest] ALL CHECKS PASSED");
 		} else {

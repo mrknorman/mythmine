@@ -505,12 +505,22 @@ Each phase ships before the next. "DoD" = definition of done / acceptance test.
 - **DoD met:** FurnaceSelfTest drives a real block entity through `serverTick`: per-element order,
   smelt-down/burn-down remainders, never-ignites, extraction rules.
 
-### Phase 9 — Automation pass
-- **Goal:** carriers are well-behaved single-identity items in redstone/automation.
-- **Do:** gametest hopper in/out, comparator signal, dropper, and crafter against piles.
-  Verify the canonical-first hopper de-mix behavior (§6.4) is acceptable.
-- **DoD:** existing-style item sorters route piles as piles; comparators read N/64; hopper
-  drain de-mixes deterministically without corruption. **← MVP complete.**
+### Phase 9 — Automation pass — DONE
+- **Crafter (the real work):** the crafter resolved recipes against the pile HOST — a mixed pile
+  silently canonicalized (the very bug the table redesign removed) and mixed plain grids refused to
+  craft. Now a pulse behaves exactly like one table single-take (`CrafterBlockMixin`, the furnace
+  local-swap pattern): the resolved recipe is swapped for the transmuted element recipe, consumption
+  is per element (a pile slot gives its ACTIVE wood — scroll a pile in the crafter to steer it), and
+  the crafter UI's ghost result shows the transmuted product (`CrafterMenuMixin`). Non-transmutable
+  grids take the vanilla path untouched.
+- **Hoppers / droppers (verified, no code):** movers take one item at a time via `split(1)`, which
+  peels piles canonical-first into plain stacks — piles deterministically **de-mix as they flow**
+  through automation (entropy-reducing at the destination). Droppers share the same removeItem path.
+- **Comparators (verified, no code):** a pile reads exactly like the plain stack it stands in for
+  (count-based; sum==count invariant).
+- **DoD met:** AutomationSelfTest pulses a real crafter through `dispenseFrom` (into a front-face
+  container), drives a real hopper through `pushItemsTick`, and compares comparator signals.
+  **← MVP complete.**
 
 ### Build-time backlog (QOL & edge cases — fold into the phases above)
 
