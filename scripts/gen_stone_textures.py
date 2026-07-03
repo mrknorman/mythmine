@@ -72,7 +72,7 @@ with zipfile.ZipFile(JAR2) as z:
             donor = vtex(DONORS[form])
             w = h = int(len(donor) ** 0.5)
             px = structure_transfer(donor, palette)
-            open(os.path.join(OUT, f"{out_name}.png"), "wb").write(png_encode(w, h, px))
+            save_png(os.path.join(OUT, f"{out_name}.png"), w, h, px)
             made += 1
 print(f"generated {made} stone base textures")
 
@@ -103,6 +103,6 @@ with zipfile.ZipFile(JAR2) as z:
             target = our_or_vanilla(base)
             out = [mask[i] if mask[i] else target[i] for i in range(len(target))]
             w = h = int(len(out) ** 0.5)
-            open(os.path.join(OUT, f"mossy_{base}.png"), "wb").write(png_encode(w, h, out))
+            save_png(os.path.join(OUT, f"mossy_{base}.png"), w, h, out)
             made += 1
 print(f"generated {made} mossy base textures")

@@ -114,3 +114,35 @@ def lum(p):
     return 0.299 * p[0] + 0.587 * p[1] + 0.114 * p[2]
 
 
+
+
+# ---- hand-authored protection -------------------------------------------------------------
+import os as _os
+
+def _hand_authored():
+    ledger = _os.path.join(_os.path.dirname(__file__), "HAND_AUTHORED.txt")
+    entries = set()
+    if _os.path.exists(ledger):
+        for line in open(ledger):
+            line = line.strip()
+            if line and not line.startswith("#"):
+                entries.add(line)
+    return entries
+
+HAND_AUTHORED = _hand_authored()
+
+def is_hand_authored(dest):
+    """True if dest (any path form) is listed in scripts/HAND_AUTHORED.txt."""
+    norm = dest.replace("\\", "/")
+    return any(norm.endswith(entry) for entry in HAND_AUTHORED)
+
+
+def save_png(dest, width, height, pixels):
+    """Write a texture UNLESS it is hand-authored (generators never clobber Aseprite work)."""
+    norm = dest.replace("\\", "/")
+    if any(norm.endswith(entry) for entry in HAND_AUTHORED):
+        print(f"  (hand-authored, skipped: {_os.path.basename(dest)})")
+        return
+    _os.makedirs(_os.path.dirname(dest), exist_ok=True)
+    with open(dest, "wb") as f:
+        f.write(png_encode(width, height, pixels))

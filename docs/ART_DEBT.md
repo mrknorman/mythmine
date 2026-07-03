@@ -4,8 +4,15 @@ Everything visual in the mod is currently **programmatic** — palette-mapped, p
 or tinted from vanilla assets. It's all functional and reads plausibly in-game, but none of it is
 drawn. This is the ledger, ordered by how much each item wants a human hand.
 
-Tooling (discussed 2026-07-01): **Aseprite** for pixel textures (tile-preview mode, palette
-control), **Blockbench** for any block that deserves its own model rather than a retexture.
+Tooling: **Aseprite** for pixel textures (tile-preview mode, palette control), **Blockbench** for
+any block that deserves its own model rather than a retexture.
+
+**Workflow (2026-07-03):** open the PNG straight from `src/main/resources/assets/mythstack/textures/`,
+paint, save — no export/reimport. THE RULE: the moment you start painting a file, add its path to
+`scripts/HAND_AUTHORED.txt` — generators skip ledgered files (verified), otherwise the next regen
+overwrites your work. Vanilla palette references live in `art/vanilla-reference/`. The sawmill now
+has its OWN texture files (`sawmill_top/side/bottom/saw.png`, currently stonecutter copies) with
+models repointed — paint those and the game picks them up.
 
 ## Priority 1 — genuinely new art (nothing to palette-map from)
 

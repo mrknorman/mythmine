@@ -1,0 +1,3 @@
+# Textures painted by hand (Aseprite) — generators MUST NOT overwrite these.
+# One path per line, relative to src/main/resources/. Lines starting with # are comments.
+# Add a file here the moment you start painting it.

@@ -42,7 +42,7 @@ for ore in ORES:
         base = vtex(m)
         out = [overlay[i] if mask[i] else base[i] for i in range(len(base))]
         dest = os.path.join(ROOT, f"assets/mythstack/textures/block/{name}.png")
-        open(dest, "wb").write(png_encode(16, 16, out))
+        save_png(dest, 16, 16, out)
         made_tex += 1
         write(f"assets/mythstack/blockstates/{name}.json",
               {"variants": {"": {"model": f"mythstack:block/{name}"}}})

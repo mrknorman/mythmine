@@ -64,7 +64,7 @@ def transfer(donor, palette, protect=None, soulfire=False):
 
 def save(name, px):
     w = h = int(len(px) ** 0.5)
-    open(os.path.join(OUT, f"{name}.png"), "wb").write(png_encode(w, h, px))
+    save_png(os.path.join(OUT, f"{name}.png"), w, h, px)
 
 # wood-protection for piston bodies: pixels near the oak-planks palette stay wooden
 oak = vtex("oak_planks")

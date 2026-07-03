@@ -5,6 +5,19 @@ import json
 import os
 import struct
 import zipfile
+
+def _hand_authored_skip(dest):
+    ledger = os.path.join(os.path.dirname(os.path.abspath(__file__)), "HAND_AUTHORED.txt")
+    if not os.path.exists(ledger):
+        return False
+    norm = dest.replace("\\", "/")
+    for line in open(ledger):
+        line = line.strip()
+        if line and not line.startswith("#") and norm.endswith(line):
+            return True
+    return False
+
+
 import zlib
 
 JAR = os.path.expanduser("~/.gradle/caches/fabric-loom/26.2/minecraft-client.jar")
@@ -162,6 +175,8 @@ with zipfile.ZipFile(JAR) as z:
             # per-wood texture, so write vanilla verbatim rather than leaving a missing-texture hole
             for wood in WOODS:
                 dest = os.path.join(ROOT, out_template.format(wood))
+                if _hand_authored_skip(dest):
+                    continue
                 os.makedirs(os.path.dirname(dest), exist_ok=True)
                 with open(dest, "wb") as f:
                     f.write(png_encode(sw, sh, base))
@@ -179,6 +194,8 @@ with zipfile.ZipFile(JAR) as z:
                 r, g, b, _ = palette[round(t * (len(palette) - 1))]
                 out.append((r, g, b, p[3]))
             dest = os.path.join(ROOT, out_template.format(wood))
+            if _hand_authored_skip(dest):
+                continue
             os.makedirs(os.path.dirname(dest), exist_ok=True)
             with open(dest, "wb") as f:
                 f.write(png_encode(sw, sh, out))
@@ -198,6 +215,8 @@ with zipfile.ZipFile(JAR) as z:
                 r, g, b, _ = palette[round(t * (len(palette) - 1))]
                 out.append((r, g, b, p[3]))
             dest = os.path.join(ROOT, out_template.format(wood))
+            if _hand_authored_skip(dest):
+                continue
             os.makedirs(os.path.dirname(dest), exist_ok=True)
             with open(dest, "wb") as f:
                 f.write(png_encode(sw, sh, out))
