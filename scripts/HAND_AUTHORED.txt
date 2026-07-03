@@ -1,3 +1,5 @@
 # Textures painted by hand (Aseprite) — generators MUST NOT overwrite these.
 # One path per line, relative to src/main/resources/. Lines starting with # are comments.
 # Add a file here the moment you start painting it.
+assets/mythstack/textures/item/birch_stick.png
+assets/mythstack/textures/item/spruce_stick.png
