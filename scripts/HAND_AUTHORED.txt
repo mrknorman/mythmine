@@ -3,3 +3,5 @@
 # Add a file here the moment you start painting it.
 assets/mythstack/textures/item/birch_stick.png
 assets/mythstack/textures/item/spruce_stick.png
+assets/mythstack/textures/item/acacia_stick.png
+assets/mythstack/textures/item/bamboo_stick.png
